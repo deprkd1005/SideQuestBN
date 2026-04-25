@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="description" content="SideQuest.BN - Your Daily Hustle App">
+    <title>SideQuest.BN</title>
+    <!-- SPLASH SCREEN OVERLAY -->
+    <div id="app-splash" style="position:fixed; top:0; left:0; width:100%; height:100%; background:var(--primary); z-index:9999; display:flex; flex-direction:column; align-items:center; justify-content:center; transition: opacity 0.8s ease; color:white;">
+        <div class="app-logo-large" style="animation: bounceIn 1s ease;"><i class="fa-solid fa-location-dot"></i></div>
+        <h1 style="margin-top:1rem; font-weight:800; font-size:2rem; letter-spacing:-1px;">SideQuest.BN</h1>
+        <div class="loading-bar" style="width:150px; height:4px; background:rgba(255,255,255,0.2); border-radius:10px; margin-top:2rem; overflow:hidden;">
+            <div style="width:100%; height:100%; background:white; transform-origin:left; animation: loadingLine 2s infinite ease-in-out;"></div>
+        </div>
+    </div>
+    <!-- Leaflet CSS for Map -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="" />
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+
+<body>
+    <div id="toast-container" class="toast-container"></div>
+
+    <div class="mobile-frame">
+        <main class="app-content" id="main-content">
+            <!-- Auth View -->
+            <section id="view-auth" class="view active-view">
+                <div class="auth-header-app">
+                    <div class="app-logo-large"><i class="fa-solid fa-location-dot"></i></div>
+                    <h2>SideQuest.BN</h2>
+                    <p>Find quests nearby. Earn instantly.</p>
+                </div>
+
+                <div class="auth-container">
+                    <div class="auth-tabs">
+                        <button class="tab-btn active" onclick="app.toggleAuth('login')">Log In</button>
+                        <button class="tab-btn" onclick="app.toggleAuth('signup')">Sign Up</button>
+                    </div>
+
+                    <form id="auth-form" onsubmit="app.handleAuth(event)">
+                        <div id="signup-fields" class="hidden">
+                            <div class="form-group">
+                                <label for="name">Full Name</label>
+                                <input type="text" id="name" placeholder="Awang / Dayang">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="username">Username</label>
+                            <input type="text" id="username" placeholder="Enter username" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="password">Password</label>
+                            <input type="password" id="password" placeholder="Enter password" required>
+                        </div>
+                        <button type="submit" class="btn-primary btn-block btn-lg mt-3" id="auth-submit">Log In</button>
+                    </form>
+                </div>
+            </section>
+
+            <!-- Home Map View -->
+            <section id="view-home" class="view hidden"
+                style="height: 100%; display: flex; flex-direction: column; position: relative;">
+                <!-- Map Container -->
+                <div id="map-container"></div>
+
+                <!-- Floating Top Bar -->
+                <div class="floating-header">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.8rem;">
+                        <span id="current-mode-label" class="status-badge" style="background:var(--primary); color:white; font-weight:700; font-size:0.75rem; letter-spacing:1px; border-radius:20px; padding:0.4rem 0.8rem; box-shadow: var(--shadow-sm);">SEEKER PORTAL</span>
+                        <div class="portal-switcher shadow-btn" style="background: white; padding: 4px;">
+                            <button onclick="app.setMode('seeker')" class="mode-toggle-btn seeker-btn"><i class="fa-solid fa-search"></i></button>
+                            <button onclick="app.setMode('poster')" class="mode-toggle-btn poster-btn"><i class="fa-solid fa-plus"></i></button>
+                        </div>
+                    </div>
+                    <div style="display:flex; gap:0.5rem; pointer-events:auto;">
+                        <div class="search-bar shadow-btn" style="flex:1;">
+                            <i class="fa-solid fa-magnifying-glass text-gray"></i>
+                            <input type="text" placeholder="Where do you want to hustle?" onkeyup="app.handleSearch(event)">
+                        </div>
+                        <button class="nav-btn shadow-btn" onclick="app.toggleMapFilters()" style="background:white; color:var(--text-primary);"><i class="fa-solid fa-sliders"></i></button>
+                    </div>
+                    <!-- Quick Filters Row -->
+                    <div id="map-filters" class="hidden" style="display:flex; gap:0.5rem; margin-top:0.8rem; pointer-events:auto; overflow-x:auto; padding-bottom:5px;">
+                        <button class="filter-chip active" onclick="app.filterMap('all', event)">All Quests</button>
+                        <button class="filter-chip" onclick="app.filterMap('Indoor', event)"><i class="fa-solid fa-house"></i> Indoor</button>
+                        <button class="filter-chip" onclick="app.filterMap('Outdoor', event)"><i class="fa-solid fa-tree"></i> Outdoor</button>
+                        <button class="filter-chip" onclick="app.clearRadius()"><i class="fa-solid fa-times"></i> Clear Radius</button>
+                    </div>
+                </div>
+
+                <!-- Floating Bottom Panel (Quick Actions) -->
+                <div class="map-bottom-panel map-panel-floating">
+                    <div class="map-handle"></div>
+                    <div
+                        style="display:flex; justify-content:space-between; align-items:flex-end; margin-bottom: 1rem;">
+                        <div>
+                            <p class="text-sm text-gray">Welcome back,</p>
+                            <h2 id="greeting-name" style="color:var(--text-primary);">User</h2>
+                        </div>
+                        <div style="font-size:1.5rem; color:var(--primary); font-weight:800;" id="home-wallet">$0.00
+                        </div>
+                    </div>
+
+                    <div class="quick-actions-grid"
+                        style="margin:0; padding: 1rem 0 0 0; border-top: 1px solid var(--border-color); box-shadow:none; gap:5px;">
+                        <div class="action-card" onclick="app.navigate('postJob')">
+                            <div class="action-icon icon-green"><i class="fa-solid fa-bullhorn"></i></div>
+                            <span>Request Help</span>
+                        </div>
+                        <div class="action-card" onclick="app.centerMapToMe()">
+                            <div class="action-icon icon-blue"><i class="fa-solid fa-location-crosshairs"></i></div>
+                            <span>Locate Me</span>
+                        </div>
+                        <div class="action-card" onclick="app.navigate('activity')">
+                            <div class="action-icon icon-orange"><i class="fa-solid fa-clipboard-list"></i></div>
+                            <span>Activity</span>
+                        </div>
+                        <div class="action-card" onclick="app.navigate('explore')">
+                            <div class="action-icon icon-purple"><i class="fa-solid fa-list-ul"></i></div>
+                            <span>View As List</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Explore View (All Jobs Mode) -->
+            <section id="view-explore" class="view hidden">
+                <div class="page-header">
+                    <h2>Quest List</h2>
+                    <button class="btn-outline mt-3 btn-block" onclick="app.navigate('home')"><i
+                            class="fa-solid fa-map"></i> View on Map</button>
+                </div>
+                <div id="explore-feed" class="vertical-feed p-4">
+                    <!-- Jobs populated by JS -->
+                </div>
+            </section>
+
+            <!-- Post Job View -->
+            <section id="view-postJob" class="view hidden" style="background:var(--bg-color); min-height:100vh;">
+                <div class="page-header sticky-top">
+                    <div style="display:flex; align-items:center; max-width:600px; margin:0 auto; gap:1rem;">
+                        <button class="nav-btn" onclick="app.navigate('home')" style="padding:0; font-size:1.2rem;"><i
+                                class="fa-solid fa-arrow-left"></i></button>
+                        <h2 style="margin:0;">Post a Quest</h2>
+                    </div>
+                </div>
+                <form id="post-job-form" class="p-4" onsubmit="app.postJob(event)">
+                    <div class="form-card">
+                        <div class="form-group">
+                            <label for="job-title">Task Title</label>
+                            <input type="text" id="job-title" placeholder="e.g. Cut grass, Moving boxes..." required>
+                        </div>
+                        <div class="form-group">
+                            <label for="job-location">Location Address</label>
+                            <div class="input-with-icon">
+                                <i class="fa-solid fa-map-pin text-danger"></i>
+                                <input type="text" id="job-location" placeholder="e.g. Spg 123, Kg Berakas" required>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="job-region">Region (For Map Pin)</label>
+                            <select id="job-region" class="form-select" required>
+                                <optgroup label="Brunei-Muara District">
+                                    <option value="4.8903,114.9401">Bandar Seri Begawan (Capital)</option>
+                                    <option value="4.9000,114.9000">Gadong</option>
+                                    <option value="4.8974,114.9304">Kiulap</option>
+                                    <option value="4.9602,114.9388">Berakas</option>
+                                    <option value="4.9392,114.9126">Rimba</option>
+                                    <option value="4.9376,114.8322">Sengkurong</option>
+                                    <option value="4.9650,115.0166">Mentiri</option>
+                                    <option value="4.8690,114.8879">Kilanas</option>
+                                    <option value="4.8519,114.9079">Lumapas</option>
+                                    <option value="5.0416,115.0592">Muara Town</option>
+                                </optgroup>
+                                <optgroup label="Belait District">
+                                    <option value="4.5833,114.1834">Kuala Belait</option>
+                                    <option value="4.6064,114.3256">Seria</option>
+                                    <option value="4.6672,114.4842">Sungai Liang</option>
+                                    <option value="4.3013,114.2842">Labi</option>
+                                </optgroup>
+                                <optgroup label="Tutong District">
+                                    <option value="4.8014,114.6543">Tutong Town</option>
+                                    <option value="4.7667,114.5833">Telisai</option>
+                                    <option value="4.6186,114.6503">Lamunin</option>
+                                    <option value="4.6934,114.6853">Kiudang</option>
+                                </optgroup>
+                                <optgroup label="Temburong District">
+                                    <option value="4.7086,115.0739">Bangar</option>
+                                    <option value="4.6133,115.1189">Batang Duri</option>
+                                    <option value="4.5517,115.1633">Amo</option>
+                                    <option value="4.7674,115.0601">Labu</option>
+                                </optgroup>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="job-reward">Reward Offer</label>
+                            <div class="input-with-icon">
+                                <span class="currency-symbol">$</span>
+                                <input type="number" id="job-reward" placeholder="25" min="1" required
+                                    style="padding-left: 2rem;">
+                            </div>
+                        </div>
+                        <div class="form-group" style="display:flex; gap:10px;">
+                            <div style="flex:1;">
+                                <label for="job-category">Category</label>
+                                <select id="job-category" class="form-select" required style="width:100%; border:1px solid var(--border-color); border-radius:8px; padding:0.8rem; background:white; font-family:inherit;">
+                                    <option value="" disabled selected>Select...</option>
+                                    <option value="Indoor">Indoor</option>
+                                    <option value="Outdoor">Outdoor</option>
+                                </select>
+                            </div>
+                            <div style="flex:1;">
+                                <label for="job-duration">Duration</label>
+                                <div style="display:flex; gap:5px;">
+                                    <input type="number" id="job-duration-value" placeholder="2" min="1" required style="flex:1;">
+                                    <select id="job-duration-unit" class="form-select" style="flex:1; border:1px solid var(--border-color); border-radius:8px; padding:0.8rem; background:white; font-family:inherit;">
+                                        <option value="minutes">Minutes</option>
+                                        <option value="hours" selected>Hours</option>
+                                        <option value="days">Days</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="job-equipment">Equipment Required</label>
+                            <input type="text" id="job-equipment" placeholder="e.g. Mower, tools, none..." required>
+                        </div>
+                        <div class="form-group" style="display:flex; gap:10px;">
+                            <div style="flex:1;">
+                                <label for="job-radius">Work Radius</label>
+                                <select id="job-radius" class="form-select" style="width:100%; border:1px solid var(--border-color); border-radius:8px; padding:0.8rem; background:white; font-family:inherit;">
+                                    <option value="Within 5km">Within 5km</option>
+                                    <option value="Within 10km">Within 10km</option>
+                                    <option value="Within 20km">Within 20km</option>
+                                    <option value="Anywhere">Anywhere</option>
+                                </select>
+                            </div>
+                            <div style="flex:1;">
+                                <label for="job-payment">Payment</label>
+                                <select id="job-payment" class="form-select" required onchange="app.handlePaymentChange(event)" style="width:100%; border:1px solid var(--border-color); border-radius:8px; padding:0.8rem; background:white; font-family:inherit;">
+                                    <option value="Cash">Cash</option>
+                                    <option value="Transfer">Transfer</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div id="payment-proof-note" class="hidden" style="margin-bottom:1rem; font-size:0.85rem; color:var(--danger); background:rgba(255,0,0,0.1); padding:0.5rem; border-radius:6px;">
+                            <i class="fa-solid fa-circle-info"></i> Bank transfer requires receipt verification/proof upon completion.
+                        </div>
+                        <div class="form-group">
+                            <label for="job-description">Details</label>
+                            <textarea id="job-description" rows="3" placeholder="Explain the job..."></textarea>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn-primary btn-block btn-lg mt-4 shadow-btn">Broadcast
+                        Request</button>
+                </form>
+            </section>
+
+            <!-- Chat View -->
+            <section id="view-chat" class="view hidden" style="background:white; height:100%;">
+                <div class="page-header sticky-top" style="padding: 1rem;">
+                    <div
+                        style="display:flex; align-items:center; max-width:600px; margin:0 auto; gap:1rem; position:relative;">
+                        <button class="nav-btn" onclick="app.exitChat()" style="padding:0; font-size:1.2rem;"><i
+                                class="fa-solid fa-arrow-left"></i></button>
+                        <div style="flex-grow:1; text-align:left;">
+                            <h3 id="chat-title" style="margin:0; font-size:1rem;">Chat</h3>
+                            <p id="chat-subtitle" class="text-sm text-gray" style="margin:0;">Quest Helper</p>
+                        </div>
+                        <button class="btn-outline" style="padding:0.4rem 0.8rem; font-size:0.8rem;"
+                            onclick="app.showJobFromChat()">Job Info</button>
+                    </div>
+                </div>
+
+                <div id="chat-messages" class="chat-body p-4"
+                    style="overflow-y:auto; height:calc(100vh - 150px); display:flex; flex-direction:column; gap:1rem;">
+                    <!-- Messages go here -->
+                </div>
+
+                <div class="chat-footer">
+                    <form id="chat-form" onsubmit="app.handleSendMessage(event)"
+                        style="display:flex; gap:0.5rem; max-width:600px; margin:0 auto; padding:1rem; width:100%;">
+                        <input type="text" id="chat-input" placeholder="Type a message..." required
+                            style="flex-grow:1; border:1px solid var(--border-color); border-radius:24px; padding:0.8rem 1.2rem; outline:none;">
+                        <button type="submit" class="btn-primary"
+                            style="border-radius:50%; width:48px; height:48px; padding:0; display:flex; align-items:center; justify-content:center;">
+                            <i class="fa-solid fa-paper-plane"></i>
+                        </button>
+                    </form>
+                </div>
+            </section>
+
+            <!-- Activity View -->
+            <section id="view-activity" class="view hidden">
+                <div class="page-header" style="padding-bottom:0;">
+                    <h2>Activity</h2>
+                    <div class="tab-slider" style="margin: 1.5rem 0 0 0; width: 100%;">
+                        <div class="slider-btn active" onclick="app.switchActivityTab('requests', event)">My Requests
+                        </div>
+                        <div class="slider-btn" onclick="app.switchActivityTab('tasks', event)">My Tasks</div>
+                        <div class="slider-bg" style="width: 50%;"></div>
+                    </div>
+                </div>
+
+                <div class="p-4" style="background:var(--bg-color); min-height:100vh;">
+                    <div id="activity-requests" class="vertical-feed"></div>
+                    <div id="activity-tasks" class="vertical-feed hidden"></div>
+                </div>
+            </section>
+
+            <!-- Account View -->
+            <section id="view-account" class="view hidden" style="background:var(--bg-color); min-height:100vh;">
+                <div class="account-header">
+                    <div class="account-avatar"><i class="fa-solid fa-user-shield"></i></div>
+                    <h2 id="account-name">User Name</h2>
+                    <p id="account-username">@username</p>
+                </div>
+
+                <div class="wallet-card">
+                    <div>
+                        <p style="opacity:0.8; font-size:0.8rem; font-weight:600;">ACTIVE BALANCE</p>
+                        <h2 id="wallet-balance-full" style="font-size:2rem;">$0.00</h2>
+                    </div>
+                    <button class="btn-primary" style="background:white; color:var(--text-primary); padding:0.6rem 1rem; border-radius:12px; font-size:0.85rem;" onclick="app.withdrawAlert()">Cash Out</button>
+                </div>
+
+                <div class="p-4" style="padding-top:0;">
+                    <div id="wallet-history" class="vertical-feed" style="background:white; border-radius:16px; border:1px solid var(--border-color); padding:1rem; margin-bottom:1.5rem;">
+                        <h4 style="margin-bottom:1rem; font-size:0.9rem; color:var(--text-secondary);"><i class="fa-solid fa-clock-rotate-left"></i> Earning History</h4>
+                        <div id="history-list"><!-- Populated by JS --></div>
+                    </div>
+                </div>
+
+                <div class="account-menu shadow-btn" style="box-shadow:var(--shadow-sm);">
+                    <div class="menu-item" onclick="app.setMode('seeker')" style="border-bottom: 2px solid #f1f5f9; background: #f8fafc;">
+                        <div class="action-icon icon-green" style="width:36px; height:36px;"><i class="fa-solid fa-search"></i></div>
+                        <div style="flex:1;"><strong>Seeker Portal</strong><div class="text-sm text-gray">I want to find quests</div></div>
+                        <i class="fa-solid fa-chevron-right text-gray" style="font-size:0.8rem;"></i>
+                    </div>
+                    <div class="menu-item" onclick="app.setMode('poster')" style="border-bottom: 4px solid var(--bg-color); background: #fffcf0;">
+                        <div class="action-icon icon-orange" style="width:36px; height:36px;"><i class="fa-solid fa-bullhorn"></i></div>
+                        <div style="flex:1;"><strong>Poster Portal</strong><div class="text-sm text-gray">I want to post quests</div></div>
+                        <i class="fa-solid fa-chevron-right text-gray" style="font-size:0.8rem;"></i>
+                    </div>
+                    <div class="menu-item mt-3"><i class="fa-solid fa-star"></i> My Rating</div>
+                    <div class="menu-item"><i class="fa-solid fa-map"></i> Saved Locations</div>
+                    <div class="menu-item"><i class="fa-solid fa-cog"></i> Settings</div>
+                    <div class="menu-item text-danger" onclick="app.logout()"><i class="fa-solid fa-sign-out-alt"></i>
+                        Log Out</div>
+                </div>
+            </section>
+
+            <!-- Job Action Modal / Bottom Sheet -->
+            <div id="job-modal" class="modal-overlay hidden">
+                <div class="bottom-sheet">
+                    <div class="sheet-handle"></div>
+                    <div id="modal-content" class="sheet-content">
+                        <!-- Populated dynamically -->
+                    </div>
+                </div>
+            </div>
+
+        </main>
+
+        <!-- Bottom Navigation Bar -->
+        <nav id="bottom-nav" class="bottom-nav hidden">
+            <div class="nav-item active" onclick="app.navigate('home')">
+                <i class="fa-solid fa-map"></i>
+                <span>Map</span>
+            </div>
+            <div class="nav-item" onclick="app.navigate('activity')">
+                <i class="fa-solid fa-clipboard-check"></i>
+                <span>Activity</span>
+            </div>
+            <div class="nav-item" onclick="app.navigate('account')">
+                <i class="fa-solid fa-user"></i>
+                <span>Account</span>
+            </div>
+        </nav>
+    </div>
+
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+    <!-- App Logic -->
+    <script src="app.js"></script>
+</body>
+
+</html>

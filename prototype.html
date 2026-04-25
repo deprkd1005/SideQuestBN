@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SideQuest.BN | Standalone Prototype</title>
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Scripts -->
+    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.7.1/jspdf.plugin.autotable.min.js"></script>
+    
+    <style>
+        :root {
+            --primary: #00a550;
+            --primary-dark: #008440;
+            --secondary: #ff9800;
+            --bg: #f8fafc;
+            --card: #ffffff;
+            --text: #0f172a;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+            --danger: #ef4444;
+            --blue: #3b82f6;
+            --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+            --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Outfit', sans-serif; }
+        body { background-color: #f1f5f9; color: var(--text); }
+
+        .app-container {
+            max-width: 450px;
+            margin: 0 auto;
+            min-height: 100vh;
+            background: var(--bg);
+            position: relative;
+            box-shadow: 0 0 50px rgba(0,0,0,0.1);
+        }
+
+        .glass-header {
+            position: sticky; top: 0; background: rgba(255,255,255,0.85);
+            backdrop-filter: blur(10px); padding: 1.2rem; z-index: 100;
+            border-bottom: 1px solid var(--border); display: flex;
+            justify-content: space-between; align-items: center;
+        }
+
+        .wallet-card-visual {
+            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+            border-radius: 24px; padding: 1.5rem; color: white;
+            margin: 1rem 1.2rem; aspect-ratio: 1.6 / 1;
+            box-shadow: var(--shadow-lg); position: relative; overflow: hidden;
+        }
+
+        .card-chip {
+            width: 45px; height: 35px; background: linear-gradient(135deg, #ffd700 0%, #daa520 100%);
+            border-radius: 8px; margin: 1rem 0;
+        }
+
+        .card-number { font-family: monospace; font-size: 1.25rem; letter-spacing: 2px; margin-bottom: 1rem; }
+
+        .btn {
+            padding: 0.8rem 1.2rem; border-radius: 12px; border: none;
+            font-weight: 600; cursor: pointer; transition: all 0.2s;
+            display: flex; align-items: center; justify-content: center; gap: 0.5rem;
+            width: 100%;
+        }
+
+        .btn-primary { background: var(--primary); color: white; }
+        .btn-outline { background: white; border: 1px solid var(--border); color: var(--text); }
+
+        .tx-item {
+            background: white; padding: 1rem; border-radius: 16px;
+            margin-bottom: 0.8rem; border: 1px solid var(--border);
+        }
+
+        .badge-secured {
+            background: rgba(0, 165, 80, 0.1); color: var(--primary);
+            padding: 0.3rem 0.6rem; border-radius: 20px; font-size: 0.7rem;
+            font-weight: 800; border: 1px solid var(--primary);
+            display: inline-flex; align-items: center; gap: 4px;
+        }
+
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.4); display: flex; align-items: flex-end; z-index: 1000;
+        }
+
+        .bottom-sheet {
+            background: white; width: 100%; border-radius: 32px 32px 0 0;
+            padding: 2rem; transform: translateY(0); transition: transform 0.3s ease-out;
+        }
+
+        .loader-bar { height: 6px; background: #eee; border-radius: 3px; overflow: hidden; margin: 1rem 0; }
+        .loader-progress { height: 100%; background: var(--primary); width: 0; animation: prog 2s linear forwards; }
+        @keyframes prog { to { width: 100%; } }
+
+        .timer-val { font-family: monospace; font-weight: 800; color: var(--danger); font-size: 1.2rem; }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect, useMemo } = React;
+
+        // --- MOCK SERVICE (Simulates Backend) ---
+        const MockBackend = {
+            getState: () => {
+                const saved = localStorage.getItem('sq_proto_state');
+                if (saved) return JSON.parse(saved);
+                return {
+                    balance: 50.00,
+                    jobs: [
+                        { id: 'q1', title: 'Grass Cutting (BSB)', reward: 25.00, status: 'open', payer: 'Haji Ali' },
+                        { id: 'q2', title: 'Food Delivery (Gadong)', reward: 12.00, status: 'open', payer: 'Siti' }
+                    ],
+                    escrow: {},
+                    transactions: [
+                        { id: 'TX-9901', type: 'Initial Deposit', amount: 50.00, date: new Date().toISOString(), status: 'VERIFIED' }
+                    ]
+                };
+            },
+            saveState: (state) => {
+                localStorage.setItem('sq_proto_state', JSON.stringify(state));
+            }
+        };
+
+        const App = () => {
+            const [state, setState] = useState(MockBackend.getState());
+            const [tab, setTab] = useState('wallet');
+            const [showTopUp, setShowTopUp] = useState(false);
+            const [isToppingUp, setIsToppingUp] = useState(false);
+
+            useEffect(() => {
+                MockBackend.saveState(state);
+            }, [state]);
+
+            const addTx = (type, amount) => {
+                const tx = {
+                    id: 'TX-' + Math.floor(Math.random()*9000+1000),
+                    type, amount, date: new Date().toISOString(), status: 'VERIFIED'
+                };
+                setState(prev => ({ ...prev, transactions: [tx, ...prev.transactions] }));
+            };
+
+            const handleTopUp = (amt) => {
+                setIsToppingUp(true);
+                setTimeout(() => {
+                    setState(prev => ({ ...prev, balance: prev.balance + parseFloat(amt) }));
+                    addTx('Top-up (Tarus)', parseFloat(amt));
+                    setIsToppingUp(false);
+                    setShowTopUp(false);
+                }, 2000);
+            };
+
+            const handleAccept = (jobId) => {
+                const job = state.jobs.find(j => j.id === jobId);
+                if (state.balance < job.reward) return alert("Insufficient Balance!");
+                
+                setState(prev => ({
+                    ...prev,
+                    balance: prev.balance - job.reward,
+                    jobs: prev.jobs.map(j => j.id === jobId ? { ...j, status: 'assigned' } : j),
+                    escrow: { ...prev.escrow, [jobId]: { amount: job.reward, status: 'LOCKED', startTime: new Date().toISOString() } }
+                }));
+                addTx('Escrow Lock', -job.reward);
+            };
+
+            const handleComplete = (jobId) => {
+                setState(prev => ({
+                    ...prev,
+                    jobs: prev.jobs.map(j => j.id === jobId ? { ...j, status: 'completed' } : j),
+                    escrow: { ...prev.escrow, [jobId]: { ...prev.escrow[jobId], status: 'PROOF_SUBMITTED', proofTime: new Date().toISOString() } }
+                }));
+            };
+
+            const handleRelease = (jobId) => {
+                const amt = state.escrow[jobId].amount;
+                setState(prev => {
+                    const newEscrow = { ...prev.escrow };
+                    delete newEscrow[jobId];
+                    return {
+                        ...prev,
+                        balance: prev.balance + amt, // In real app, goes to worker
+                        jobs: prev.jobs.map(j => j.id === jobId ? { ...j, status: 'closed' } : j),
+                        escrow: newEscrow
+                    };
+                });
+                addTx('Payout Release', amt);
+            };
+
+            const downloadPDF = (tx) => {
+                const { jsPDF } = window.jspdf;
+                const doc = new jsPDF();
+                doc.setFontSize(22); doc.setTextColor(0, 165, 80); doc.text("SideQuest.BN", 20, 20);
+                doc.setFontSize(10); doc.setTextColor(100, 100, 100); doc.text("Official Payment Receipt", 20, 28);
+                doc.line(20, 35, 190, 35);
+                doc.setFontSize(12); doc.setTextColor(0, 0, 0);
+                doc.text(`Transaction ID: ${tx.id}`, 20, 45);
+                doc.text(`Type: ${tx.type}`, 20, 52);
+                doc.text(`Amount: BND ${Math.abs(tx.amount).toFixed(2)}`, 20, 59);
+                doc.text(`Status: ${tx.status}`, 20, 66);
+                doc.text("VERIFIED", 160, 45);
+                doc.save(`Receipt_${tx.id}.pdf`);
+            };
+
+            return (
+                <div className="app-container">
+                    {/* Header */}
+                    <header className="glass-header">
+                        <div style={{display:'flex', alignItems:'center', gap:'8px'}}>
+                            <div style={{background:'var(--primary)', color:'white', padding:'6px', borderRadius:'8px'}}><i data-lucide="zap"></i></div>
+                            <h2 style={{fontWeight:800, fontSize:'1.2rem'}}>SideQuest.BN</h2>
+                        </div>
+                        <div style={{textAlign:'right'}}>
+                            <p style={{fontSize:'0.65rem', fontWeight:700, color:'var(--text-muted)'}}>BALANCE</p>
+                            <h3 style={{color:'var(--primary)', fontWeight:800}}>BND {state.balance.toFixed(2)}</h3>
+                        </div>
+                    </header>
+
+                    {/* Card */}
+                    <div className="wallet-card-visual">
+                        <div style={{display:'flex', alignItems:'center', gap:'8px', fontWeight:800}}>
+                            <i data-lucide="shield-check"></i> SideQuest Virtual
+                        </div>
+                        <div className="card-chip"></div>
+                        <div className="card-number">4532 8812 0943 2210</div>
+                        <div style={{display:'flex', justifyContent:'space-between', fontSize:'0.7rem', opacity:0.8}}>
+                            <span>AWANG HUSTLER</span>
+                            <span>EXP 12/28</span>
+                        </div>
+                    </div>
+
+                    {/* Actions */}
+                    <div style={{display:'grid', gridTemplateColumns:'1fr 1fr', gap:'12px', padding:'0 1.2rem'}}>
+                        <button className="btn btn-primary" onClick={() => setShowTopUp(true)}><i data-lucide="arrow-up-circle"></i> Top Up</button>
+                        <button className="btn btn-outline"><i data-lucide="arrow-down-circle"></i> Withdraw</button>
+                    </div>
+
+                    {/* Tabs */}
+                    <div style={{display:'flex', gap:'20px', padding:'1.5rem 1.2rem', marginTop:'1rem', borderBottom:'1px solid var(--border)'}}>
+                        <button onClick={() => setTab('quests')} style={{background:'none', border:'none', fontWeight:700, fontSize:'0.85rem', color: tab === 'quests' ? 'var(--primary)' : 'var(--text-muted)'}}>QUESTS</button>
+                        <button onClick={() => setTab('wallet')} style={{background:'none', border:'none', fontWeight:700, fontSize:'0.85rem', color: tab === 'wallet' ? 'var(--primary)' : 'var(--text-muted)'}}>LEDGER</button>
+                    </div>
+
+                    {/* Content */}
+                    <div style={{padding:'1.2rem'}}>
+                        {tab === 'quests' ? (
+                            state.jobs.map(job => (
+                                <div key={job.id} className="tx-item">
+                                    <div style={{display:'flex', justifyContent:'space-between', marginBottom:'12px'}}>
+                                        <div>
+                                            <h4 style={{fontSize:'1rem'}}>{job.title}</h4>
+                                            <p style={{fontSize:'0.75rem', color:'var(--text-muted)'}}>By {job.payer}</p>
+                                        </div>
+                                        <div style={{textAlign:'right'}}>
+                                            <p style={{fontWeight:800, color:'var(--primary)'}}>BND {job.reward.toFixed(2)}</p>
+                                            {state.escrow[job.id] && <div className="badge-secured"><i data-lucide="lock" style={{width:10,height:10}}></i> SECURED</div>}
+                                        </div>
+                                    </div>
+
+                                    {job.status === 'open' && (
+                                        <button className="btn btn-primary" onClick={() => handleAccept(job.id)}>Accept Quest (Escrow Lock)</button>
+                                    )}
+                                    {job.status === 'assigned' && (
+                                        <button className="btn btn-primary" style={{background:'var(--blue)'}} onClick={() => handleComplete(job.id)}>Submit Proof</button>
+                                    )}
+                                    {job.status === 'completed' && (
+                                        <Timer jobId={job.id} proofTime={state.escrow[job.id].proofTime} onRelease={() => handleRelease(job.id)} />
+                                    )}
+                                    {job.status === 'closed' && (
+                                        <div style={{textAlign:'center', color:'var(--primary)', fontWeight:700, fontSize:'0.9rem'}}><i data-lucide="check-circle" style={{display:'inline', verticalAlign:'middle'}}></i> Paid Successfully</div>
+                                    )}
+                                </div>
+                            ))
+                        ) : (
+                            state.transactions.map(tx => (
+                                <div key={tx.id} style={{display:'flex', justifyContent:'space-between', alignItems:'center', padding:'12px', borderBottom:'1px solid #f1f5f9'}}>
+                                    <div style={{display:'flex', gap:'12px', alignItems:'center'}}>
+                                        <div style={{background: tx.amount > 0 ? '#ecfdf5' : '#fff1f2', color: tx.amount > 0 ? '#059669' : '#e11d48', padding:'8px', borderRadius:'10px'}}>
+                                            <i data-lucide={tx.amount > 0 ? "arrow-up-circle" : "arrow-down-circle"}></i>
+                                        </div>
+                                        <div>
+                                            <p style={{fontWeight:600, fontSize:'0.9rem'}}>{tx.type}</p>
+                                            <p style={{fontSize:'0.7rem', color:'var(--text-muted)'}}>{new Date(tx.date).toLocaleDateString()}</p>
+                                        </div>
+                                    </div>
+                                    <div style={{textAlign:'right'}}>
+                                        <p style={{fontWeight:800, fontSize:'0.95rem'}}>{tx.amount > 0 ? '+' : ''}{tx.amount.toFixed(2)}</p>
+                                        <span onClick={() => downloadPDF(tx)} style={{fontSize:'0.65rem', color:'var(--blue)', cursor:'pointer', fontWeight:700}}>RECEIPT PDF</span>
+                                    </div>
+                                </div>
+                            ))
+                        )}
+                    </div>
+
+                    {/* TopUp Modal */}
+                    {showTopUp && (
+                        <div className="modal-overlay">
+                            <div className="bottom-sheet">
+                                <h3 style={{marginBottom:'1rem'}}>Top-up via Tarus</h3>
+                                {isToppingUp ? (
+                                    <div style={{textAlign:'center', padding:'2rem 0'}}>
+                                        <p>Verifying with Provider...</p>
+                                        <div className="loader-bar"><div className="loader-progress"></div></div>
+                                    </div>
+                                ) : (
+                                    <div>
+                                        <p style={{fontSize:'0.8rem', color:'var(--text-muted)', marginBottom:'4px'}}>BRUNEI PHONE NUMBER</p>
+                                        <input type="text" placeholder="8123456" style={{width:'100%', padding:'12px', borderRadius:'10px', border:'1px solid var(--border)', marginBottom:'1rem'}} />
+                                        <p style={{fontSize:'0.8rem', color:'var(--text-muted)', marginBottom:'4px'}}>AMOUNT (BND)</p>
+                                        <input id="topup-amt" type="number" placeholder="20.00" style={{width:'100%', padding:'12px', borderRadius:'10px', border:'1px solid var(--border)', marginBottom:'1.5rem'}} />
+                                        <button className="btn btn-primary" onClick={() => handleTopUp(document.getElementById('topup-amt').value)}>Confirm Payment</button>
+                                        <button className="btn btn-outline" style={{marginTop:'8px', border:'none'}} onClick={() => setShowTopUp(false)}>Cancel</button>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    )}
+
+                    <div style={{padding:'2rem', textAlign:'center', fontSize:'0.7rem', color:'var(--text-muted)'}}>
+                        SideQuest.BN Standalone Prototype v1.0 <br/>
+                        Zero Installation Required.
+                    </div>
+
+                    <LucideRefresh />
+                </div>
+            );
+        };
+
+        const Timer = ({ jobId, proofTime, onRelease }) => {
+            const [timeLeft, setTimeLeft] = useState(20 * 60);
+            useEffect(() => {
+                const elapsed = Math.floor((new Date() - new Date(proofTime)) / 1000);
+                setTimeLeft(Math.max(0, 1200 - elapsed));
+                const ticker = setInterval(() => setTimeLeft(t => t > 0 ? t - 1 : 0), 1000);
+                return () => clearInterval(ticker);
+            }, [proofTime]);
+
+            if (timeLeft === 0) onRelease();
+
+            const fmt = (s) => `${Math.floor(s/60)}:${(s%60).toString().padStart(2,'0')}`;
+            return (
+                <div style={{background:'#fff9f0', border:'1px solid #ffe8cc', padding:'12px', borderRadius:'12px', marginTop:'8px'}}>
+                    <div style={{display:'flex', justifyContent:'space-between', alignItems:'center'}}>
+                        <span style={{fontSize:'0.75rem', fontWeight:700, color:'#862e00'}}><i data-lucide="clock" style={{width:14,height:14,display:'inline',verticalAlign:'middle'}}></i> AUTO-RELEASE</span>
+                        <span className="timer-val">{fmt(timeLeft)}</span>
+                    </div>
+                    <button className="btn btn-outline" style={{marginTop:'8px', fontSize:'0.7rem', padding:'6px', borderColor:'#ffd8a8', color:'#862e00'}} onClick={onRelease}>[DEBUG] Release Funds Now</button>
+                </div>
+            );
+        };
+
+        const LucideRefresh = () => {
+            useEffect(() => { lucide.createIcons(); });
+            return null;
+        };
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>
