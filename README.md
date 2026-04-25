@@ -1,37 +1,50 @@
-# SideQuest.BN Full-Stack Prototype
+# SideQuest.BN 🇧🇳
 
-This prototype focuses on **Fast Secure Payments** for the Brunei market, featuring a virtual wallet, escrow protection, and automated payouts.
+**The ultimate location-based "Super App" for the Brunei Gig Economy.**
 
-## Key Features
-1.  **Wallet & Virtual Card**: Sleek UI with a "SideQuest Virtual Card" and a simulated Brunei "tarus" top-up flow.
-2.  **Escrow Protection**: "Pay-to-Post" logic ensures employers have funds. Funds are locked in escrow when a quest starts.
-3.  **BND SECURED Badge**: Visual assurance for workers that funds are locked and ready for payout.
-4.  **Auto-Payout Engine**: 20-minute countdown after completion proof is submitted. Funds release automatically if no dispute is raised.
-5.  **PDF Receipts**: Official receipts with "VERIFIED" stamps generated via `jsPDF`.
-6.  **Debug Mode**: A hidden-style button to "Force Auto-Release Now" for instant demonstration.
+SideQuest.BN connects local hustlers with people who need tasks done instantly. From grass cutting to package delivery, manage everything in one premium mobile experience.
 
-## How to Run
-Since this is a React/Node.js project, you will need to install the dependencies and start both the frontend and backend.
+![SideQuest Mockup](https://raw.githubusercontent.com/lucide-react/lucide/main/icons/zap.svg)
 
-### 1. Install Dependencies
-```bash
-npm install
-```
+## 🚀 Key Features
 
-### 2. Start the Backend Server (Port 3001)
-```bash
-npm run server
-```
+- 📍 **Interactive Map Discovery**: Find "SideQuests" near you with a beautiful, cinematic map interface.
+- 💬 **Live Hustle Chat**: Real-time communication between Seeker and Poster with dedicated chat sessions.
+- 💳 **Virtual Wallet**: Secure BND balance management with top-up and withdrawal capabilities (BIBD, Baiduri, Tarus).
+- 🔄 **Dual-Portal Mode**: Seamlessly switch between **Hustler (Seeker)** and **Poster** modes within a single account.
+- 🛡️ **Escrow Protection**: Funds are locked securely until work is verified, with an integrated auto-release timer.
+- 📄 **Digital Receipts**: Generate professional PDF receipts for every completed hustle.
 
-### 3. Start the Frontend Development Server (Vite)
-```bash
-npm run dev
-```
+## 🛠️ Technology Stack
 
-### 4. Access the App
-Open your browser and go to `http://localhost:5173` (or the port Vite provides).
+- **Frontend**: React.js with Vite
+- **Animations**: Framer Motion
+- **Map Engine**: Leaflet.js
+- **Styling**: Vanilla CSS (Premium Glassmorphism Design)
+- **Icons**: Lucide React
+- **Backend**: Node.js / Express (Simulation Engine)
 
-## Technical Stack
-- **Frontend**: React (Vite), Framer Motion, Lucide-React, jsPDF.
-- **Backend**: Node.js (Express) with simulated in-memory state.
-- **State Management**: React Context API (`PaymentContext`).
+## 📦 Local Setup
+
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/YOUR_USERNAME/SideQuestBN.git
+   ```
+2. Install dependencies:
+   ```bash
+   npm install
+   ```
+3. Start the simulation server:
+   ```bash
+   npm run server
+   ```
+4. Start the frontend:
+   ```bash
+   npm run dev
+   ```
+
+## 📱 Design Philosophy
+Built with a "Mobile-First" approach, featuring a high-fidelity iPhone 14 Pro Max frame, fluid transitions, and a clean, modern aesthetic inspired by premium financial apps.
+
+---
+*Created for the Brunei Gig Economy Prototype.*
