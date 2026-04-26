@@ -528,8 +528,8 @@ const App = () => {
   </div>;
 
   if (!isLoggedIn) return (
-    <div className="mobile-frame" style={{ background: 'white' }}>
-      <div style={{ height: '40vh', background: 'linear-gradient(135deg, #00A550 0%, #008741 100%)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', color: 'white', borderBottomLeftRadius: '40px', borderBottomRightRadius: '40px', position: 'relative', overflow: 'hidden' }}>
+    <div className="app-container" style={{ background: 'white' }}>
+      <div className="login-header" style={{ height: '40vh', background: 'linear-gradient(135deg, #00A550 0%, #008741 100%)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', color: 'white', borderBottomLeftRadius: '40px', borderBottomRightRadius: '40px', position: 'relative', overflow: 'hidden' }}>
         <div style={{ position: 'absolute', top: '-10%', right: '-10%', width: '200px', height: '200px', background: 'rgba(255,255,255,0.05)', borderRadius: '50%' }}></div>
         <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ type: 'spring', damping: 12 }}>
           <div style={{ width: '100px', height: '100px', background: 'rgba(255,255,255,0.2)', backdropFilter: 'blur(10px)', borderRadius: '30px', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 10px 30px rgba(0,0,0,0.1)' }}>
@@ -592,7 +592,7 @@ const App = () => {
   );
 
   return (
-    <div className="mobile-frame">
+    <div className="app-container">
       <div className="app-content">
         <AnimatePresence mode="wait">
           {view === 'home' && (

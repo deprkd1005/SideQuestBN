@@ -27,45 +27,57 @@
 
 #root {
     width: 100%;
-    height: 100%;
+    height: 100vh;
     display: flex;
     align-items: center;
     justify-content: center;
 }
 
 body {
-    background-color: #1C1C1E; /* Dark outer background for focus */
+    background: linear-gradient(135deg, #F2F2F7 0%, #E5E5EA 100%);
     overflow: hidden;
     height: 100vh;
     width: 100vw;
     margin: 0;
 }
 
-.mobile-frame {
+.app-container {
     background-color: var(--card-bg);
     width: 100%;
     height: 100%;
-    max-width: 430px; /* iPhone 14 Pro Max width */
-    max-height: 932px;
+    max-width: 100%;
+    max-height: 100%;
     position: relative;
     display: flex;
     flex-direction: column;
     overflow: hidden;
-    box-shadow: 0 0 100px rgba(0,0,0,0.5);
-    border-radius: 40px; /* Rounded frame */
 }
 
-@media (max-width: 480px) {
-    .mobile-frame {
-        max-width: 100vw;
-        max-height: 100vh;
-        border-radius: 0;
+/* Desktop View: Add a subtle frame on large screens to keep content readable */
+@media (min-width: 1024px) {
+    body {
+        background: radial-gradient(circle at top right, #00A55010, transparent),
+                    radial-gradient(circle at bottom left, #007AFF10, transparent),
+                    #F2F2F7;
+    }
+    .app-container {
+        max-width: 1200px;
+        max-height: 900px;
+        border-radius: 30px;
+        box-shadow: 0 30px 60px rgba(0,0,0,0.12);
+        border: 1px solid rgba(255,255,255,0.8);
     }
 }
 
+/* Panel Width Control for Desktop */
+.map-bottom-panel, .bottom-sheet {
+    max-width: 480px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
 .app-content {
-    flex-grow: 1;
-    height: calc(100vh - 85px);
+    flex: 1;
     overflow-y: auto;
     position: relative;
     background: var(--bg-color);
@@ -143,7 +155,15 @@ body {
     font-weight: 700;
 }
 .nav-item.active { color: var(--primary); }
+.nav-item:hover { color: var(--primary); }
 .nav-item:active { transform: scale(0.9); }
+
+/* Desktop Specific Login Adjustments */
+@media (min-width: 1024px) {
+    .app-container .login-header {
+        height: 300px !important;
+    }
+}
 
 /* Quick Actions */
 .quick-actions-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-top: 1rem; border-top: 1px solid #F2F2F7; padding-top: 1.2rem;}
