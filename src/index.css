@@ -53,6 +53,14 @@ body {
     overflow: hidden;
 }
 
+/* Ensure the auth forms can scroll if they are too long for the screen */
+.auth-scroll-container {
+    flex: 1;
+    overflow-y: auto;
+    padding-bottom: 2rem;
+}
+.auth-scroll-container::-webkit-scrollbar { display: none; }
+
 /* Desktop View: Add a subtle frame on large screens to keep content readable */
 @media (min-width: 1024px) {
     body {

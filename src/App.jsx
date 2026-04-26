@@ -542,7 +542,7 @@ const App = () => {
       
       <AnimatePresence mode="wait">
         {!isSigningUp ? (
-          <motion.div key="login" initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 20 }} style={{ padding: '2rem' }}>
+          <motion.div key="login" initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 20 }} className="auth-scroll-container" style={{ padding: '2rem' }}>
             <h2 style={{ fontSize: '1.8rem', fontWeight: 900, marginBottom: '0.5rem' }}>Welcome Back</h2>
             <p style={{ color: '#8E8E93', marginBottom: '2rem', fontWeight: 500 }}>Login to your hustle account</p>
             <div style={{ marginBottom: '1.2rem' }}>
@@ -563,7 +563,7 @@ const App = () => {
             <p style={{ textAlign: 'center', marginTop: '2rem', color: '#8E8E93', fontSize: '0.9rem' }}>Don't have an account? <span onClick={() => setIsSigningUp(true)} style={{ color: '#00A550', fontWeight: 800, cursor: 'pointer' }}>Join the Hustle</span></p>
           </motion.div>
         ) : (
-          <motion.div key="signup" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} style={{ padding: '2rem' }}>
+          <motion.div key="signup" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="auth-scroll-container" style={{ padding: '2rem' }}>
             <h2 style={{ fontSize: '1.8rem', fontWeight: 900, marginBottom: '0.5rem' }}>Create Account</h2>
             <p style={{ color: '#8E8E93', marginBottom: '2rem', fontWeight: 500 }}>Start your journey with SideQuest</p>
             <div style={{ marginBottom: '1.2rem' }}>
