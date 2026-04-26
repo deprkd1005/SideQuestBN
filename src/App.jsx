@@ -481,11 +481,15 @@ const PostQuestModal = ({ onClose, onPost }) => {
 const App = () => {
   const { 
     balance, walletInfo, jobs, transactions, escrow, loading, chatSessions,
-    acceptJob, completeJob, releaseFunds, topUp, postJob, sendMessage, fetchMessages, withdraw 
+    acceptJob, completeJob, releaseFunds, topUp, postJob, sendMessage, fetchMessages, withdraw, signup, login 
   } = usePayment();
 
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [isSigningUp, setIsSigningUp] = useState(false);
+  
+  // Auth Form State
+  const [authData, setAuthData] = useState({ name: '', phone: '', pin: '' });
+  const [authLoading, setAuthLoading] = useState(false);
   const [portal, setPortal] = useState('seeker'); 
   const [view, setView] = useState('home'); 
   const [showPostModal, setShowPostModal] = useState(false);
@@ -543,13 +547,19 @@ const App = () => {
             <p style={{ color: '#8E8E93', marginBottom: '2rem', fontWeight: 500 }}>Login to your hustle account</p>
             <div style={{ marginBottom: '1.2rem' }}>
               <label style={{ fontSize: '0.75rem', fontWeight: 800, color: '#8E8E93', textTransform: 'uppercase', marginBottom: '8px', display: 'block' }}>Phone Number</label>
-              <input type="text" placeholder="+673 8XXX XXX" style={{ width: '100%', padding: '1.2rem', borderRadius: '18px', border: '2px solid #F2F2F7', fontSize: '1rem', outline: 'none' }} />
+              <input type="text" value={authData.phone} onChange={e => setAuthData({...authData, phone: e.target.value})} placeholder="+673 8XXX XXX" style={{ width: '100%', padding: '1.2rem', borderRadius: '18px', border: '2px solid #F2F2F7', fontSize: '1rem', outline: 'none' }} />
             </div>
             <div style={{ marginBottom: '2rem' }}>
               <label style={{ fontSize: '0.75rem', fontWeight: 800, color: '#8E8E93', textTransform: 'uppercase', marginBottom: '8px', display: 'block' }}>Security PIN</label>
-              <input type="password" placeholder="••••••" style={{ width: '100%', padding: '1.2rem', borderRadius: '18px', border: '2px solid #F2F2F7', fontSize: '1rem', outline: 'none' }} />
+              <input type="password" value={authData.pin} onChange={e => setAuthData({...authData, pin: e.target.value})} placeholder="••••••" style={{ width: '100%', padding: '1.2rem', borderRadius: '18px', border: '2px solid #F2F2F7', fontSize: '1rem', outline: 'none' }} />
             </div>
-            <button className="btn-primary" style={{ width: '100%', padding: '1.2rem', fontSize: '1.1rem', borderRadius: '20px', boxShadow: '0 10px 20px rgba(0,165,80,0.2)' }} onClick={() => setIsLoggedIn(true)}>Log In Securely</button>
+            <button className="btn-primary" style={{ width: '100%', padding: '1.2rem', fontSize: '1.1rem', borderRadius: '20px', boxShadow: '0 10px 20px rgba(0,165,80,0.2)' }} onClick={async () => {
+              setAuthLoading(true);
+              const res = await login({ phone: authData.phone, pin: authData.pin });
+              if (res.success) setIsLoggedIn(true);
+              else alert('Login failed. Check your phone number.');
+              setAuthLoading(false);
+            }} disabled={authLoading}>{authLoading ? 'Verifying...' : 'Log In Securely'}</button>
             <p style={{ textAlign: 'center', marginTop: '2rem', color: '#8E8E93', fontSize: '0.9rem' }}>Don't have an account? <span onClick={() => setIsSigningUp(true)} style={{ color: '#00A550', fontWeight: 800, cursor: 'pointer' }}>Join the Hustle</span></p>
           </motion.div>
         ) : (
@@ -558,17 +568,22 @@ const App = () => {
             <p style={{ color: '#8E8E93', marginBottom: '2rem', fontWeight: 500 }}>Start your journey with SideQuest</p>
             <div style={{ marginBottom: '1.2rem' }}>
               <label style={{ fontSize: '0.75rem', fontWeight: 800, color: '#8E8E93', textTransform: 'uppercase', marginBottom: '8px', display: 'block' }}>Full Name</label>
-              <input type="text" placeholder="e.g. Ali Abu" style={{ width: '100%', padding: '1.2rem', borderRadius: '18px', border: '2px solid #F2F2F7', fontSize: '1rem', outline: 'none' }} />
+              <input type="text" value={authData.name} onChange={e => setAuthData({...authData, name: e.target.value})} placeholder="e.g. Ali Abu" style={{ width: '100%', padding: '1.2rem', borderRadius: '18px', border: '2px solid #F2F2F7', fontSize: '1rem', outline: 'none' }} />
             </div>
             <div style={{ marginBottom: '1.2rem' }}>
               <label style={{ fontSize: '0.75rem', fontWeight: 800, color: '#8E8E93', textTransform: 'uppercase', marginBottom: '8px', display: 'block' }}>Phone Number</label>
-              <input type="text" placeholder="+673 8XXX XXX" style={{ width: '100%', padding: '1.2rem', borderRadius: '18px', border: '2px solid #F2F2F7', fontSize: '1rem', outline: 'none' }} />
+              <input type="text" value={authData.phone} onChange={e => setAuthData({...authData, phone: e.target.value})} placeholder="+673 8XXX XXX" style={{ width: '100%', padding: '1.2rem', borderRadius: '18px', border: '2px solid #F2F2F7', fontSize: '1rem', outline: 'none' }} />
             </div>
             <div style={{ marginBottom: '2rem' }}>
               <label style={{ fontSize: '0.75rem', fontWeight: 800, color: '#8E8E93', textTransform: 'uppercase', marginBottom: '8px', display: 'block' }}>Set Security PIN</label>
-              <input type="password" placeholder="••••••" style={{ width: '100%', padding: '1.2rem', borderRadius: '18px', border: '2px solid #F2F2F7', fontSize: '1rem', outline: 'none' }} />
+              <input type="password" value={authData.pin} onChange={e => setAuthData({...authData, pin: e.target.value})} placeholder="••••••" style={{ width: '100%', padding: '1.2rem', borderRadius: '18px', border: '2px solid #F2F2F7', fontSize: '1rem', outline: 'none' }} />
             </div>
-            <button className="btn-primary" style={{ width: '100%', padding: '1.2rem', fontSize: '1.1rem', borderRadius: '20px', boxShadow: '0 10px 20px rgba(0,165,80,0.2)' }} onClick={() => setIsLoggedIn(true)}>Create My Account</button>
+            <button className="btn-primary" style={{ width: '100%', padding: '1.2rem', fontSize: '1.1rem', borderRadius: '20px', boxShadow: '0 10px 20px rgba(0,165,80,0.2)' }} onClick={async () => {
+              setAuthLoading(true);
+              const res = await signup(authData);
+              if (res.success) setIsLoggedIn(true);
+              setAuthLoading(false);
+            }} disabled={authLoading}>{authLoading ? 'Creating...' : 'Create My Account'}</button>
             <p style={{ textAlign: 'center', marginTop: '2rem', color: '#8E8E93', fontSize: '0.9rem' }}>Already have an account? <span onClick={() => setIsSigningUp(false)} style={{ color: '#00A550', fontWeight: 800, cursor: 'pointer' }}>Sign In</span></p>
           </motion.div>
         )}
@@ -681,7 +696,7 @@ const App = () => {
                   <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }}>
                     <div style={{ width: '100px', height: '100px', background: 'white', borderRadius: '35px', margin: '0 auto 1.5rem', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 10px 20px rgba(0,0,0,0.1)' }}><User size={50} color="#00A550" /></div>
                   </motion.div>
-                  <h2 style={{ fontSize: '1.8rem', fontWeight: 900 }}>Awang Ali</h2>
+                  <h2 style={{ fontSize: '1.8rem', fontWeight: 900 }}>{walletInfo.holder}</h2>
                   <p style={{ fontSize: '0.9rem', opacity: 0.9, fontWeight: 600 }}><ShieldCheck size={16} style={{ display: 'inline', verticalAlign: 'middle', marginRight: '4px' }}/> Verified SideQuest Partner</p>
                </div>
                <div className="wallet-card" style={{ margin: '-3.5rem 1.5rem 1.5rem', padding: '2rem', borderRadius: '28px', background: 'white', boxShadow: '0 15px 35px rgba(0,0,0,0.1)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>

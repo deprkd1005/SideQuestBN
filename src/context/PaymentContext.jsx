@@ -18,8 +18,11 @@ export const PaymentProvider = ({ children }) => {
       const res = await fetch('/api/state');
       if (!res.ok) throw new Error('Backend unreachable');
       const data = await res.json();
-      setBalance(data.wallet.balance);
-      setWalletInfo(data.wallet);
+      setBalance(data.user.balance);
+      setWalletInfo({
+        cardNumber: data.user.cardNumber,
+        holder: data.user.name
+      });
       setJobs(data.jobs);
       setTransactions(data.transactions);
       setEscrow(data.escrow);
@@ -107,10 +110,32 @@ export const PaymentProvider = ({ children }) => {
     return data;
   };
 
+  const signup = async (userData) => {
+    const res = await fetch('/api/auth/signup', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(userData)
+    });
+    const data = await res.json();
+    if (data.success) fetchState();
+    return data;
+  };
+
+  const login = async (credentials) => {
+    const res = await fetch('/api/auth/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(credentials)
+    });
+    const data = await res.json();
+    if (data.success) fetchState();
+    return data;
+  };
+
   return (
     <PaymentContext.Provider value={{
       balance, walletInfo, jobs, transactions, escrow, chatSessions, loading,
-      topUp, postJob, acceptJob, completeJob, releaseFunds, withdraw, sendMessage, fetchMessages, refresh: fetchState
+      topUp, postJob, acceptJob, completeJob, releaseFunds, withdraw, sendMessage, fetchMessages, signup, login, refresh: fetchState
     }}>
       {children}
     </PaymentContext.Provider>

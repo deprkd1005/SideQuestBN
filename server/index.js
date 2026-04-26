@@ -14,10 +14,11 @@ app.use(express.json());
 
 // Simulation State
 let state = {
-  wallet: {
+  user: {
+    name: "AWANG HUSTLER",
+    phone: "+673 8812094",
     balance: 50.00,
-    cardNumber: "4532 8812 0943 2210",
-    holder: "AWANG HUSTLER"
+    cardNumber: "4532 8812 0943 2210"
   },
   jobs: [
     { id: 'q1', title: 'Grass Cutting', reward: 25, status: 'open', payer: 'Poster1', duration: '2 Hours', coords: [4.8903, 114.9401] },
@@ -55,19 +56,40 @@ const addTx = (type, amount, status = 'VERIFIED') => {
 // Endpoints
 app.get('/api/state', (req, res) => res.json(state));
 
+app.post('/api/auth/signup', (req, res) => {
+  const { name, phone, pin } = req.body;
+  state.user = {
+    name: (name || "Guest").toUpperCase(),
+    phone: phone || "0000000",
+    balance: 50.00,
+    cardNumber: `4532 ${Math.floor(1000+Math.random()*8999)} ${Math.floor(1000+Math.random()*8999)} ${Math.floor(1000+Math.random()*8999)}`
+  };
+  state.transactions = [{ id: 'TX-001', type: 'Registration Bonus', amount: 50.00, status: 'VERIFIED', date: new Date().toISOString() }];
+  res.json({ success: true, user: state.user });
+});
+
+app.post('/api/auth/login', (req, res) => {
+  const { phone } = req.body;
+  if (phone === state.user.phone) {
+    res.json({ success: true, user: state.user });
+  } else {
+    res.status(401).json({ error: 'User not found' });
+  }
+});
+
 app.post('/api/top-up', (req, res) => {
-  const { amount, phone } = req.body;
+  const { amount } = req.body;
   setTimeout(() => {
-    state.wallet.balance += parseFloat(amount);
+    state.user.balance += parseFloat(amount);
     addTx('Top-up (Tarus)', parseFloat(amount));
-    res.json({ success: true, newBalance: state.wallet.balance });
+    res.json({ success: true, newBalance: state.user.balance });
   }, 1000);
 });
 
 app.post('/api/jobs', (req, res) => {
   const { title, reward, duration, coords } = req.body;
   const numReward = parseFloat(reward);
-  if (state.wallet.balance < numReward) {
+  if (state.user.balance < numReward) {
     return res.status(400).json({ error: 'Insufficient balance' });
   }
   
@@ -82,10 +104,10 @@ app.post('/api/jobs', (req, res) => {
   };
   
   state.jobs.push(newJob);
-  state.wallet.balance -= numReward;
+  state.user.balance -= numReward;
   addTx('Post Quest (Escrow)', -numReward, 'LOCKED');
   
-  res.json({ success: true, job: newJob, newBalance: state.wallet.balance });
+  res.json({ success: true, job: newJob, newBalance: state.user.balance });
 });
 
 app.post('/api/jobs/:id/accept', (req, res) => {
@@ -191,11 +213,11 @@ app.post('/api/chat/:sessionId', (req, res) => {
 app.post('/api/withdraw', (req, res) => {
   const { amount, bank, account } = req.body;
   const numAmount = parseFloat(amount);
-  if (state.wallet.balance < numAmount) return res.status(400).json({ error: 'Insufficient funds' });
+  if (state.user.balance < numAmount) return res.status(400).json({ error: 'Insufficient funds' });
   
-  state.wallet.balance -= numAmount;
+  state.user.balance -= numAmount;
   addTx(`Withdraw (${bank})`, -numAmount, 'PENDING');
-  res.json({ success: true, newBalance: state.wallet.balance });
+  res.json({ success: true, newBalance: state.user.balance });
 });
 
 // Serve Static Files in Production
