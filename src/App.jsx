@@ -773,10 +773,6 @@ const App = () => {
                     <div className="action-icon" style={{ background: 'rgba(255,149,0,0.1)', color: '#FF9500' }}><CreditCard size={24}/></div>
                     <span>Wallet</span>
                   </div>
-                  <div className="action-card" onClick={() => setView('impact')}>
-                    <div className="action-icon" style={{ background: 'rgba(255,215,0,0.1)', color: '#FFD700' }}><BarChart size={24}/></div>
-                    <span>Impact</span>
-                  </div>
                 </div>
               </div>
             </motion.div>
@@ -923,6 +919,7 @@ const App = () => {
       <nav className="bottom-nav">
         <div className={`nav-item ${view === 'home' ? 'active' : ''}`} onClick={() => setView('home')}><MapIcon size={24}/><span>Map</span></div>
         <div className={`nav-item ${view === 'activity' ? 'active' : ''}`} onClick={() => setView('activity')}><ClipboardCheck size={24}/><span>Activity</span></div>
+        <div className={`nav-item ${view === 'impact' ? 'active' : ''}`} onClick={() => setView('impact')}><BarChart size={24}/><span>Impact</span></div>
         <div className={`nav-item ${view === 'account' ? 'active' : ''}`} onClick={() => setView('account')}><User size={24}/><span>Account</span></div>
       </nav>
 
