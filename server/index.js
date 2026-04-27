@@ -99,7 +99,9 @@ app.post('/api/auth/signup', (req, res) => {
 
 app.post('/api/auth/login', (req, res) => {
   const { phone } = req.body;
-  if (phone === state.user.phone) {
+  // Trim spaces for robust comparison
+  const normalise = (p) => (p || '').replace(/\s+/g, '').toLowerCase();
+  if (normalise(phone) === normalise(state.user.phone)) {
     res.json({ success: true, user: state.user });
   } else {
     res.status(401).json({ error: 'User not found' });
