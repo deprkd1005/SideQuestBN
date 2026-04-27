@@ -1,6 +1,7 @@
 import express from 'express';
 import cors from 'cors';
 import path from 'path';
+import crypto from 'crypto';
 import { fileURLToPath } from 'url';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -20,6 +21,7 @@ let state = {
     balance: 50.00,
     cardNumber: "4532 8812 0943 2210",
     bruVerified: true,
+    kycType: "GeneralWorker",
     icColor: "Yellow",
     icNumber: "01-123456"
   },
@@ -44,14 +46,22 @@ let state = {
   }
 };
 
-// Helper to add transaction
+// Helper to add transaction with SHA-256 hash
 const addTx = (type, amount, status = 'VERIFIED') => {
+  const date = new Date().toISOString();
+  const txId = `TX-${Math.floor(Math.random() * 9000) + 1000}`;
+  
+  // SHA-256 Hashing for Payment Logs (BDCB Compliance Simulation)
+  const hashString = `${txId}|${type}|${amount}|${date}`;
+  const hash = crypto.createHash('sha256').update(hashString).digest('hex');
+
   const tx = {
-    id: `TX-${Math.floor(Math.random() * 9000) + 1000}`,
+    id: txId,
     type,
     amount,
     status,
-    date: new Date().toISOString()
+    date,
+    hash
   };
   state.transactions.unshift(tx);
   return tx;
@@ -61,8 +71,15 @@ const addTx = (type, amount, status = 'VERIFIED') => {
 app.get('/api/state', (req, res) => res.json(state));
 
 app.post('/api/auth/signup', (req, res) => {
-  const { name, phone, pin, icColor, icNumber } = req.body;
-  const isBruVerified = ['Yellow', 'Purple', 'Green'].includes(icColor);
+  const { name, phone, pin, icColor, icNumber, kycType } = req.body;
+  
+  // Hybrid Verification Logic
+  let isBruVerified = false;
+  if (kycType === 'Student' && icNumber) {
+    isBruVerified = true; // Assuming HND/Degree ID is valid
+  } else if (kycType === 'GeneralWorker' && ['Yellow', 'Purple', 'Green'].includes(icColor)) {
+    isBruVerified = true;
+  }
   
   state.user = {
     name: (name || "Guest").toUpperCase(),
@@ -70,6 +87,7 @@ app.post('/api/auth/signup', (req, res) => {
     balance: 50.00,
     cardNumber: `4532 ${Math.floor(1000+Math.random()*8999)} ${Math.floor(1000+Math.random()*8999)} ${Math.floor(1000+Math.random()*8999)}`,
     bruVerified: isBruVerified,
+    kycType: kycType || 'GeneralWorker',
     icColor: icColor || "None",
     icNumber: icNumber || ""
   };
@@ -86,11 +104,40 @@ app.post('/api/auth/login', (req, res) => {
   }
 });
 
+// Tarus API Integration Points
+app.post('/api/tarus/topup', (req, res) => {
+  const { amount } = req.body;
+  setTimeout(() => {
+    state.user.balance += parseFloat(amount);
+    const tx = addTx('Tarus Network Top-up', parseFloat(amount), 'VERIFIED');
+    res.json({ success: true, newBalance: state.user.balance, txHash: tx.hash });
+  }, 800); // Simulate real-time Tarus loop
+});
+
+app.post('/api/tarus/withdraw', (req, res) => {
+  const { amount, bank, account, twoFactorCode } = req.body;
+  const numAmount = parseFloat(amount);
+  
+  // 2FA BDCB Compliance
+  if (!twoFactorCode || twoFactorCode.length !== 6) {
+    return res.status(403).json({ error: 'Invalid 2FA Code' });
+  }
+
+  if (state.user.balance < numAmount) return res.status(400).json({ error: 'Insufficient funds' });
+  
+  setTimeout(() => {
+    state.user.balance -= numAmount;
+    const tx = addTx(`Instant Payout via Tarus (${bank})`, -numAmount, 'VERIFIED');
+    res.json({ success: true, newBalance: state.user.balance, txHash: tx.hash });
+  }, 1200);
+});
+
+// Legacy Top Up (Redirected to Tarus in frontend)
 app.post('/api/top-up', (req, res) => {
   const { amount } = req.body;
   setTimeout(() => {
     state.user.balance += parseFloat(amount);
-    addTx('Top-up (Tarus)', parseFloat(amount));
+    addTx('Top-up (Legacy)', parseFloat(amount));
     res.json({ success: true, newBalance: state.user.balance });
   }, 1000);
 });
@@ -158,8 +205,24 @@ app.post('/api/jobs/:id/release', (req, res) => {
   if (escrow && escrow.status !== 'RELEASED') {
     escrow.status = 'RELEASED';
     job.status = 'finished';
-    addTx('Quest Payout', escrow.amount, 'VERIFIED');
-    res.json({ success: true });
+    
+    // Platform Commission Logic (5%)
+    const commission = escrow.amount * 0.05;
+    const finalPayout = escrow.amount - commission;
+
+    // We simulate the payout back to a worker. Since we are testing single-user flow:
+    // If payer is Me, it means we spent the money. The worker gets it (not our balance).
+    // If we are the worker, we would receive it. Assuming we are the worker:
+    if (job.payer !== 'Me') {
+      state.user.balance += finalPayout;
+      addTx('Quest Payout', finalPayout, 'VERIFIED');
+      addTx('Platform Commission (5%)', -commission, 'VERIFIED');
+    } else {
+      // Just log that the quest was finalized from our escrow
+      addTx('Escrow Released (Paid to Worker)', 0, 'VERIFIED');
+    }
+    
+    res.json({ success: true, commission, finalPayout });
   } else {
     res.status(400).json({ error: 'Already released or invalid job' });
   }
@@ -222,6 +285,7 @@ app.post('/api/chat/:sessionId', (req, res) => {
   res.json({ success: true, message: newMessage });
 });
 
+// Legacy withdraw endpoint
 app.post('/api/withdraw', (req, res) => {
   const { amount, bank, account } = req.body;
   const numAmount = parseFloat(amount);

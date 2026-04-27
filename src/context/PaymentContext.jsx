@@ -56,7 +56,7 @@ export const PaymentProvider = ({ children }) => {
   };
 
   const topUp = async (amount, phone) => {
-    const res = await fetch('/api/top-up', {
+    const res = await fetch('/api/tarus/topup', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ amount, phone })
@@ -115,7 +115,7 @@ export const PaymentProvider = ({ children }) => {
   };
 
   const withdraw = async (details) => {
-    const res = await fetch('/api/withdraw', {
+    const res = await fetch('/api/tarus/withdraw', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(details)

@@ -252,23 +252,41 @@ const ChatInterface = ({ onClose, sendMessage, fetchMessages, sessions, balance,
 
 const TopUpModal = ({ onClose, onTopUp }) => {
   const [amount, setAmount] = useState('');
-  const [bank, setBank] = useState('BIBD');
+  const [bank, setBank] = useState('tarus');
   const [loading, setLoading] = useState(false);
+  const [successTx, setSuccessTx] = useState(null);
 
   const banks = [
-    { name: 'BIBD', color: '#821a1a', icon: '🏦' },
-    { name: 'Baiduri', color: '#1e3a8a', icon: '🏛️' },
-    { name: 'Standard Chartered', color: '#059669', icon: '🌍' },
-    { name: 'Tarus Pay', color: '#00A550', icon: '⚡' }
+    { name: 'tarus', label: 'Tarus Network', color: '#00A550', icon: '⚡' },
+    { name: 'bibd', label: 'BIBD', color: '#821a1a', icon: '🏦' },
+    { name: 'baiduri', label: 'Baiduri', color: '#1e3a8a', icon: '🏛️' }
   ];
 
   const handleConfirm = async () => {
     if (!amount) return;
     setLoading(true);
-    await onTopUp(parseFloat(amount), '8123456');
+    const res = await onTopUp(parseFloat(amount), '8123456');
     setLoading(false);
-    onClose();
+    if (res.success) {
+      setSuccessTx(res.txHash);
+      setTimeout(() => {
+        onClose();
+      }, 2500);
+    } else {
+      alert("Top Up Failed");
+    }
   };
+
+  if (successTx) return (
+    <div className="modal-overlay">
+      <motion.div className="bottom-sheet" initial={{ y: '100%' }} animate={{ y: 0 }} style={{ textAlign: 'center', padding: '3rem 1.5rem' }}>
+        <CheckCircle2 size={60} color="#00A550" style={{ margin: '0 auto 1rem' }} />
+        <h3 style={{ fontSize: '1.5rem', fontWeight: 900, color: '#00A550' }}>Tarus Top-up Successful</h3>
+        <p style={{ color: '#8E8E93', marginTop: '10px' }}>Simulated Transaction Success for BICTA 2026</p>
+        <p style={{ fontSize: '0.7rem', color: '#C7C7CC', marginTop: '1rem', fontFamily: 'monospace' }}>TxHash: {successTx.substring(0, 24)}...</p>
+      </motion.div>
+    </div>
+  );
 
   return (
     <div className="modal-overlay" onClick={onClose}>
@@ -331,19 +349,40 @@ const WithdrawModal = ({ onClose, onWithdraw, balance }) => {
   const [amount, setAmount] = useState('');
   const [bank, setBank] = useState('BIBD');
   const [account, setAccount] = useState('');
+  const [twoFactorCode, setTwoFactorCode] = useState('');
   const [loading, setLoading] = useState(false);
+  const [successTx, setSuccessTx] = useState(null);
 
   const handleConfirm = async () => {
-    if (!amount || !account) return;
+    if (!amount || !account || !twoFactorCode) return;
     if (parseFloat(amount) > balance) {
       alert('Insufficient balance');
       return;
     }
     setLoading(true);
-    await onWithdraw({ amount: parseFloat(amount), bank, account });
+    const res = await onWithdraw({ amount: parseFloat(amount), bank, account, twoFactorCode });
     setLoading(false);
-    onClose();
+    
+    if (res.success) {
+      setSuccessTx(res.txHash);
+      setTimeout(() => {
+        onClose();
+      }, 2500);
+    } else {
+      alert(res.error || "Withdrawal failed");
+    }
   };
+
+  if (successTx) return (
+    <div className="modal-overlay">
+      <motion.div className="bottom-sheet" initial={{ y: '100%' }} animate={{ y: 0 }} style={{ textAlign: 'center', padding: '3rem 1.5rem' }}>
+        <CheckCircle2 size={60} color="#00A550" style={{ margin: '0 auto 1rem' }} />
+        <h3 style={{ fontSize: '1.5rem', fontWeight: 900, color: '#00A550' }}>Tarus Payout Successful</h3>
+        <p style={{ color: '#8E8E93', marginTop: '10px' }}>Instant Payout directly to your Bank Account</p>
+        <p style={{ fontSize: '0.7rem', color: '#C7C7CC', marginTop: '1rem', fontFamily: 'monospace' }}>TxHash: {successTx.substring(0, 24)}...</p>
+      </motion.div>
+    </div>
+  );
 
   return (
     <div className="modal-overlay" onClick={onClose}>
@@ -391,6 +430,18 @@ const WithdrawModal = ({ onClose, onWithdraw, balance }) => {
             />
           </div>
           <p style={{ fontSize: '0.75rem', color: '#8E8E93', marginTop: '8px', fontWeight: 600 }}>Available: BND {balance.toFixed(2)}</p>
+        </div>
+
+        <div style={{ marginBottom: '2rem' }}>
+          <label style={{ fontSize: '0.75rem', fontWeight: 800, color: '#00A550', textTransform: 'uppercase', marginBottom: '12px', display: 'block' }}><ShieldCheck size={14} style={{display:'inline', verticalAlign:'middle'}}/> BDCB 2FA Verification</label>
+          <input 
+            type="password" 
+            placeholder="Enter 6-Digit SMS Code" 
+            value={twoFactorCode} 
+            onChange={e => setTwoFactorCode(e.target.value)} 
+            maxLength={6}
+            style={{ width: '100%', padding: '1.2rem', borderRadius: '20px', border: '2px solid #00A550', fontSize: '1.2rem', outline: 'none', letterSpacing: '4px', textAlign: 'center' }} 
+          />
         </div>
 
         <button className="btn-primary" style={{ width: '100%', padding: '1.2rem', fontSize: '1.1rem', borderRadius: '22px', background: 'linear-gradient(135deg, #1C1C1E 0%, #000 100%)' }} onClick={handleConfirm} disabled={loading}>
@@ -524,7 +575,7 @@ const App = () => {
   const [isSigningUp, setIsSigningUp] = useState(false);
   
   // Auth Form State
-  const [authData, setAuthData] = useState({ name: '', phone: '', pin: '', icColor: 'Yellow', icNumber: '' });
+  const [authData, setAuthData] = useState({ name: '', phone: '', pin: '', kycType: 'GeneralWorker', icColor: 'Yellow', icNumber: '' });
   const [authLoading, setAuthLoading] = useState(false);
   const [portal, setPortal] = useState('seeker'); 
   const [view, setView] = useState('home'); 
@@ -568,12 +619,13 @@ const App = () => {
       <div className="login-header" style={{ height: '40vh', background: 'linear-gradient(135deg, #00A550 0%, #008741 100%)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', color: 'white', borderBottomLeftRadius: '40px', borderBottomRightRadius: '40px', position: 'relative', overflow: 'hidden' }}>
         <div style={{ position: 'absolute', top: '-10%', right: '-10%', width: '200px', height: '200px', background: 'rgba(255,255,255,0.05)', borderRadius: '50%' }}></div>
         <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ type: 'spring', damping: 12 }}>
-          <div style={{ width: '100px', height: '100px', background: 'rgba(255,255,255,0.2)', backdropFilter: 'blur(10px)', borderRadius: '30px', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 10px 30px rgba(0,0,0,0.1)' }}>
-            <Zap size={50} color="white" />
+          <div style={{ width: '80px', height: '80px', background: 'rgba(255,255,255,0.2)', backdropFilter: 'blur(10px)', borderRadius: '25px', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 10px 30px rgba(0,0,0,0.1)' }}>
+            <Zap size={40} color="white" />
           </div>
         </motion.div>
-        <h1 style={{ fontSize: '2.4rem', fontWeight: 900, marginTop: '2rem', letterSpacing: '-1px' }}>SideQuest.BN</h1>
-        <p style={{ opacity: 0.9, fontWeight: 500 }}>Secure Hustle. Instant Payouts.</p>
+        <h1 style={{ fontSize: '2.2rem', fontWeight: 900, marginTop: '1.5rem', letterSpacing: '-1px' }}>SideQuest.BN</h1>
+        <p style={{ opacity: 0.9, fontWeight: 700, marginTop: '5px' }}>Innovate for a Digital Brunei</p>
+        <div style={{ marginTop: '15px', background: 'rgba(0,0,0,0.2)', padding: '5px 12px', borderRadius: '12px', fontSize: '0.75rem', fontWeight: 800 }}>BICTA 2026 Pitch Demo</div>
       </div>
       
       <AnimatePresence mode="wait">
@@ -615,20 +667,40 @@ const App = () => {
               <input type="password" value={authData.pin} onChange={e => setAuthData({...authData, pin: e.target.value})} placeholder="••••••" style={{ width: '100%', padding: '1.2rem', borderRadius: '18px', border: '2px solid #F2F2F7', fontSize: '1rem', outline: 'none' }} />
             </div>
             
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', marginBottom: '2rem' }}>
-              <div>
-                <label style={{ fontSize: '0.75rem', fontWeight: 800, color: '#8E8E93', textTransform: 'uppercase', marginBottom: '8px', display: 'block' }}>IC Color</label>
-                <select value={authData.icColor} onChange={e => setAuthData({...authData, icColor: e.target.value})} style={{ width: '100%', padding: '1.2rem', borderRadius: '18px', border: '2px solid #F2F2F7', fontSize: '1rem', outline: 'none', background: 'white' }}>
-                  <option>Yellow</option>
-                  <option>Purple</option>
-                  <option>Green</option>
-                  <option>None</option>
-                </select>
-              </div>
-              <div>
-                <label style={{ fontSize: '0.75rem', fontWeight: 800, color: '#8E8E93', textTransform: 'uppercase', marginBottom: '8px', display: 'block' }}>IC Number</label>
-                <input type="text" value={authData.icNumber} onChange={e => setAuthData({...authData, icNumber: e.target.value})} placeholder="00-000000" style={{ width: '100%', padding: '1.2rem', borderRadius: '18px', border: '2px solid #F2F2F7', fontSize: '1rem', outline: 'none' }} />
-              </div>
+            <div style={{ display: 'flex', gap: '10px', marginBottom: '1.2rem' }}>
+              <button className="btn-outline" style={{ flex: 1, padding: '10px', borderRadius: '14px', background: authData.kycType === 'GeneralWorker' ? '#F2F2F7' : 'white', borderColor: authData.kycType === 'GeneralWorker' ? '#00A550' : '#E5E5EA' }} onClick={() => setAuthData({...authData, kycType: 'GeneralWorker'})}>General Worker</button>
+              <button className="btn-outline" style={{ flex: 1, padding: '10px', borderRadius: '14px', background: authData.kycType === 'Student' ? '#F2F2F7' : 'white', borderColor: authData.kycType === 'Student' ? '#00A550' : '#E5E5EA' }} onClick={() => setAuthData({...authData, kycType: 'Student'})}>Student (HND/Degree)</button>
+            </div>
+
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', marginBottom: '1.2rem' }}>
+              {authData.kycType === 'GeneralWorker' ? (
+                <div>
+                  <label style={{ fontSize: '0.75rem', fontWeight: 800, color: '#8E8E93', textTransform: 'uppercase', marginBottom: '8px', display: 'block' }}>IC Color</label>
+                  <select value={authData.icColor} onChange={e => setAuthData({...authData, icColor: e.target.value})} style={{ width: '100%', padding: '1.2rem', borderRadius: '18px', border: '2px solid #F2F2F7', fontSize: '1rem', outline: 'none', background: 'white' }}>
+                    <option>Yellow</option>
+                    <option>Purple</option>
+                    <option>Green</option>
+                    <option>None</option>
+                  </select>
+                </div>
+              ) : (
+                <div style={{ gridColumn: 'span 2' }}>
+                  <label style={{ fontSize: '0.75rem', fontWeight: 800, color: '#8E8E93', textTransform: 'uppercase', marginBottom: '8px', display: 'block' }}>Student ID Number</label>
+                  <input type="text" value={authData.icNumber} onChange={e => setAuthData({...authData, icNumber: e.target.value})} placeholder="e.g. 21B1234" style={{ width: '100%', padding: '1.2rem', borderRadius: '18px', border: '2px solid #F2F2F7', fontSize: '1rem', outline: 'none' }} />
+                </div>
+              )}
+              {authData.kycType === 'GeneralWorker' && (
+                <div>
+                  <label style={{ fontSize: '0.75rem', fontWeight: 800, color: '#8E8E93', textTransform: 'uppercase', marginBottom: '8px', display: 'block' }}>IC Number</label>
+                  <input type="text" value={authData.icNumber} onChange={e => setAuthData({...authData, icNumber: e.target.value})} placeholder="00-000000" style={{ width: '100%', padding: '1.2rem', borderRadius: '18px', border: '2px solid #F2F2F7', fontSize: '1rem', outline: 'none' }} />
+                </div>
+              )}
+            </div>
+
+            <div style={{ marginBottom: '2rem', padding: '1.5rem', border: '2px dashed #E5E5EA', borderRadius: '18px', textAlign: 'center', background: '#FAFAFC' }}>
+              <ShieldCheck size={24} color="#8E8E93" style={{ margin: '0 auto 8px' }} />
+              <p style={{ fontSize: '0.8rem', fontWeight: 700, color: '#1C1C1E' }}>Upload {authData.kycType === 'Student' ? 'Student ID' : 'Identity Card'} (Front & Back)</p>
+              <p style={{ fontSize: '0.7rem', color: '#8E8E93', marginTop: '4px' }}>Simulated Encrypted KYC Upload</p>
             </div>
 
             <button className="btn-primary" style={{ width: '100%', padding: '1.2rem', fontSize: '1.1rem', borderRadius: '20px', boxShadow: '0 10px 20px rgba(0,165,80,0.2)' }} onClick={async () => {
@@ -919,6 +991,7 @@ const App = () => {
                               {tx.status}
                             </span>
                           </p>
+                          {tx.hash && <p style={{ fontSize: '0.6rem', color: '#C7C7CC', marginTop: '2px', fontFamily: 'monospace' }}>SHA-256: {tx.hash.substring(0, 16)}...</p>}
                         </div>
                         <div style={{ fontWeight: 800, fontSize: '1.1rem', color: tx.amount > 0 ? '#00A550' : '#1C1C1E' }}>
                           {tx.amount > 0 ? '+' : ''}{tx.amount.toFixed(2)}
