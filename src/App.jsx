@@ -40,7 +40,8 @@ import {
   FileText,
   BarChart,
   Briefcase,
-  FileSearch
+  FileSearch,
+  Plus
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -563,6 +564,69 @@ const PostQuestModal = ({ onClose, onPost }) => {
   );
 };
 
+// --- EXPANDABLE MAP FAB ---
+
+const MAP_ACTIONS = [
+  { id: 'post',   label: 'Post',   icon: PlusCircle,    color: '#00A550', bg: 'rgba(0,165,80,0.12)',   offset: { x: -70, y: -10 } },
+  { id: 'chat',   label: 'Chat',   icon: MessageSquare, color: '#007AFF', bg: 'rgba(0,122,255,0.12)', offset: { x: -55, y: -65 } },
+  { id: 'tasks',  label: 'Tasks',  icon: ClipboardCheck,color: '#AF52DE', bg: 'rgba(175,82,222,0.12)',offset: { x: -10, y: -90 } },
+  { id: 'wallet', label: 'Wallet', icon: CreditCard,     color: '#FF9500', bg: 'rgba(255,149,0,0.12)', offset: { x: 45,  y: -65 } },
+];
+
+const MapFab = ({ onPost, onChat, onTasks, onWallet, portal }) => {
+  const [open, setOpen] = useState(false);
+  const handlers = { post: onPost, chat: onChat, tasks: onTasks, wallet: onWallet };
+
+  const mainColor = portal === 'poster' ? '#FF9500' : '#00A550';
+  const mainShadow = portal === 'poster' ? 'rgba(255,149,0,0.4)' : 'rgba(0,165,80,0.4)';
+
+  return (
+    <div style={{ position: 'absolute', bottom: '95px', right: '1rem', zIndex: 700 }}>
+      {/* Sub-action buttons */}
+      <AnimatePresence>
+        {open && MAP_ACTIONS.map((action, i) => {
+          const Icon = action.icon;
+          return (
+            <motion.div
+              key={action.id}
+              initial={{ opacity: 0, x: 0, y: 0, scale: 0.4 }}
+              animate={{ opacity: 1, x: action.offset.x, y: action.offset.y, scale: 1 }}
+              exit={{ opacity: 0, x: 0, y: 0, scale: 0.4 }}
+              transition={{ type: 'spring', stiffness: 350, damping: 25, delay: i * 0.04 }}
+              style={{ position: 'absolute', bottom: 0, right: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px', cursor: 'pointer' }}
+              onClick={() => { handlers[action.id](); setOpen(false); }}
+            >
+              <motion.div
+                whileTap={{ scale: 0.88 }}
+                style={{ width: '50px', height: '50px', background: 'white', borderRadius: '18px', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 8px 20px rgba(0,0,0,0.14)', border: `2px solid ${action.bg.replace('0.12', '0.3')}` }}
+              >
+                <Icon size={22} color={action.color} />
+              </motion.div>
+              <span style={{ fontSize: '0.6rem', fontWeight: 800, color: 'white', background: 'rgba(0,0,0,0.55)', padding: '2px 7px', borderRadius: '8px', backdropFilter: 'blur(6px)', whiteSpace: 'nowrap' }}>{action.label}</span>
+            </motion.div>
+          );
+        })}
+      </AnimatePresence>
+
+      {/* Tap-away backdrop */}
+      {open && (
+        <div style={{ position: 'fixed', inset: 0, zIndex: -1 }} onClick={() => setOpen(false)} />
+      )}
+
+      {/* Main FAB */}
+      <motion.div
+        onClick={() => setOpen(o => !o)}
+        animate={{ rotate: open ? 45 : 0, background: open ? '#1C1C1E' : mainColor }}
+        transition={{ type: 'spring', stiffness: 400, damping: 25 }}
+        whileTap={{ scale: 0.9 }}
+        style={{ width: '58px', height: '58px', borderRadius: '20px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', boxShadow: `0 12px 28px ${open ? 'rgba(0,0,0,0.3)' : mainShadow}` }}
+      >
+        <Plus size={28} color="white" strokeWidth={2.5} />
+      </motion.div>
+    </div>
+  );
+};
+
 // --- MAIN APP ---
 
 const App = () => {
@@ -741,34 +805,31 @@ const App = () => {
                  </div>
               </div>
 
-              {/* Floating Map UI Components */}
-              <div style={{ position: 'absolute', bottom: '90px', left: '1rem', right: '1rem', zIndex: 600, display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', pointerEvents: 'none' }}>
-                 
-                 {/* Bottom Left: Wallet Balance */}
-                 <div style={{ pointerEvents: 'auto', background: 'rgba(255,255,255,0.95)', backdropFilter: 'blur(10px)', padding: '10px 16px', borderRadius: '20px', boxShadow: '0 8px 24px rgba(0,0,0,0.12)', border: '1px solid rgba(255,255,255,0.8)', display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer' }} onClick={() => setShowWallet(true)}>
-                    <div style={{ background: 'rgba(0,165,80,0.1)', padding: '8px', borderRadius: '12px' }}>
-                       <CreditCard size={20} color="#00A550" />
-                    </div>
-                    <div>
-                       <p style={{ fontSize: '0.65rem', color: '#8E8E93', fontWeight: 800, textTransform: 'uppercase' }}>Available</p>
-                       <strong style={{ fontSize: '1.1rem', color: '#1C1C1E', fontWeight: 900 }}>BND {balance.toFixed(2)}</strong>
-                    </div>
-                 </div>
+              {/* Floating Map UI — Balance chip + Expandable FAB */}
+              
+              {/* Bottom-Left Balance Chip */}
+              <motion.div
+                style={{ position: 'absolute', bottom: '100px', left: '1rem', zIndex: 600, pointerEvents: 'auto', background: 'rgba(255,255,255,0.95)', backdropFilter: 'blur(12px)', padding: '10px 16px', borderRadius: '22px', boxShadow: '0 8px 24px rgba(0,0,0,0.12)', border: '1px solid rgba(255,255,255,0.8)', display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer' }}
+                onClick={() => setShowWallet(true)}
+                whileTap={{ scale: 0.95 }}
+              >
+                <div style={{ background: 'rgba(0,165,80,0.1)', padding: '8px', borderRadius: '12px' }}>
+                  <CreditCard size={20} color="#00A550" />
+                </div>
+                <div>
+                  <p style={{ fontSize: '0.6rem', color: '#8E8E93', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.5px' }}>Available</p>
+                  <strong style={{ fontSize: '1.1rem', color: '#1C1C1E', fontWeight: 900 }}>BND {balance.toFixed(2)}</strong>
+                </div>
+              </motion.div>
 
-                 {/* Bottom Right: FABs */}
-                 <div style={{ display: 'flex', flexDirection: 'column', gap: '15px', pointerEvents: 'auto' }}>
-                    <div style={{ width: '50px', height: '50px', background: 'white', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 8px 24px rgba(0,0,0,0.12)', cursor: 'pointer', position: 'relative' }} onClick={() => setShowChat(true)}>
-                       <MessageSquare size={24} color="#007AFF" />
-                       <div style={{ position: 'absolute', top: '0', right: '0', width: '12px', height: '12px', background: '#FF3B30', borderRadius: '50%', border: '2px solid white' }}></div>
-                    </div>
-                    <div style={{ width: '60px', height: '60px', background: 'linear-gradient(135deg, #00A550 0%, #008741 100%)', borderRadius: '20px', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 10px 25px rgba(0,165,80,0.4)', cursor: 'pointer', transform: 'rotate(45deg)' }} onClick={() => setShowPostModal(true)}>
-                       <div style={{ transform: 'rotate(-45deg)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                          <PlusCircle size={30} color="white" />
-                       </div>
-                    </div>
-                 </div>
-
-              </div>
+              {/* Bottom-Right Expandable FAB */}
+              <MapFab
+                onPost={() => setShowPostModal(true)}
+                onChat={() => setShowChat(true)}
+                onTasks={() => setView('activity')}
+                onWallet={() => setShowWallet(true)}
+                portal={portal}
+              />
             </motion.div>
           )}
 
