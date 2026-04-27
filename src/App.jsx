@@ -741,39 +741,33 @@ const App = () => {
                  </div>
               </div>
 
-              {/* Map Bottom Panel */}
-              <div className="map-bottom-panel" style={{ bottom: '90px', padding: '1.5rem' }}>
-                <div className="map-handle"></div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
-                  <div>
-                    <p style={{ fontSize: '0.8rem', color: '#8E8E93', fontWeight: 600 }}>Available Funds</p>
-                    <h2 style={{ fontSize: '2rem', fontWeight: 900, color: portal === 'seeker' ? '#00A550' : '#FF9500', letterSpacing: '-1px' }}>BND {balance.toFixed(2)}</h2>
-                  </div>
-                  <div style={{ textAlign: 'right' }}>
-                    <div style={{ background: portal === 'seeker' ? 'rgba(0,165,80,0.1)' : 'rgba(255,149,0,0.1)', color: portal === 'seeker' ? '#00A550' : '#FF9500', padding: '6px 12px', borderRadius: '12px', fontSize: '0.65rem', fontWeight: 800, textTransform: 'uppercase' }}>
-                      {portal} Mode
+              {/* Floating Map UI Components */}
+              <div style={{ position: 'absolute', bottom: '90px', left: '1rem', right: '1rem', zIndex: 600, display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', pointerEvents: 'none' }}>
+                 
+                 {/* Bottom Left: Wallet Balance */}
+                 <div style={{ pointerEvents: 'auto', background: 'rgba(255,255,255,0.95)', backdropFilter: 'blur(10px)', padding: '10px 16px', borderRadius: '20px', boxShadow: '0 8px 24px rgba(0,0,0,0.12)', border: '1px solid rgba(255,255,255,0.8)', display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer' }} onClick={() => setShowWallet(true)}>
+                    <div style={{ background: 'rgba(0,165,80,0.1)', padding: '8px', borderRadius: '12px' }}>
+                       <CreditCard size={20} color="#00A550" />
                     </div>
-                  </div>
-                </div>
+                    <div>
+                       <p style={{ fontSize: '0.65rem', color: '#8E8E93', fontWeight: 800, textTransform: 'uppercase' }}>Available</p>
+                       <strong style={{ fontSize: '1.1rem', color: '#1C1C1E', fontWeight: 900 }}>BND {balance.toFixed(2)}</strong>
+                    </div>
+                 </div>
 
-                <div className="quick-actions-grid" style={{ gridTemplateColumns: 'repeat(4, 1fr)', gap: '12px' }}>
-                  <div className="action-card" onClick={() => setShowPostModal(true)}>
-                    <div className="action-icon" style={{ background: portal === 'seeker' ? 'rgba(0,165,80,0.1)' : 'rgba(255,149,0,0.1)', color: portal === 'seeker' ? '#00A550' : '#FF9500' }}><PlusCircle size={24}/></div>
-                    <span>Post</span>
-                  </div>
-                  <div className="action-card" onClick={() => setShowChat(true)}>
-                    <div className="action-icon" style={{ background: 'rgba(0,122,255,0.1)', color: '#007AFF' }}><MessageSquare size={24}/></div>
-                    <span>Chat</span>
-                  </div>
-                  <div className="action-card" onClick={() => setView('activity')}>
-                    <div className="action-icon" style={{ background: 'rgba(175,82,222,0.1)', color: '#AF52DE' }}><ClipboardCheck size={24}/></div>
-                    <span>Tasks</span>
-                  </div>
-                  <div className="action-card" onClick={() => setShowWallet(true)}>
-                    <div className="action-icon" style={{ background: 'rgba(255,149,0,0.1)', color: '#FF9500' }}><CreditCard size={24}/></div>
-                    <span>Wallet</span>
-                  </div>
-                </div>
+                 {/* Bottom Right: FABs */}
+                 <div style={{ display: 'flex', flexDirection: 'column', gap: '15px', pointerEvents: 'auto' }}>
+                    <div style={{ width: '50px', height: '50px', background: 'white', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 8px 24px rgba(0,0,0,0.12)', cursor: 'pointer', position: 'relative' }} onClick={() => setShowChat(true)}>
+                       <MessageSquare size={24} color="#007AFF" />
+                       <div style={{ position: 'absolute', top: '0', right: '0', width: '12px', height: '12px', background: '#FF3B30', borderRadius: '50%', border: '2px solid white' }}></div>
+                    </div>
+                    <div style={{ width: '60px', height: '60px', background: 'linear-gradient(135deg, #00A550 0%, #008741 100%)', borderRadius: '20px', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 10px 25px rgba(0,165,80,0.4)', cursor: 'pointer', transform: 'rotate(45deg)' }} onClick={() => setShowPostModal(true)}>
+                       <div style={{ transform: 'rotate(-45deg)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                          <PlusCircle size={30} color="white" />
+                       </div>
+                    </div>
+                 </div>
+
               </div>
             </motion.div>
           )}
