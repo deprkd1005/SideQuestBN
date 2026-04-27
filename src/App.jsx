@@ -696,7 +696,35 @@ const App = () => {
         {!isSigningUp ? (
           <motion.div key="login" initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 20 }} className="auth-scroll-container" style={{ padding: '2rem' }}>
             <h2 style={{ fontSize: '1.8rem', fontWeight: 900, marginBottom: '0.5rem' }}>Welcome Back</h2>
-            <p style={{ color: '#8E8E93', marginBottom: '2rem', fontWeight: 500 }}>Login to your hustle account</p>
+            <p style={{ color: '#8E8E93', marginBottom: '1.5rem', fontWeight: 500 }}>Login to your hustle account</p>
+
+            {/* ── Quick Test Login Banner ── */}
+            <motion.div
+              whileTap={{ scale: 0.97 }}
+              onClick={async () => {
+                setAuthLoading(true);
+                const res = await login({ phone: '+673819498', pin: '12345678' });
+                if (res.success) setIsLoggedIn(true);
+                setAuthLoading(false);
+              }}
+              style={{ background: 'linear-gradient(135deg, #1e293b 0%, #0f172a 100%)', borderRadius: '20px', padding: '1.2rem 1.5rem', marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '14px', cursor: 'pointer', boxShadow: '0 8px 20px rgba(0,0,0,0.15)' }}
+            >
+              <div style={{ width: '44px', height: '44px', background: 'rgba(0,165,80,0.2)', borderRadius: '14px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                <Zap size={22} color="#00A550" fill="#00A550" />
+              </div>
+              <div style={{ flex: 1 }}>
+                <p style={{ color: 'white', fontWeight: 800, fontSize: '0.95rem' }}>Quick Test Login</p>
+                <p style={{ color: '#8E8E93', fontSize: '0.75rem', marginTop: '2px' }}>test · +673819498 · ••••••••</p>
+              </div>
+              <ChevronRight size={20} color="#8E8E93" />
+            </motion.div>
+
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '1.5rem' }}>
+              <div style={{ flex: 1, height: '1px', background: '#F2F2F7' }} />
+              <span style={{ fontSize: '0.75rem', color: '#C7C7CC', fontWeight: 700 }}>OR SIGN IN MANUALLY</span>
+              <div style={{ flex: 1, height: '1px', background: '#F2F2F7' }} />
+            </div>
+
             <div style={{ marginBottom: '1.2rem' }}>
               <label style={{ fontSize: '0.75rem', fontWeight: 800, color: '#8E8E93', textTransform: 'uppercase', marginBottom: '8px', display: 'block' }}>Phone Number</label>
               <input type="text" value={authData.phone} onChange={e => setAuthData({...authData, phone: e.target.value})} placeholder="+673 8XXX XXX" style={{ width: '100%', padding: '1.2rem', borderRadius: '18px', border: '2px solid #F2F2F7', fontSize: '1rem', outline: 'none' }} />

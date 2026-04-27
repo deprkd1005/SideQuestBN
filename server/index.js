@@ -16,14 +16,15 @@ app.use(express.json());
 // Simulation State
 let state = {
   user: {
-    name: "AWANG HUSTLER",
-    phone: "+673 8812094",
-    balance: 50.00,
-    cardNumber: "4532 8812 0943 2210",
+    name: "TEST",
+    phone: "+673819498",
+    pin: "12345678",
+    balance: 150.00,
+    cardNumber: "4532 8194 9800 0001",
     bruVerified: true,
     kycType: "GeneralWorker",
     icColor: "Yellow",
-    icNumber: "01-123456"
+    icNumber: "01-819498"
   },
   jobs: [
     { id: 'q1', title: 'Aircon Servicing', category: 'Home Maintenance', district: 'Brunei-Muara', mukim: 'Gadong A', reward: 45, status: 'open', payer: 'SME_TechFix', duration: '2 Hours', coords: [4.9003, 114.9301] },
@@ -32,7 +33,8 @@ let state = {
   ],
   escrow: {}, 
   transactions: [
-    { id: 'TX-001', type: 'Initial', amount: 50.00, status: 'VERIFIED', date: new Date().toISOString() }
+    { id: 'TX-001', type: 'Registration Bonus', amount: 50.00, status: 'VERIFIED', date: new Date().toISOString() },
+    { id: 'TX-002', type: 'Top-up (Test Wallet)', amount: 100.00, status: 'VERIFIED', date: new Date().toISOString() }
   ],
   chat: {
     sessions: [
