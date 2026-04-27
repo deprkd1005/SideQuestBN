@@ -36,7 +36,11 @@ import {
   CheckCircle2,
   Smartphone,
   LocateFixed,
-  Radius
+  Radius,
+  FileText,
+  BarChart,
+  Briefcase,
+  FileSearch
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -96,7 +100,8 @@ const MapView = ({ jobs, onAccept, mapInstanceRef, searchRadius }) => {
         <div style="font-family:'Outfit', sans-serif; padding:8px; min-width:150px;">
           <strong style="color:${color}; font-size:1rem; display:block; margin-bottom:4px;">${job.title}</strong>
           <div style="font-weight:900; font-size:1.1rem; margin-bottom:4px;">BND ${job.reward}</div>
-          <p style="font-size:0.75rem; color:#8E8E93; margin-bottom:8px;">${isOwned ? 'Your Posted Quest' : 'Available Quest'}</p>
+          <p style="font-size:0.75rem; color:#8E8E93; margin-bottom:2px;"><i class="lucide-briefcase" style="font-size:10px;"></i> ${job.category}</p>
+          <p style="font-size:0.75rem; color:#8E8E93; margin-bottom:8px;"><i class="lucide-map-pin" style="font-size:10px;"></i> ${job.mukim}, ${job.district}</p>
           ${!isOwned && job.status === 'open' ? `<button onclick="window.dispatchEvent(new CustomEvent('accept-job', {detail: '${job.id}'}))" style="background:#00A550; color:white; border:none; padding:10px; border-radius:12px; cursor:pointer; width:100%; font-weight:800; font-size:0.8rem;">Accept Quest</button>` : ''}
         </div>
       `);
@@ -397,7 +402,7 @@ const WithdrawModal = ({ onClose, onWithdraw, balance }) => {
 };
 
 const PostQuestModal = ({ onClose, onPost }) => {
-  const [formData, setFormData] = useState({ title: '', reward: '', duration: '', unit: 'Hours' });
+  const [formData, setFormData] = useState({ title: '', category: 'General', district: 'Brunei-Muara', mukim: 'Gadong A', reward: '', duration: '', unit: 'Hours' });
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async () => {
@@ -405,6 +410,9 @@ const PostQuestModal = ({ onClose, onPost }) => {
     setLoading(true);
     await onPost({
       title: formData.title,
+      category: formData.category,
+      district: formData.district,
+      mukim: formData.mukim,
       reward: formData.reward,
       duration: `${formData.duration} ${formData.unit}`,
       coords: [4.8903 + Math.random()*0.02, 114.9401 + Math.random()*0.02]
@@ -415,16 +423,16 @@ const PostQuestModal = ({ onClose, onPost }) => {
 
   return (
     <div className="modal-overlay" onClick={onClose}>
-      <motion.div className="bottom-sheet" initial={{ y: '100%' }} animate={{ y: 0 }} exit={{ y: '100%' }} onClick={e => e.stopPropagation()}>
+      <motion.div className="bottom-sheet" style={{ maxHeight: '90vh', overflowY: 'auto' }} initial={{ y: '100%' }} animate={{ y: 0 }} exit={{ y: '100%' }} onClick={e => e.stopPropagation()}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
           <h3 style={{ fontSize: '1.4rem', fontWeight: 800 }}>Post a Quest</h3>
           <X onClick={onClose} style={{ cursor: 'pointer' }} />
         </div>
-        <div style={{ marginBottom: '1.5rem' }}>
+        <div style={{ marginBottom: '1rem' }}>
           <label style={{ fontSize: '0.75rem', fontWeight: 800, color: '#8E8E93', textTransform: 'uppercase', marginBottom: '8px', display: 'block' }}>Quest Title</label>
           <input 
             type="text" 
-            placeholder="e.g. Grass Cutting, Package Delivery" 
+            placeholder="e.g. Grass Cutting, Legal Consult" 
             value={formData.title} 
             onChange={e => setFormData({ ...formData, title: e.target.value })} 
             style={{ width: '100%', padding: '1rem', borderRadius: '16px', border: '2px solid #F2F2F7', fontSize: '1rem', outline: 'none', transition: '0.2s' }} 
@@ -432,6 +440,34 @@ const PostQuestModal = ({ onClose, onPost }) => {
             onBlur={e => e.target.style.borderColor = '#F2F2F7'}
           />
         </div>
+
+        <div style={{ marginBottom: '1rem' }}>
+          <label style={{ fontSize: '0.75rem', fontWeight: 800, color: '#8E8E93', textTransform: 'uppercase', marginBottom: '8px', display: 'block' }}>Category</label>
+          <select value={formData.category} onChange={e => setFormData({...formData, category: e.target.value})} style={{ width: '100%', padding: '1rem', borderRadius: '16px', border: '2px solid #F2F2F7', fontSize: '1rem', outline: 'none', background: 'white' }}>
+            <option>General</option>
+            <option>Home Maintenance</option>
+            <option>Professional Services</option>
+            <option>Daily Errands</option>
+            <option>IT & Digital</option>
+          </select>
+        </div>
+
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', marginBottom: '1rem' }}>
+          <div>
+            <label style={{ fontSize: '0.75rem', fontWeight: 800, color: '#8E8E93', textTransform: 'uppercase', marginBottom: '8px', display: 'block' }}>District</label>
+            <select value={formData.district} onChange={e => setFormData({...formData, district: e.target.value})} style={{ width: '100%', padding: '1rem', borderRadius: '16px', border: '2px solid #F2F2F7', fontSize: '1rem', outline: 'none', background: 'white' }}>
+              <option>Brunei-Muara</option>
+              <option>Belait</option>
+              <option>Tutong</option>
+              <option>Temburong</option>
+            </select>
+          </div>
+          <div>
+            <label style={{ fontSize: '0.75rem', fontWeight: 800, color: '#8E8E93', textTransform: 'uppercase', marginBottom: '8px', display: 'block' }}>Mukim</label>
+            <input type="text" placeholder="e.g. Gadong A" value={formData.mukim} onChange={e => setFormData({...formData, mukim: e.target.value})} style={{ width: '100%', padding: '1rem', borderRadius: '16px', border: '2px solid #F2F2F7', fontSize: '1rem', outline: 'none' }} />
+          </div>
+        </div>
+
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px', marginBottom: '1.5rem' }}>
           <div>
             <label style={{ fontSize: '0.75rem', fontWeight: 800, color: '#8E8E93', textTransform: 'uppercase', marginBottom: '8px', display: 'block' }}>Reward (BND)</label>
@@ -454,12 +490,12 @@ const PostQuestModal = ({ onClose, onPost }) => {
                 placeholder="1" 
                 value={formData.duration} 
                 onChange={e => setFormData({ ...formData, duration: e.target.value })} 
-                style={{ flex: 1, padding: '1rem', borderRadius: '16px', border: '2px solid #F2F2F7', fontSize: '1rem', outline: 'none' }} 
+                style={{ flex: 1, padding: '1rem', borderRadius: '16px', border: '2px solid #F2F2F7', fontSize: '1rem', outline: 'none', minWidth: '0' }} 
               />
               <select 
                 value={formData.unit} 
                 onChange={e => setFormData({ ...formData, unit: e.target.value })} 
-                style={{ borderRadius: '16px', border: '2px solid #F2F2F7', padding: '0 10px', background: 'white' }}
+                style={{ borderRadius: '16px', border: '2px solid #F2F2F7', padding: '0 5px', background: 'white' }}
               >
                 <option>Mins</option>
                 <option>Hours</option>
@@ -480,15 +516,15 @@ const PostQuestModal = ({ onClose, onPost }) => {
 
 const App = () => {
   const { 
-    balance, walletInfo, jobs, transactions, escrow, loading, chatSessions,
-    acceptJob, completeJob, releaseFunds, topUp, postJob, sendMessage, fetchMessages, withdraw, signup, login 
+    balance, walletInfo, jobs, transactions, escrow, loading, chatSessions, impactStats,
+    topUp, postJob, acceptJob, completeJob, releaseFunds, withdraw, sendMessage, fetchMessages, signup, login, fetchImpactStats 
   } = usePayment();
 
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [isSigningUp, setIsSigningUp] = useState(false);
   
   // Auth Form State
-  const [authData, setAuthData] = useState({ name: '', phone: '', pin: '' });
+  const [authData, setAuthData] = useState({ name: '', phone: '', pin: '', icColor: 'Yellow', icNumber: '' });
   const [authLoading, setAuthLoading] = useState(false);
   const [portal, setPortal] = useState('seeker'); 
   const [view, setView] = useState('home'); 
@@ -574,10 +610,27 @@ const App = () => {
               <label style={{ fontSize: '0.75rem', fontWeight: 800, color: '#8E8E93', textTransform: 'uppercase', marginBottom: '8px', display: 'block' }}>Phone Number</label>
               <input type="text" value={authData.phone} onChange={e => setAuthData({...authData, phone: e.target.value})} placeholder="+673 8XXX XXX" style={{ width: '100%', padding: '1.2rem', borderRadius: '18px', border: '2px solid #F2F2F7', fontSize: '1rem', outline: 'none' }} />
             </div>
-            <div style={{ marginBottom: '2rem' }}>
+            <div style={{ marginBottom: '1.2rem' }}>
               <label style={{ fontSize: '0.75rem', fontWeight: 800, color: '#8E8E93', textTransform: 'uppercase', marginBottom: '8px', display: 'block' }}>Set Security PIN</label>
               <input type="password" value={authData.pin} onChange={e => setAuthData({...authData, pin: e.target.value})} placeholder="••••••" style={{ width: '100%', padding: '1.2rem', borderRadius: '18px', border: '2px solid #F2F2F7', fontSize: '1rem', outline: 'none' }} />
             </div>
+            
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', marginBottom: '2rem' }}>
+              <div>
+                <label style={{ fontSize: '0.75rem', fontWeight: 800, color: '#8E8E93', textTransform: 'uppercase', marginBottom: '8px', display: 'block' }}>IC Color</label>
+                <select value={authData.icColor} onChange={e => setAuthData({...authData, icColor: e.target.value})} style={{ width: '100%', padding: '1.2rem', borderRadius: '18px', border: '2px solid #F2F2F7', fontSize: '1rem', outline: 'none', background: 'white' }}>
+                  <option>Yellow</option>
+                  <option>Purple</option>
+                  <option>Green</option>
+                  <option>None</option>
+                </select>
+              </div>
+              <div>
+                <label style={{ fontSize: '0.75rem', fontWeight: 800, color: '#8E8E93', textTransform: 'uppercase', marginBottom: '8px', display: 'block' }}>IC Number</label>
+                <input type="text" value={authData.icNumber} onChange={e => setAuthData({...authData, icNumber: e.target.value})} placeholder="00-000000" style={{ width: '100%', padding: '1.2rem', borderRadius: '18px', border: '2px solid #F2F2F7', fontSize: '1rem', outline: 'none' }} />
+              </div>
+            </div>
+
             <button className="btn-primary" style={{ width: '100%', padding: '1.2rem', fontSize: '1.1rem', borderRadius: '20px', boxShadow: '0 10px 20px rgba(0,165,80,0.2)' }} onClick={async () => {
               setAuthLoading(true);
               const res = await signup(authData);
@@ -648,6 +701,10 @@ const App = () => {
                     <div className="action-icon" style={{ background: 'rgba(255,149,0,0.1)', color: '#FF9500' }}><CreditCard size={24}/></div>
                     <span>Wallet</span>
                   </div>
+                  <div className="action-card" onClick={() => setView('impact')}>
+                    <div className="action-icon" style={{ background: 'rgba(255,215,0,0.1)', color: '#FFD700' }}><BarChart size={24}/></div>
+                    <span>Impact</span>
+                  </div>
                 </div>
               </div>
             </motion.div>
@@ -683,6 +740,17 @@ const App = () => {
                         </div>
                         {job.status === 'assigned' && <button className="btn-primary" style={{ width: '100%', marginTop: '10px', borderRadius: '14px' }} onClick={() => completeJob(job.id)}>Submit Proof of Work</button>}
                         {job.status === 'completed' && escrow[job.id]?.status === 'PROOF_SUBMITTED' && <AutoReleaseTimer jobId={job.id} proofTime={escrow[job.id].proofTime} releaseFunds={releaseFunds} />}
+                        {job.status === 'finished' && (
+                          <button className="btn-outline" style={{ width: '100%', marginTop: '10px', borderRadius: '14px', borderColor: '#F2F2F7', color: '#1C1C1E', fontSize: '0.8rem' }} onClick={async () => {
+                             const res = await fetch(`/api/jobs/${job.id}/invoice`);
+                             const data = await res.json();
+                             if (data.success) {
+                               alert(`Invoice generated: ${data.invoice.invoiceNo}\nTotal: BND ${data.invoice.total}\nBilled To: ${data.invoice.billedTo}`);
+                             }
+                          }}>
+                            <FileText size={16} style={{ display: 'inline', verticalAlign: 'middle', marginRight: '4px' }} /> Download Tax Invoice
+                          </button>
+                        )}
                       </div>
                     ))
                   )}
@@ -690,14 +758,68 @@ const App = () => {
             </motion.div>
           )}
 
+          {view === 'impact' && (
+            <motion.div key="impact" initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.9, opacity: 0 }} style={{ padding: '1.5rem' }}>
+               <div style={{ textAlign: 'center', padding: '2rem 0', background: 'linear-gradient(135deg, #1e293b 0%, #0f172a 100%)', borderRadius: '24px', color: 'white', marginBottom: '1.5rem' }}>
+                 <h2 style={{ fontSize: '2rem', fontWeight: 900, color: '#FFD700', letterSpacing: '-1px' }}>WAWASAN 2035</h2>
+                 <p style={{ fontSize: '0.9rem', opacity: 0.9, fontWeight: 600, marginTop: '5px' }}>Job Creation & Gig Economy Impact</p>
+               </div>
+
+               {impactStats ? (
+                 <div style={{ display: 'grid', gap: '15px' }}>
+                   <div style={{ background: 'white', padding: '1.5rem', borderRadius: '24px', boxShadow: '0 4px 15px rgba(0,0,0,0.05)', border: '1px solid #F2F2F7' }}>
+                     <p style={{ fontSize: '0.8rem', color: '#8E8E93', fontWeight: 800, textTransform: 'uppercase' }}>Total Jobs Created</p>
+                     <h3 style={{ fontSize: '2.5rem', fontWeight: 900, color: '#00A550' }}>{impactStats.totalJobsCreated.toLocaleString()}</h3>
+                   </div>
+                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px' }}>
+                     <div style={{ background: 'white', padding: '1.5rem', borderRadius: '24px', boxShadow: '0 4px 15px rgba(0,0,0,0.05)', border: '1px solid #F2F2F7' }}>
+                       <p style={{ fontSize: '0.8rem', color: '#8E8E93', fontWeight: 800, textTransform: 'uppercase' }}>Active Workers</p>
+                       <h3 style={{ fontSize: '1.8rem', fontWeight: 900 }}>{impactStats.activeGigWorkers.toLocaleString()}</h3>
+                     </div>
+                     <div style={{ background: 'white', padding: '1.5rem', borderRadius: '24px', boxShadow: '0 4px 15px rgba(0,0,0,0.05)', border: '1px solid #F2F2F7' }}>
+                       <p style={{ fontSize: '0.8rem', color: '#8E8E93', fontWeight: 800, textTransform: 'uppercase' }}>Economic Impact</p>
+                       <h3 style={{ fontSize: '1.8rem', fontWeight: 900 }}>${(impactStats.economicImpactBND / 1000).toFixed(1)}K</h3>
+                     </div>
+                   </div>
+
+                   <div style={{ background: 'white', padding: '1.5rem', borderRadius: '24px', boxShadow: '0 4px 15px rgba(0,0,0,0.05)', border: '1px solid #F2F2F7', marginTop: '10px' }}>
+                     <h4 style={{ fontSize: '1.1rem', fontWeight: 800, marginBottom: '1rem' }}>Sectors Breakdown</h4>
+                     {impactStats.sectors.map(sector => (
+                       <div key={sector.name} style={{ marginBottom: '12px' }}>
+                         <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem', fontWeight: 700, marginBottom: '6px' }}>
+                           <span>{sector.name}</span>
+                           <span>{sector.percentage}%</span>
+                         </div>
+                         <div style={{ width: '100%', height: '8px', background: '#F2F2F7', borderRadius: '4px', overflow: 'hidden' }}>
+                           <div style={{ width: `${sector.percentage}%`, height: '100%', background: '#FFD700', borderRadius: '4px' }}></div>
+                         </div>
+                       </div>
+                     ))}
+                   </div>
+                 </div>
+               ) : (
+                 <p style={{ textAlign: 'center', marginTop: '2rem' }}>Loading Wawasan Impact Data...</p>
+               )}
+            </motion.div>
+          )}
+
           {view === 'account' && (
             <motion.div key="account" initial={{ y: 30, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: -30, opacity: 0 }}>
                <div className="account-header" style={{ padding: '3rem 1.5rem 5rem' }}>
                   <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }}>
-                    <div style={{ width: '100px', height: '100px', background: 'white', borderRadius: '35px', margin: '0 auto 1.5rem', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 10px 20px rgba(0,0,0,0.1)' }}><User size={50} color="#00A550" /></div>
+                    <div style={{ width: '100px', height: '100px', background: 'white', borderRadius: '35px', margin: '0 auto 1.5rem', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 10px 20px rgba(0,0,0,0.1)' }}>
+                      {walletInfo.bruVerified ? <ShieldCheck size={50} color="#00A550" /> : <User size={50} color="#8E8E93" />}
+                    </div>
                   </motion.div>
                   <h2 style={{ fontSize: '1.8rem', fontWeight: 900 }}>{walletInfo.holder}</h2>
-                  <p style={{ fontSize: '0.9rem', opacity: 0.9, fontWeight: 600 }}><ShieldCheck size={16} style={{ display: 'inline', verticalAlign: 'middle', marginRight: '4px' }}/> Verified SideQuest Partner</p>
+                  {walletInfo.bruVerified ? (
+                    <p style={{ fontSize: '0.9rem', color: '#00A550', fontWeight: 800, marginTop: '4px' }}>
+                      <ShieldCheck size={16} style={{ display: 'inline', verticalAlign: 'middle', marginRight: '4px' }}/> 
+                      Bru-Verified ({walletInfo.icColor} IC)
+                    </p>
+                  ) : (
+                    <p style={{ fontSize: '0.9rem', color: '#8E8E93', fontWeight: 600, marginTop: '4px' }}>Unverified User</p>
+                  )}
                </div>
                <div className="wallet-card" style={{ margin: '-3.5rem 1.5rem 1.5rem', padding: '2rem', borderRadius: '28px', background: 'white', boxShadow: '0 15px 35px rgba(0,0,0,0.1)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                   <div>
@@ -775,6 +897,36 @@ const App = () => {
               <div style={{ marginTop: '2rem', display: 'flex', gap: '15px' }}>
                 <button className="btn-primary" style={{ flex: 1, borderRadius: '18px', background: '#007AFF' }} onClick={() => { setShowWallet(false); setShowWithdraw(true); }}><ArrowDownCircle size={18} style={{ marginRight: '8px', verticalAlign: 'middle' }} /> Withdraw</button>
                 <button className="btn-outline" style={{ flex: 1, borderRadius: '18px' }} onClick={() => alert('Card settings coming soon!')}><Settings size={18} style={{ marginRight: '8px', verticalAlign: 'middle' }} /> Settings</button>
+              </div>
+
+              <div style={{ marginTop: '2rem' }}>
+                <h4 style={{ fontSize: '1.1rem', fontWeight: 800, marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '8px' }}><History size={18} /> Recent Transactions</h4>
+                <div style={{ maxHeight: '250px', overflowY: 'auto', paddingRight: '10px' }} className="tx-list">
+                  {transactions.length === 0 ? (
+                    <p style={{ color: '#8E8E93', fontSize: '0.9rem', textAlign: 'center', padding: '2rem 0' }}>No transactions yet.</p>
+                  ) : (
+                    transactions.map(tx => (
+                      <div key={tx.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '1rem 0', borderBottom: '1px solid #F2F2F7' }}>
+                        <div>
+                          <p style={{ fontWeight: 700, fontSize: '0.95rem' }}>{tx.type}</p>
+                          <p style={{ fontSize: '0.75rem', color: '#8E8E93', marginTop: '4px' }}>
+                            {new Date(tx.date).toLocaleDateString()} • 
+                            <span style={{ 
+                              color: tx.status === 'VERIFIED' ? '#00A550' : tx.status === 'PENDING' ? '#FF9500' : '#8E8E93', 
+                              fontWeight: 800, 
+                              marginLeft: '4px' 
+                            }}>
+                              {tx.status}
+                            </span>
+                          </p>
+                        </div>
+                        <div style={{ fontWeight: 800, fontSize: '1.1rem', color: tx.amount > 0 ? '#00A550' : '#1C1C1E' }}>
+                          {tx.amount > 0 ? '+' : ''}{tx.amount.toFixed(2)}
+                        </div>
+                      </div>
+                    ))
+                  )}
+                </div>
               </div>
             </motion.div>
           </div>

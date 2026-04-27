@@ -11,6 +11,7 @@ export const PaymentProvider = ({ children }) => {
   const [transactions, setTransactions] = useState([]);
   const [escrow, setEscrow] = useState({});
   const [chatSessions, setChatSessions] = useState([]);
+  const [impactStats, setImpactStats] = useState(null);
   const [loading, setLoading] = useState(true);
 
   const fetchState = async () => {
@@ -21,7 +22,10 @@ export const PaymentProvider = ({ children }) => {
       setBalance(data.user.balance);
       setWalletInfo({
         cardNumber: data.user.cardNumber,
-        holder: data.user.name
+        holder: data.user.name,
+        bruVerified: data.user.bruVerified,
+        icColor: data.user.icColor,
+        icNumber: data.user.icNumber
       });
       setJobs(data.jobs);
       setTransactions(data.transactions);
@@ -36,9 +40,20 @@ export const PaymentProvider = ({ children }) => {
 
   useEffect(() => {
     fetchState();
+    fetchImpactStats();
     const interval = setInterval(fetchState, 5000); // Poll for updates
     return () => clearInterval(interval);
   }, []);
+
+  const fetchImpactStats = async () => {
+    try {
+      const res = await fetch('/api/impact');
+      const data = await res.json();
+      setImpactStats(data);
+    } catch (err) {
+      console.error("Failed to fetch impact stats", err);
+    }
+  };
 
   const topUp = async (amount, phone) => {
     const res = await fetch('/api/top-up', {
@@ -134,8 +149,8 @@ export const PaymentProvider = ({ children }) => {
 
   return (
     <PaymentContext.Provider value={{
-      balance, walletInfo, jobs, transactions, escrow, chatSessions, loading,
-      topUp, postJob, acceptJob, completeJob, releaseFunds, withdraw, sendMessage, fetchMessages, signup, login, refresh: fetchState
+      balance, walletInfo, jobs, transactions, escrow, chatSessions, loading, impactStats,
+      topUp, postJob, acceptJob, completeJob, releaseFunds, withdraw, sendMessage, fetchMessages, signup, login, refresh: fetchState, fetchImpactStats
     }}>
       {children}
     </PaymentContext.Provider>

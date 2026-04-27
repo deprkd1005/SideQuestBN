@@ -18,11 +18,15 @@ let state = {
     name: "AWANG HUSTLER",
     phone: "+673 8812094",
     balance: 50.00,
-    cardNumber: "4532 8812 0943 2210"
+    cardNumber: "4532 8812 0943 2210",
+    bruVerified: true,
+    icColor: "Yellow",
+    icNumber: "01-123456"
   },
   jobs: [
-    { id: 'q1', title: 'Grass Cutting', reward: 25, status: 'open', payer: 'Poster1', duration: '2 Hours', coords: [4.8903, 114.9401] },
-    { id: 'q2', title: 'Deliver Package', reward: 15, status: 'open', payer: 'Poster2', duration: '1 Hour', coords: [4.8950, 114.9450] }
+    { id: 'q1', title: 'Aircon Servicing', category: 'Home Maintenance', district: 'Brunei-Muara', mukim: 'Gadong A', reward: 45, status: 'open', payer: 'SME_TechFix', duration: '2 Hours', coords: [4.9003, 114.9301] },
+    { id: 'q2', title: 'Legal Document Translation', category: 'Professional Services', district: 'Brunei-Muara', mukim: 'Kianggeh', reward: 85, status: 'open', payer: 'LawFirmBN', duration: '1 Day', coords: [4.8950, 114.9450] },
+    { id: 'q3', title: 'Groceries Runner', category: 'Daily Errands', district: 'Belait', mukim: 'Kuala Belait', reward: 15, status: 'open', payer: 'Haji Ali', duration: '1 Hour', coords: [4.5833, 114.1833] }
   ],
   escrow: {}, 
   transactions: [
@@ -57,12 +61,17 @@ const addTx = (type, amount, status = 'VERIFIED') => {
 app.get('/api/state', (req, res) => res.json(state));
 
 app.post('/api/auth/signup', (req, res) => {
-  const { name, phone, pin } = req.body;
+  const { name, phone, pin, icColor, icNumber } = req.body;
+  const isBruVerified = ['Yellow', 'Purple', 'Green'].includes(icColor);
+  
   state.user = {
     name: (name || "Guest").toUpperCase(),
     phone: phone || "0000000",
     balance: 50.00,
-    cardNumber: `4532 ${Math.floor(1000+Math.random()*8999)} ${Math.floor(1000+Math.random()*8999)} ${Math.floor(1000+Math.random()*8999)}`
+    cardNumber: `4532 ${Math.floor(1000+Math.random()*8999)} ${Math.floor(1000+Math.random()*8999)} ${Math.floor(1000+Math.random()*8999)}`,
+    bruVerified: isBruVerified,
+    icColor: icColor || "None",
+    icNumber: icNumber || ""
   };
   state.transactions = [{ id: 'TX-001', type: 'Registration Bonus', amount: 50.00, status: 'VERIFIED', date: new Date().toISOString() }];
   res.json({ success: true, user: state.user });
@@ -87,7 +96,7 @@ app.post('/api/top-up', (req, res) => {
 });
 
 app.post('/api/jobs', (req, res) => {
-  const { title, reward, duration, coords } = req.body;
+  const { title, reward, duration, coords, category, district, mukim } = req.body;
   const numReward = parseFloat(reward);
   if (state.user.balance < numReward) {
     return res.status(400).json({ error: 'Insufficient balance' });
@@ -96,6 +105,9 @@ app.post('/api/jobs', (req, res) => {
   const newJob = {
     id: `q${state.jobs.length + 1}`,
     title,
+    category: category || 'General',
+    district: district || 'Brunei-Muara',
+    mukim: mukim || 'Gadong A',
     reward: numReward,
     duration,
     status: 'open',
@@ -218,6 +230,43 @@ app.post('/api/withdraw', (req, res) => {
   state.user.balance -= numAmount;
   addTx(`Withdraw (${bank})`, -numAmount, 'PENDING');
   res.json({ success: true, newBalance: state.user.balance });
+});
+
+// Wawasan 2035 Impact Dashboard
+app.get('/api/impact', (req, res) => {
+  // Simulate some dynamic nation-wide stats
+  res.json({
+    totalJobsCreated: 12450 + state.jobs.length,
+    activeGigWorkers: 3820,
+    economicImpactBND: 245000 + state.jobs.reduce((acc, job) => acc + job.reward, 0),
+    sectors: [
+      { name: 'Home Maintenance', percentage: 40 },
+      { name: 'Professional Services', percentage: 25 },
+      { name: 'Daily Errands', percentage: 35 }
+    ]
+  });
+});
+
+// Tax-ready Invoicing
+app.get('/api/jobs/:id/invoice', (req, res) => {
+  const job = state.jobs.find(j => j.id === req.params.id);
+  if (!job) return res.status(404).json({ error: 'Job not found' });
+  
+  const invoice = {
+    invoiceNo: `INV-${new Date().getFullYear()}-${Math.floor(Math.random()*9000)+1000}`,
+    date: new Date().toISOString(),
+    billedTo: job.payer,
+    provider: state.user.name,
+    providerIc: state.user.icNumber,
+    service: job.title,
+    category: job.category,
+    amount: job.reward,
+    tax: 0, // No GST in Brunei currently, but placeholder for tax-ready
+    total: job.reward,
+    status: job.status === 'finished' ? 'PAID' : 'PENDING'
+  };
+  
+  res.json({ success: true, invoice });
 });
 
 // Serve Static Files in Production
