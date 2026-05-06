@@ -5,6 +5,7 @@ const PaymentContext = createContext();
 export const usePayment = () => useContext(PaymentContext);
 
 export const PaymentProvider = ({ children }) => {
+  const [user, setUser] = useState(null);
   const [balance, setBalance] = useState(0);
   const [walletInfo, setWalletInfo] = useState({ cardNumber: "•••• •••• •••• ••••", holder: "LOADING..." });
   const [jobs, setJobs] = useState([]);
@@ -13,19 +14,23 @@ export const PaymentProvider = ({ children }) => {
   const [chatSessions, setChatSessions] = useState([]);
   const [impactStats, setImpactStats] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [userLocation, setUserLocation] = useState([4.9003, 114.9301]); // Default to Gadong for Prototype
 
   const fetchState = async () => {
     try {
       const res = await fetch('/api/state');
       if (!res.ok) throw new Error('Backend unreachable');
       const data = await res.json();
+      setUser(data.user);
       setBalance(data.user.balance);
       setWalletInfo({
         cardNumber: data.user.cardNumber,
         holder: data.user.name,
+        role: data.user.role,
         bruVerified: data.user.bruVerified,
         icColor: data.user.icColor,
-        icNumber: data.user.icNumber
+        icNumber: data.user.icNumber,
+        isAdmin: data.user.isAdmin
       });
       setJobs(data.jobs);
       setTransactions(data.transactions);
@@ -55,11 +60,11 @@ export const PaymentProvider = ({ children }) => {
     }
   };
 
-  const topUp = async (amount, phone) => {
-    const res = await fetch('/api/tarus/topup', {
+  const topUp = async (amount, method) => {
+    const res = await fetch('/api/pay/topup', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ amount, phone })
+      body: JSON.stringify({ amount, method })
     });
     const data = await res.json();
     if (data.success) fetchState();
@@ -115,7 +120,7 @@ export const PaymentProvider = ({ children }) => {
   };
 
   const withdraw = async (details) => {
-    const res = await fetch('/api/tarus/withdraw', {
+    const res = await fetch('/api/pay/withdraw', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(details)
@@ -125,6 +130,25 @@ export const PaymentProvider = ({ children }) => {
     return data;
   };
 
+  const setRole = (newRole) => {
+     setUser(prev => ({ ...prev, role: newRole }));
+  };
+
+  const getAdminUsers = async () => {
+     const res = await fetch('/api/admin/users');
+     return await res.json();
+  };
+
+  const getSystemHealth = async () => {
+     const res = await fetch('/api/admin/system-health');
+     return await res.json();
+  };
+
+  const verifyUser = async (userId) => {
+     const res = await fetch(`/api/admin/users/${userId}/verify`, { method: 'POST' });
+     return await res.json();
+  };
+
   const signup = async (userData) => {
     const res = await fetch('/api/auth/signup', {
       method: 'POST',
@@ -132,7 +156,7 @@ export const PaymentProvider = ({ children }) => {
       body: JSON.stringify(userData)
     });
     const data = await res.json();
-    if (data.success) fetchState();
+    if (data.success) await fetchState();
     return data;
   };
 
@@ -143,14 +167,15 @@ export const PaymentProvider = ({ children }) => {
       body: JSON.stringify(credentials)
     });
     const data = await res.json();
-    if (data.success) fetchState();
+    if (data.success) await fetchState();
     return data;
   };
 
   return (
     <PaymentContext.Provider value={{
-      balance, walletInfo, jobs, transactions, escrow, chatSessions, loading, impactStats,
-      topUp, postJob, acceptJob, completeJob, releaseFunds, withdraw, sendMessage, fetchMessages, signup, login, refresh: fetchState, fetchImpactStats
+      user, balance, walletInfo, jobs, transactions, escrow, chatSessions, loading, impactStats, userLocation, setUserLocation,
+      topUp, postJob, acceptJob, completeJob, releaseFunds, withdraw, sendMessage, fetchMessages, signup, login, refresh: fetchState, 
+      fetchImpactStats, setRole, getAdminUsers, getSystemHealth, verifyUser
     }}>
       {children}
     </PaymentContext.Provider>

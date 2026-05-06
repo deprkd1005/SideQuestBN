@@ -16,35 +16,39 @@ app.use(express.json());
 // Simulation State
 let state = {
   user: {
-    name: "TEST",
+    name: "TEST USER",
     phone: "+673819498",
     pin: "12345678",
     balance: 150.00,
     cardNumber: "4532 8194 9800 0001",
+    role: 'SEEKER', // Initial role, can be toggled or set on login
     bruVerified: true,
     kycType: "GeneralWorker",
     icColor: "Yellow",
-    icNumber: "01-819498"
+    icNumber: "01-819498",
+    isAdmin: false
   },
+  // Mock Users for Admin view
+  allUsers: [
+    { id: 'u1', name: 'Ali Abu', phone: '+6738123456', role: 'SEEKER', bruVerified: true, icColor: 'Yellow' },
+    { id: 'u2', name: 'Siti Aminah', phone: '+6738222333', role: 'POSTER', bruVerified: false, icColor: 'Purple' },
+    { id: 'u3', name: 'Admin One', phone: '+6739991234', role: 'ADMIN', bruVerified: true, isAdmin: true }
+  ],
   jobs: [
     { id: 'q1', title: 'Aircon Servicing', category: 'Home Maintenance', district: 'Brunei-Muara', mukim: 'Gadong A', reward: 45, status: 'open', payer: 'SME_TechFix', duration: '2 Hours', coords: [4.9003, 114.9301] },
     { id: 'q2', title: 'Legal Document Translation', category: 'Professional Services', district: 'Brunei-Muara', mukim: 'Kianggeh', reward: 85, status: 'open', payer: 'LawFirmBN', duration: '1 Day', coords: [4.8950, 114.9450] },
-    { id: 'q3', title: 'Groceries Runner', category: 'Daily Errands', district: 'Belait', mukim: 'Kuala Belait', reward: 15, status: 'open', payer: 'Haji Ali', duration: '1 Hour', coords: [4.5833, 114.1833] }
+    { id: 'q3', title: 'Groceries Runner', category: 'Daily Errands', district: 'Belait', mukim: 'Kuala Belait', reward: 15, status: 'open', payer: 'Haji Ali', duration: '1 Hour', coords: [4.5833, 114.1833] },
+    { id: 'p1', title: 'Grass Cutting (Home)', category: 'Home Maintenance', district: 'Brunei-Muara', mukim: 'Gadong B', reward: 30, status: 'assigned', payer: 'TEST USER', duration: '3 Hours', coords: [4.9103, 114.9201] },
+    { id: 'p2', title: 'Website Debugging', category: 'Digital Services', district: 'Brunei-Muara', mukim: 'Berakas A', reward: 120, status: 'open', payer: 'TEST USER', duration: '5 Hours', coords: [4.9303, 114.9401] }
   ],
-  escrow: {}, 
+  escrow: {},
   transactions: [
     { id: 'TX-001', type: 'Registration Bonus', amount: 50.00, status: 'VERIFIED', date: new Date().toISOString() },
     { id: 'TX-002', type: 'Top-up (Test Wallet)', amount: 100.00, status: 'VERIFIED', date: new Date().toISOString() }
   ],
   chat: {
-    sessions: [
-      { id: 's1', participant: 'Poster1', lastMessage: 'Hello! I am nearby and can help.', timestamp: new Date().toISOString() }
-    ],
-    messages: {
-      's1': [
-        { id: 'm1', sender: 'Poster1', text: 'Hello! I am nearby and can help.', timestamp: new Date().toISOString() }
-      ]
-    }
+    sessions: [],
+    messages: {}
   }
 };
 
@@ -52,7 +56,7 @@ let state = {
 const addTx = (type, amount, status = 'VERIFIED') => {
   const date = new Date().toISOString();
   const txId = `TX-${Math.floor(Math.random() * 9000) + 1000}`;
-  
+
   // SHA-256 Hashing for Payment Logs (BDCB Compliance Simulation)
   const hashString = `${txId}|${type}|${amount}|${date}`;
   const hash = crypto.createHash('sha256').update(hashString).digest('hex');
@@ -74,33 +78,46 @@ app.get('/api/state', (req, res) => res.json(state));
 
 app.post('/api/auth/signup', (req, res) => {
   const { name, phone, pin, icColor, icNumber, kycType } = req.body;
-  
-  // Hybrid Verification Logic
+
   let isBruVerified = false;
-  if (kycType === 'Student' && icNumber) {
-    isBruVerified = true; // Assuming HND/Degree ID is valid
-  } else if (kycType === 'GeneralWorker' && ['Yellow', 'Purple', 'Green'].includes(icColor)) {
-    isBruVerified = true;
-  }
-  
+  if (kycType === 'Student' && icNumber) isBruVerified = true;
+  else if (kycType === 'GeneralWorker' && ['Yellow', 'Purple', 'Green'].includes(icColor)) isBruVerified = true;
+
+  const role = phone.includes('999') ? 'ADMIN' : 'SEEKER';
+
   state.user = {
     name: (name || "Guest").toUpperCase(),
     phone: phone || "0000000",
     balance: 50.00,
-    cardNumber: `4532 ${Math.floor(1000+Math.random()*8999)} ${Math.floor(1000+Math.random()*8999)} ${Math.floor(1000+Math.random()*8999)}`,
+    cardNumber: `4532 ${Math.floor(1000 + Math.random() * 8999)} ${Math.floor(1000 + Math.random() * 8999)} ${Math.floor(1000 + Math.random() * 8999)}`,
+    role: role,
     bruVerified: isBruVerified,
     kycType: kycType || 'GeneralWorker',
     icColor: icColor || "None",
-    icNumber: icNumber || ""
+    icNumber: icNumber || "",
+    isAdmin: role === 'ADMIN'
   };
   state.transactions = [{ id: 'TX-001', type: 'Registration Bonus', amount: 50.00, status: 'VERIFIED', date: new Date().toISOString() }];
   res.json({ success: true, user: state.user });
 });
 
 app.post('/api/auth/login', (req, res) => {
-  const { phone } = req.body;
-  // Trim spaces for robust comparison
+  const { phone, role } = req.body;
   const normalise = (p) => (p || '').replace(/\s+/g, '').toLowerCase();
+
+  // Prototype Override: Allow any phone with '999' to be Admin
+  if (phone && phone.includes('999')) {
+    state.user = { ...state.user, role: 'ADMIN', isAdmin: true, phone: phone };
+    return res.json({ success: true, user: state.user });
+  }
+
+  // Prototype Override: Honor the requested role if provided
+  if (role) {
+    state.user = { ...state.user, role: role, isAdmin: role === 'ADMIN', phone: phone || state.user.phone };
+    return res.json({ success: true, user: state.user });
+  }
+
+  // Fallback to existing logic
   if (normalise(phone) === normalise(state.user.phone)) {
     res.json({ success: true, user: state.user });
   } else {
@@ -108,30 +125,29 @@ app.post('/api/auth/login', (req, res) => {
   }
 });
 
-// Tarus API Integration Points
-app.post('/api/tarus/topup', (req, res) => {
-  const { amount } = req.body;
+// Brunei-Specific Payment Integration Points (Replacing Tarus)
+app.post('/api/pay/topup', (req, res) => {
+  const { amount, method } = req.body; // method: 'BIBD', 'Baiduri'
   setTimeout(() => {
     state.user.balance += parseFloat(amount);
-    const tx = addTx('Tarus Network Top-up', parseFloat(amount), 'VERIFIED');
+    const tx = addTx(`${method || 'BIBD QuickPay'} Top-up`, parseFloat(amount), 'VERIFIED');
     res.json({ success: true, newBalance: state.user.balance, txHash: tx.hash });
-  }, 800); // Simulate real-time Tarus loop
+  }, 800);
 });
 
-app.post('/api/tarus/withdraw', (req, res) => {
+app.post('/api/pay/withdraw', (req, res) => {
   const { amount, bank, account, twoFactorCode } = req.body;
   const numAmount = parseFloat(amount);
-  
-  // 2FA BDCB Compliance
+
   if (!twoFactorCode || twoFactorCode.length !== 6) {
     return res.status(403).json({ error: 'Invalid 2FA Code' });
   }
 
   if (state.user.balance < numAmount) return res.status(400).json({ error: 'Insufficient funds' });
-  
+
   setTimeout(() => {
     state.user.balance -= numAmount;
-    const tx = addTx(`Instant Payout via Tarus (${bank})`, -numAmount, 'VERIFIED');
+    const tx = addTx(`Instant Payout via BruPay (${bank})`, -numAmount, 'VERIFIED');
     res.json({ success: true, newBalance: state.user.balance, txHash: tx.hash });
   }, 1200);
 });
@@ -152,7 +168,7 @@ app.post('/api/jobs', (req, res) => {
   if (state.user.balance < numReward) {
     return res.status(400).json({ error: 'Insufficient balance' });
   }
-  
+
   const newJob = {
     id: `q${state.jobs.length + 1}`,
     title,
@@ -162,21 +178,21 @@ app.post('/api/jobs', (req, res) => {
     reward: numReward,
     duration,
     status: 'open',
-    payer: 'Me',
-    coords: coords || [4.8903 + Math.random()*0.02, 114.9401 + Math.random()*0.02]
+    payer: state.user.name,
+    coords: coords // Now assuming accurate coords from frontend
   };
-  
+
   state.jobs.push(newJob);
   state.user.balance -= numReward;
   addTx('Post Quest (Escrow)', -numReward, 'LOCKED');
-  
+
   res.json({ success: true, job: newJob, newBalance: state.user.balance });
 });
 
 app.post('/api/jobs/:id/accept', (req, res) => {
   const job = state.jobs.find(j => j.id === req.params.id);
   if (!job) return res.status(404).json({ error: 'Job not found' });
-  
+
   job.status = 'assigned';
   state.escrow[job.id] = {
     amount: job.reward,
@@ -184,14 +200,14 @@ app.post('/api/jobs/:id/accept', (req, res) => {
     status: 'LOCKED',
     startTime: new Date().toISOString()
   };
-  
+
   res.json({ success: true, job });
 });
 
 app.post('/api/jobs/:id/complete', (req, res) => {
   const job = state.jobs.find(j => j.id === req.params.id);
   const escrow = state.escrow[job.id];
-  
+
   if (escrow) {
     escrow.status = 'PROOF_SUBMITTED';
     escrow.proofTime = new Date().toISOString();
@@ -205,11 +221,11 @@ app.post('/api/jobs/:id/complete', (req, res) => {
 app.post('/api/jobs/:id/release', (req, res) => {
   const job = state.jobs.find(j => j.id === req.params.id);
   const escrow = state.escrow[job.id];
-  
+
   if (escrow && escrow.status !== 'RELEASED') {
     escrow.status = 'RELEASED';
     job.status = 'finished';
-    
+
     // Platform Commission Logic (5%)
     const commission = escrow.amount * 0.05;
     const finalPayout = escrow.amount - commission;
@@ -225,7 +241,7 @@ app.post('/api/jobs/:id/release', (req, res) => {
       // Just log that the quest was finalized from our escrow
       addTx('Escrow Released (Paid to Worker)', 0, 'VERIFIED');
     }
-    
+
     res.json({ success: true, commission, finalPayout });
   } else {
     res.status(400).json({ error: 'Already released or invalid job' });
@@ -241,20 +257,20 @@ app.get('/api/chat/:sessionId', (req, res) => {
 app.post('/api/chat/:sessionId', (req, res) => {
   const { text, sender } = req.body;
   const sessionId = req.params.sessionId;
-  
+
   if (!state.chat.messages[sessionId]) {
     state.chat.messages[sessionId] = [];
   }
-  
+
   const newMessage = {
     id: `m${Date.now()}`,
     text,
     sender: sender || 'Me',
     timestamp: new Date().toISOString()
   };
-  
+
   state.chat.messages[sessionId].push(newMessage);
-  
+
   const session = state.chat.sessions.find(s => s.id === sessionId);
   if (session) {
     session.lastMessage = text;
@@ -285,19 +301,35 @@ app.post('/api/chat/:sessionId', (req, res) => {
       }
     }, 1500);
   }
-  
+
   res.json({ success: true, message: newMessage });
 });
 
-// Legacy withdraw endpoint
-app.post('/api/withdraw', (req, res) => {
-  const { amount, bank, account } = req.body;
-  const numAmount = parseFloat(amount);
-  if (state.user.balance < numAmount) return res.status(400).json({ error: 'Insufficient funds' });
-  
-  state.user.balance -= numAmount;
-  addTx(`Withdraw (${bank})`, -numAmount, 'PENDING');
-  res.json({ success: true, newBalance: state.user.balance });
+// Admin Only Routes
+app.get('/api/admin/users', (req, res) => {
+  if (state.user.role !== 'ADMIN') return res.status(403).json({ error: 'Unauthorised' });
+  res.json(state.allUsers);
+});
+
+app.post('/api/admin/users/:id/verify', (req, res) => {
+  if (state.user.role !== 'ADMIN') return res.status(403).json({ error: 'Unauthorised' });
+  const user = state.allUsers.find(u => u.id === req.params.id);
+  if (user) {
+    user.bruVerified = true;
+    res.json({ success: true, user });
+  } else {
+    res.status(404).json({ error: 'User not found' });
+  }
+});
+
+app.get('/api/admin/system-health', (req, res) => {
+  if (state.user.role !== 'ADMIN') return res.status(403).json({ error: 'Unauthorised' });
+  res.json({
+    status: 'OPTIMAL',
+    uptime: '14 Days',
+    escrowTotal: state.jobs.filter(j => j.status === 'assigned').reduce((acc, j) => acc + j.reward, 0),
+    activeUsers: state.allUsers.length + 1
+  });
 });
 
 // Wawasan 2035 Impact Dashboard
@@ -319,9 +351,9 @@ app.get('/api/impact', (req, res) => {
 app.get('/api/jobs/:id/invoice', (req, res) => {
   const job = state.jobs.find(j => j.id === req.params.id);
   if (!job) return res.status(404).json({ error: 'Job not found' });
-  
+
   const invoice = {
-    invoiceNo: `INV-${new Date().getFullYear()}-${Math.floor(Math.random()*9000)+1000}`,
+    invoiceNo: `INV-${new Date().getFullYear()}-${Math.floor(Math.random() * 9000) + 1000}`,
     date: new Date().toISOString(),
     billedTo: job.payer,
     provider: state.user.name,
@@ -333,7 +365,7 @@ app.get('/api/jobs/:id/invoice', (req, res) => {
     total: job.reward,
     status: job.status === 'finished' ? 'PAID' : 'PENDING'
   };
-  
+
   res.json({ success: true, invoice });
 });
 

@@ -41,7 +41,9 @@ import {
   BarChart,
   Briefcase,
   FileSearch,
-  Plus
+  LayoutDashboard,
+  Users,
+  ChevronLeft
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -66,25 +68,23 @@ const AutoReleaseTimer = ({ jobId, proofTime, releaseFunds }) => {
   );
 };
 
-const MapView = ({ jobs, onAccept, mapInstanceRef, searchRadius }) => {
+const MapView = ({ jobs, onAccept, mapInstanceRef, searchRadius, userLocation }) => {
   const mapRef = useRef(null);
-  const userMarkerRef = useRef(null);
-  const radiusCircleRef = useRef(null);
 
   useEffect(() => {
     if (!window.L || !mapRef.current) return;
     
-    // Always create a new map instance for the new container
-    const map = L.map(mapRef.current, { zoomControl: false }).setView([4.8903, 114.9401], 13);
+    const center = userLocation || [4.8903, 114.9401];
+    const map = L.map(mapRef.current, { zoomControl: false }).setView(center, 13);
     mapInstanceRef.current = map;
     
     L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png').addTo(map);
 
-    // Add User Location Marker
-    L.circleMarker([4.8903, 114.9401], { color: '#007AFF', fillColor: '#007AFF', fillOpacity: 0.8, radius: 8 }).addTo(map);
+    // Add User Location Marker (Accurate)
+    L.circleMarker(center, { color: '#007AFF', fillColor: '#007AFF', fillOpacity: 0.8, radius: 8 }).addTo(map);
     
     // Add Radius Circle
-    L.circle([4.8903, 114.9401], {
+    L.circle(center, {
        radius: searchRadius * 1000, 
        color: '#00A550', 
        weight: 1, 
@@ -96,7 +96,7 @@ const MapView = ({ jobs, onAccept, mapInstanceRef, searchRadius }) => {
     jobs.forEach(job => {
       const isOwned = job.payer === 'Me';
       const color = isOwned ? '#FF9500' : '#00A550';
-      const marker = L.marker(job.coords || [4.8903 + Math.random()*0.02, 114.9401 + Math.random()*0.02]).addTo(map);
+      const marker = L.marker(job.coords).addTo(map);
       marker.bindPopup(`
         <div style="font-family:'Outfit', sans-serif; padding:8px; min-width:150px;">
           <strong style="color:${color}; font-size:1rem; display:block; margin-bottom:4px;">${job.title}</strong>
@@ -116,33 +116,9 @@ const MapView = ({ jobs, onAccept, mapInstanceRef, searchRadius }) => {
       map.remove();
       mapInstanceRef.current = null;
     };
-  }, [jobs, searchRadius]);
+  }, [jobs, searchRadius, userLocation]);
 
-  return (
-    <div style={{height:'100%', position:'relative'}}>
-      <div ref={mapRef} id="map-container"></div>
-      
-      {/* Floating Header */}
-      <div className="floating-header" style={{ top: '1rem', left: '1rem', right: '1rem', position: 'absolute', zIndex: 500 }}>
-         <div style={{display:'flex', justifyContent:'space-between', alignItems:'center', gap:'12px'}}>
-            <div className="search-bar" style={{flex:1, background: 'rgba(255,255,255,0.9)', backdropFilter: 'blur(10px)', borderRadius: '16px', padding: '0.8rem 1.2rem', display: 'flex', alignItems: 'center', gap: '10px', boxShadow: '0 8px 24px rgba(0,0,0,0.1)', border: '1px solid rgba(0,0,0,0.05)'}}>
-              <Search size={18} color="#8E8E93" />
-              <input type="text" placeholder="Find hustles nearby..." style={{border:'none', background:'transparent', outline:'none', fontSize:'0.9rem', width:'100%'}} />
-            </div>
-            <div style={{background:'rgba(255,255,255,0.9)', backdropFilter: 'blur(10px)', width:'50px', height:'50px', borderRadius:'16px', display:'flex', alignItems:'center', justifyContent:'center', boxShadow:'0 8px 24px rgba(0,0,0,0.1)', border:'1px solid rgba(0,0,0,0.05)', cursor:'pointer'}}>
-               <Bell size={22} color="#1C1C1E" />
-            </div>
-         </div>
-      </div>
-
-      {/* Map Tools */}
-      <div style={{position:'absolute', right:'1rem', top:'130px', display:'flex', flexDirection:'column', gap:'12px', zIndex:500}}>
-         <div onClick={() => mapInstanceRef.current.setView([4.8903, 114.9401], 15)} style={{background:'rgba(255,255,255,0.9)', backdropFilter: 'blur(10px)', width:'46px', height:'46px', borderRadius:'14px', display:'flex', alignItems:'center', justifyContent:'center', boxShadow:'0 8px 24px rgba(0,0,0,0.1)', border:'1px solid rgba(0,0,0,0.05)', cursor:'pointer'}}>
-            <LocateFixed size={22} color="#007AFF" />
-         </div>
-      </div>
-    </div>
-  );
+  return <div ref={mapRef} id="map-container"></div>;
 };
 
 const ChatInterface = ({ onClose, sendMessage, fetchMessages, sessions, balance, initialSession }) => {
@@ -253,28 +229,26 @@ const ChatInterface = ({ onClose, sendMessage, fetchMessages, sessions, balance,
 
 const TopUpModal = ({ onClose, onTopUp }) => {
   const [amount, setAmount] = useState('');
-  const [bank, setBank] = useState('tarus');
+  const [bank, setBank] = useState('BIBD');
   const [loading, setLoading] = useState(false);
   const [successTx, setSuccessTx] = useState(null);
 
   const banks = [
-    { name: 'tarus', label: 'Tarus Network', color: '#00A550', icon: '⚡' },
-    { name: 'bibd', label: 'BIBD', color: '#821a1a', icon: '🏦' },
-    { name: 'baiduri', label: 'Baiduri', color: '#1e3a8a', icon: '🏛️' }
+    { name: 'BIBD', label: 'BIBD QuickPay', color: '#821a1a', icon: '🏦' },
+    { name: 'Baiduri', label: 'Baiduri Digital', color: '#1e3a8a', icon: '🏛️' },
+    { name: 'BruPay', label: 'BruPay Wallet', color: '#00A550', icon: '⚡' }
   ];
 
   const handleConfirm = async () => {
     if (!amount) return;
     setLoading(true);
-    const res = await onTopUp(parseFloat(amount), '8123456');
+    const res = await onTopUp(parseFloat(amount), bank);
     setLoading(false);
     if (res.success) {
       setSuccessTx(res.txHash);
-      setTimeout(() => {
-        onClose();
-      }, 2500);
+      setTimeout(() => onClose(), 2500);
     } else {
-      alert("Top Up Failed");
+      alert("Payment Failed");
     }
   };
 
@@ -282,8 +256,8 @@ const TopUpModal = ({ onClose, onTopUp }) => {
     <div className="modal-overlay">
       <motion.div className="bottom-sheet" initial={{ y: '100%' }} animate={{ y: 0 }} style={{ textAlign: 'center', padding: '3rem 1.5rem' }}>
         <CheckCircle2 size={60} color="#00A550" style={{ margin: '0 auto 1rem' }} />
-        <h3 style={{ fontSize: '1.5rem', fontWeight: 900, color: '#00A550' }}>Tarus Top-up Successful</h3>
-        <p style={{ color: '#8E8E93', marginTop: '10px' }}>Simulated Transaction Success for BICTA 2026</p>
+        <h3 style={{ fontSize: '1.5rem', fontWeight: 900, color: '#00A550' }}>Top-up Successful</h3>
+        <p style={{ color: '#8E8E93', marginTop: '10px' }}>Funds added instantly via {bank}</p>
         <p style={{ fontSize: '0.7rem', color: '#C7C7CC', marginTop: '1rem', fontFamily: 'monospace' }}>TxHash: {successTx.substring(0, 24)}...</p>
       </motion.div>
     </div>
@@ -298,27 +272,21 @@ const TopUpModal = ({ onClose, onTopUp }) => {
         </div>
         
         <div style={{ marginBottom: '2rem' }}>
-          <label style={{ fontSize: '0.75rem', fontWeight: 800, color: '#8E8E93', textTransform: 'uppercase', marginBottom: '12px', display: 'block' }}>Select Bank Source</label>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+          <label style={{ fontSize: '0.75rem', fontWeight: 800, color: '#8E8E93', textTransform: 'uppercase', marginBottom: '12px', display: 'block' }}>Select Method</label>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '10px' }}>
             {banks.map(b => (
               <div 
                 key={b.name} 
                 onClick={() => setBank(b.name)}
                 style={{ 
-                  padding: '1.2rem', 
-                  borderRadius: '20px', 
-                  border: '2px solid', 
+                  padding: '1rem', borderRadius: '18px', border: '2px solid', 
                   borderColor: bank === b.name ? b.color : '#F2F2F7',
                   background: bank === b.name ? `${b.color}08` : 'white',
-                  cursor: 'pointer',
-                  transition: '0.2s',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '10px'
+                  cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '15px'
                 }}
               >
-                <span style={{ fontSize: '1.2rem' }}>{b.icon}</span>
-                <span style={{ fontSize: '0.85rem', fontWeight: 800, color: bank === b.name ? b.color : '#1C1C1E' }}>{b.name}</span>
+                <span style={{ fontSize: '1.5rem' }}>{b.icon}</span>
+                <span style={{ fontSize: '0.9rem', fontWeight: 800, color: bank === b.name ? b.color : '#1C1C1E' }}>{b.label}</span>
               </div>
             ))}
           </div>
@@ -326,20 +294,15 @@ const TopUpModal = ({ onClose, onTopUp }) => {
 
         <div style={{ marginBottom: '2rem' }}>
           <label style={{ fontSize: '0.75rem', fontWeight: 800, color: '#8E8E93', textTransform: 'uppercase', marginBottom: '12px', display: 'block' }}>Amount (BND)</label>
-          <div style={{ position: 'relative' }}>
-            <span style={{ position: 'absolute', left: '1.2rem', top: '50%', transform: 'translateY(-50%)', fontWeight: 900, fontSize: '1.2rem', color: '#1C1C1E' }}>$</span>
-            <input 
-              type="number" 
-              placeholder="0.00" 
-              value={amount} 
-              onChange={e => setAmount(e.target.value)} 
-              style={{ width: '100%', padding: '1.2rem 1.2rem 1.2rem 2.5rem', borderRadius: '20px', border: '2px solid #F2F2F7', fontSize: '1.2rem', fontWeight: 700, outline: 'none' }} 
-            />
-          </div>
+          <input 
+            type="number" placeholder="0.00" value={amount} 
+            onChange={e => setAmount(e.target.value)} 
+            style={{ width: '100%', padding: '1.2rem', borderRadius: '20px', border: '2px solid #F2F2F7', fontSize: '1.2rem', fontWeight: 700, outline: 'none' }} 
+          />
         </div>
 
         <button className="btn-primary" style={{ width: '100%', padding: '1.2rem', fontSize: '1.1rem', borderRadius: '22px' }} onClick={handleConfirm} disabled={loading}>
-          {loading ? 'Processing...' : `Top Up via ${bank}`}
+          {loading ? 'Processing...' : `Confirm Payment`}
         </button>
       </motion.div>
     </div>
@@ -378,7 +341,7 @@ const WithdrawModal = ({ onClose, onWithdraw, balance }) => {
     <div className="modal-overlay">
       <motion.div className="bottom-sheet" initial={{ y: '100%' }} animate={{ y: 0 }} style={{ textAlign: 'center', padding: '3rem 1.5rem' }}>
         <CheckCircle2 size={60} color="#00A550" style={{ margin: '0 auto 1rem' }} />
-        <h3 style={{ fontSize: '1.5rem', fontWeight: 900, color: '#00A550' }}>Tarus Payout Successful</h3>
+        <h3 style={{ fontSize: '1.5rem', fontWeight: 900, color: '#00A550' }}>BruPay Payout Successful</h3>
         <p style={{ color: '#8E8E93', marginTop: '10px' }}>Instant Payout directly to your Bank Account</p>
         <p style={{ fontSize: '0.7rem', color: '#C7C7CC', marginTop: '1rem', fontFamily: 'monospace' }}>TxHash: {successTx.substring(0, 24)}...</p>
       </motion.div>
@@ -453,7 +416,7 @@ const WithdrawModal = ({ onClose, onWithdraw, balance }) => {
   );
 };
 
-const PostQuestModal = ({ onClose, onPost }) => {
+const PostQuestModal = ({ onClose, onPost, userLocation }) => {
   const [formData, setFormData] = useState({ title: '', category: 'General', district: 'Brunei-Muara', mukim: 'Gadong A', reward: '', duration: '', unit: 'Hours' });
   const [loading, setLoading] = useState(false);
 
@@ -461,13 +424,10 @@ const PostQuestModal = ({ onClose, onPost }) => {
     if (!formData.title || !formData.reward || !formData.duration) return;
     setLoading(true);
     await onPost({
-      title: formData.title,
-      category: formData.category,
-      district: formData.district,
-      mukim: formData.mukim,
-      reward: formData.reward,
+      ...formData,
+      reward: parseFloat(formData.reward),
       duration: `${formData.duration} ${formData.unit}`,
-      coords: [4.8903 + Math.random()*0.02, 114.9401 + Math.random()*0.02]
+      coords: userLocation || [4.8903, 114.9401]
     });
     setLoading(false);
     onClose();
@@ -480,82 +440,25 @@ const PostQuestModal = ({ onClose, onPost }) => {
           <h3 style={{ fontSize: '1.4rem', fontWeight: 800 }}>Post a Quest</h3>
           <X onClick={onClose} style={{ cursor: 'pointer' }} />
         </div>
+        
+        <div style={{ marginBottom: '1.2rem', padding: '1rem', background: '#F2F2F7', borderRadius: '16px', display: 'flex', alignItems: 'center', gap: '10px' }}>
+           <MapPin size={18} color="#00A550" />
+           <div style={{ flex: 1 }}>
+              <p style={{ fontSize: '0.65rem', fontWeight: 800, color: '#8E8E93' }}>LOCATION ACCURACY</p>
+              <p style={{ fontSize: '0.8rem', fontWeight: 700 }}>Using your current precise location</p>
+           </div>
+           <CheckCircle size={18} color="#00A550" />
+        </div>
+
         <div style={{ marginBottom: '1rem' }}>
           <label style={{ fontSize: '0.75rem', fontWeight: 800, color: '#8E8E93', textTransform: 'uppercase', marginBottom: '8px', display: 'block' }}>Quest Title</label>
           <input 
-            type="text" 
-            placeholder="e.g. Grass Cutting, Legal Consult" 
-            value={formData.title} 
+            type="text" placeholder="e.g. Grass Cutting, Legal Consult" value={formData.title} 
             onChange={e => setFormData({ ...formData, title: e.target.value })} 
-            style={{ width: '100%', padding: '1rem', borderRadius: '16px', border: '2px solid #F2F2F7', fontSize: '1rem', outline: 'none', transition: '0.2s' }} 
-            onFocus={e => e.target.style.borderColor = '#00A550'}
-            onBlur={e => e.target.style.borderColor = '#F2F2F7'}
+            style={{ width: '100%', padding: '1rem', borderRadius: '16px', border: '2px solid #F2F2F7', fontSize: '1rem', outline: 'none' }} 
           />
         </div>
-
-        <div style={{ marginBottom: '1rem' }}>
-          <label style={{ fontSize: '0.75rem', fontWeight: 800, color: '#8E8E93', textTransform: 'uppercase', marginBottom: '8px', display: 'block' }}>Category</label>
-          <select value={formData.category} onChange={e => setFormData({...formData, category: e.target.value})} style={{ width: '100%', padding: '1rem', borderRadius: '16px', border: '2px solid #F2F2F7', fontSize: '1rem', outline: 'none', background: 'white' }}>
-            <option>General</option>
-            <option>Home Maintenance</option>
-            <option>Professional Services</option>
-            <option>Daily Errands</option>
-            <option>IT & Digital</option>
-          </select>
-        </div>
-
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', marginBottom: '1rem' }}>
-          <div>
-            <label style={{ fontSize: '0.75rem', fontWeight: 800, color: '#8E8E93', textTransform: 'uppercase', marginBottom: '8px', display: 'block' }}>District</label>
-            <select value={formData.district} onChange={e => setFormData({...formData, district: e.target.value})} style={{ width: '100%', padding: '1rem', borderRadius: '16px', border: '2px solid #F2F2F7', fontSize: '1rem', outline: 'none', background: 'white' }}>
-              <option>Brunei-Muara</option>
-              <option>Belait</option>
-              <option>Tutong</option>
-              <option>Temburong</option>
-            </select>
-          </div>
-          <div>
-            <label style={{ fontSize: '0.75rem', fontWeight: 800, color: '#8E8E93', textTransform: 'uppercase', marginBottom: '8px', display: 'block' }}>Mukim</label>
-            <input type="text" placeholder="e.g. Gadong A" value={formData.mukim} onChange={e => setFormData({...formData, mukim: e.target.value})} style={{ width: '100%', padding: '1rem', borderRadius: '16px', border: '2px solid #F2F2F7', fontSize: '1rem', outline: 'none' }} />
-          </div>
-        </div>
-
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px', marginBottom: '1.5rem' }}>
-          <div>
-            <label style={{ fontSize: '0.75rem', fontWeight: 800, color: '#8E8E93', textTransform: 'uppercase', marginBottom: '8px', display: 'block' }}>Reward (BND)</label>
-            <div style={{ position: 'relative' }}>
-              <span style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)', fontWeight: 700 }}>$</span>
-              <input 
-                type="number" 
-                placeholder="0.00" 
-                value={formData.reward} 
-                onChange={e => setFormData({ ...formData, reward: e.target.value })} 
-                style={{ width: '100%', padding: '1rem 1rem 1rem 2rem', borderRadius: '16px', border: '2px solid #F2F2F7', fontSize: '1rem', outline: 'none' }} 
-              />
-            </div>
-          </div>
-          <div>
-            <label style={{ fontSize: '0.75rem', fontWeight: 800, color: '#8E8E93', textTransform: 'uppercase', marginBottom: '8px', display: 'block' }}>Duration</label>
-            <div style={{ display: 'flex', gap: '8px' }}>
-              <input 
-                type="number" 
-                placeholder="1" 
-                value={formData.duration} 
-                onChange={e => setFormData({ ...formData, duration: e.target.value })} 
-                style={{ flex: 1, padding: '1rem', borderRadius: '16px', border: '2px solid #F2F2F7', fontSize: '1rem', outline: 'none', minWidth: '0' }} 
-              />
-              <select 
-                value={formData.unit} 
-                onChange={e => setFormData({ ...formData, unit: e.target.value })} 
-                style={{ borderRadius: '16px', border: '2px solid #F2F2F7', padding: '0 5px', background: 'white' }}
-              >
-                <option>Mins</option>
-                <option>Hours</option>
-                <option>Days</option>
-              </select>
-            </div>
-          </div>
-        </div>
+...
         <button className="btn-primary" style={{ width: '100%', padding: '1.2rem', fontSize: '1rem', borderRadius: '18px' }} onClick={handleSubmit} disabled={loading}>
           {loading ? 'Posting...' : 'Confirm & Post Quest'}
         </button>
@@ -627,18 +530,168 @@ const MapFab = ({ onPost, onChat, onTasks, onWallet, portal }) => {
   );
 };
 
-// --- MAIN APP ---
+// --- POSTER DASHBOARD ---
+const PosterDashboard = ({ jobs, balance, onPost, onLocate, onViewActivity, user }) => {
+  const postedJobs = jobs.filter(j => j.payer === user?.name || j.payer === 'Me');
+  
+  return (
+    <div style={{ padding: '0.5rem' }}>
+       {/* Header Stats */}
+       <div style={{ background: 'linear-gradient(135deg, #FF9F0A 0%, #FF5E00 100%)', padding: '2.5rem', borderRadius: '32px', color: 'white', marginBottom: '2rem', boxShadow: '0 20px 40px rgba(255,159,10,0.15)', position: 'relative', overflow: 'hidden' }}>
+          <div style={{ position: 'absolute', top: '-10%', right: '-10%', width: '180px', height: '180px', background: 'rgba(255,255,255,0.1)', borderRadius: '50%' }}></div>
+          <p style={{ fontSize: '0.8rem', fontWeight: 800, opacity: 0.9, textTransform: 'uppercase', letterSpacing: '1px' }}>Account Liquidity</p>
+          <h2 style={{ fontSize: '3rem', fontWeight: 900, marginTop: '5px', letterSpacing: '-1.5px' }}>BND {balance.toFixed(2)}</h2>
+          <div style={{ display: 'flex', gap: '12px', marginTop: '2rem' }}>
+             <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} onClick={onPost} className="btn-primary" style={{ background: 'white', color: '#FF9F0A', boxShadow: 'none' }}>
+                <Plus size={20}/> New Deployment
+             </motion.button>
+             <button className="btn-primary" style={{ background: 'rgba(255,255,255,0.15)', backdropFilter: 'blur(10px)', boxShadow: 'none' }}>Analytics</button>
+          </div>
+       </div>
+
+       {/* Grid Metrics */}
+       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '20px', marginBottom: '2.5rem' }}>
+          {[
+            { label: 'Active Quests', val: postedJobs.filter(j => j.status !== 'finished').length, icon: <Zap size={18} color="#FF9F0A"/> },
+            { label: 'Capital Deployed', val: `BND ${postedJobs.reduce((acc, curr) => acc + curr.reward, 0)}`, icon: <CreditCard size={18} color="#FF9F0A"/> },
+            { label: 'Completion Rate', val: '94%', icon: <CheckCircle size={18} color="#FF9F0A"/> }
+          ].map((m, i) => (
+            <div key={i} className="premium-card" style={{ padding: '1.5rem' }}>
+               <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '10px' }}>
+                  {m.icon}
+                  <span style={{ fontSize: '0.65rem', fontWeight: 800, color: '#64748B', textTransform: 'uppercase' }}>{m.label}</span>
+               </div>
+               <h4 style={{ fontSize: '1.3rem', fontWeight: 900 }}>{m.val}</h4>
+            </div>
+          ))}
+       </div>
+
+       {/* Management Console Section */}
+       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
+          <div>
+            <h3 style={{ fontSize: '1.2rem', fontWeight: 900, letterSpacing: '-0.5px' }}>Management Console</h3>
+            <p style={{ fontSize: '0.8rem', color: '#64748B', fontWeight: 500 }}>Track and optimize your active deployments</p>
+          </div>
+          <button onClick={onViewActivity} style={{ background: 'none', border: 'none', color: '#FF9F0A', fontWeight: 800, fontSize: '0.85rem', cursor: 'pointer' }}>Global View</button>
+       </div>
+
+       <div style={{ display: 'grid', gap: '15px' }}>
+          {postedJobs.length === 0 ? (
+            <div style={{ textAlign: 'center', padding: '4rem 0', background: 'white', borderRadius: '32px', border: '2px dashed #E2E8F0' }}>
+               <ClipboardList size={48} color="#CBD5E1" style={{ marginBottom: '1rem' }} />
+               <p style={{ fontWeight: 700, color: '#64748B' }}>System Ready for Deployment</p>
+            </div>
+          ) : (
+            postedJobs.map(job => (
+              <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} key={job.id} className="premium-card" style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
+                 <div style={{ width: '56px', height: '56px', borderRadius: '18px', background: 'rgba(255,159,10,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <Briefcase color="#FF9F0A" size={24} />
+                 </div>
+                 <div style={{ flex: 1 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                       <strong style={{ fontSize: '1rem', fontWeight: 800 }}>{job.title}</strong>
+                       <span style={{ fontSize: '0.6rem', padding: '3px 8px', background: '#F1F5F9', borderRadius: '6px', fontWeight: 800, color: '#64748B' }}>{job.status.toUpperCase()}</span>
+                    </div>
+                    <span style={{ fontSize: '0.8rem', color: '#64748B', fontWeight: 500 }}>ID: {job.id.toUpperCase()} · Distributed in {job.mukim}</span>
+                 </div>
+                 <div style={{ textAlign: 'right' }}>
+                    <strong style={{ display: 'block', fontSize: '1.1rem', fontWeight: 900, color: '#FF9F0A' }}>BND {job.reward}</strong>
+                    <button onClick={() => onLocate(job)} style={{ background: 'none', border: 'none', color: '#64748B', cursor: 'pointer', marginTop: '4px' }}><Maximize2 size={18}/></button>
+                 </div>
+              </motion.div>
+            ))
+          )}
+       </div>
+    </div>
+  );
+};
+
+// --- ADMIN PORTAL ---
+const AdminPortal = ({ getAdminUsers, getSystemHealth, verifyUser }) => {
+  const [users, setUsers] = useState([]);
+  const [health, setHealth] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const init = async () => {
+      const u = await getAdminUsers();
+      const h = await getSystemHealth();
+      setUsers(u);
+      setHealth(h);
+      setLoading(false);
+    };
+    init();
+  }, []);
+
+  const handleVerify = async (id) => {
+    const res = await verifyUser(id);
+    if (res.success) {
+      setUsers(prev => prev.map(u => u.id === id ? { ...u, bruVerified: true } : u));
+    }
+  };
+
+  if (loading) return <div style={{ height: '50vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><Zap className="animate-pulse-soft" color="#334155" size={40}/></div>;
+
+  return (
+    <div style={{ padding: '0.5rem' }}>
+       <div style={{ background: '#1E293B', padding: '2.5rem', borderRadius: '32px', color: 'white', marginBottom: '2rem', boxShadow: '0 20px 40px rgba(0,0,0,0.1)' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+            <div>
+               <h2 style={{ fontSize: '1.8rem', fontWeight: 900, letterSpacing: '-0.5px' }}>Command Center</h2>
+               <p style={{ opacity: 0.6, fontWeight: 500, fontSize: '0.9rem' }}>Platform Integrity & System Health</p>
+            </div>
+            <div style={{ background: 'rgba(0,168,107,0.2)', color: '#10B981', padding: '6px 12px', borderRadius: '10px', fontSize: '0.7rem', fontWeight: 900 }}>SYSTEM NOMINAL</div>
+          </div>
+          
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '20px', marginTop: '2.5rem' }}>
+             <div style={{ background: 'rgba(255,255,255,0.05)', padding: '1.5rem', borderRadius: '20px', border: '1px solid rgba(255,255,255,0.05)' }}>
+                <p style={{ fontSize: '0.65rem', opacity: 0.5, fontWeight: 800, textTransform: 'uppercase' }}>Escrow Liquidity</p>
+                <h4 style={{ fontSize: '1.5rem', fontWeight: 900, marginTop: '5px' }}>BND {health.escrowTotal}</h4>
+             </div>
+             <div style={{ background: 'rgba(255,255,255,0.05)', padding: '1.5rem', borderRadius: '20px', border: '1px solid rgba(255,255,255,0.05)' }}>
+                <p style={{ fontSize: '0.65rem', opacity: 0.5, fontWeight: 800, textTransform: 'uppercase' }}>Uptime</p>
+                <h4 style={{ fontSize: '1.5rem', fontWeight: 900, marginTop: '5px' }}>{health.uptime}</h4>
+             </div>
+             <div style={{ background: 'rgba(255,255,255,0.05)', padding: '1.5rem', borderRadius: '20px', border: '1px solid rgba(255,255,255,0.05)' }}>
+                <p style={{ fontSize: '0.65rem', opacity: 0.5, fontWeight: 800, textTransform: 'uppercase' }}>Active Nodes</p>
+                <h4 style={{ fontSize: '1.5rem', fontWeight: 900, marginTop: '5px' }}>{health.activeUsers}</h4>
+             </div>
+          </div>
+       </div>
+
+       <div style={{ background: 'white', borderRadius: '32px', padding: '2rem', border: '1px solid #E2E8F0' }}>
+          <h3 style={{ fontSize: '1.1rem', fontWeight: 900, marginBottom: '1.5rem' }}>Identity Verification Queue</h3>
+          <div style={{ display: 'grid', gap: '15px' }}>
+             {users.map(u => (
+               <div key={u.id} style={{ padding: '1.2rem', borderRadius: '20px', background: '#F8FAFC', display: 'flex', alignItems: 'center', gap: '15px' }}>
+                  <div style={{ width: '48px', height: '48px', borderRadius: '14px', background: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid #E2E8F0' }}><User color="#64748B" size={20}/></div>
+                  <div style={{ flex: 1 }}>
+                     <strong style={{ display: 'block', fontSize: '0.95rem', fontWeight: 800 }}>{u.name}</strong>
+                     <span style={{ fontSize: '0.75rem', color: '#64748B', fontWeight: 500 }}>{u.role} · IC: {u.icColor} #{u.id.toUpperCase()}</span>
+                  </div>
+                  {!u.bruVerified ? (
+                    <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} className="btn-primary" style={{ padding: '10px 20px', fontSize: '0.75rem' }} onClick={() => handleVerify(u.id)}>Approve Identity</motion.button>
+                  ) : (
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#00A86B', fontWeight: 800, fontSize: '0.8rem' }}><CheckCircle size={18}/> VERIFIED</div>
+                  )}
+               </div>
+             ))}
+          </div>
+       </div>
+    </div>
+  );
+};
 
 const App = () => {
   const { 
-    balance, walletInfo, jobs, transactions, escrow, loading, chatSessions, impactStats,
-    topUp, postJob, acceptJob, completeJob, releaseFunds, withdraw, sendMessage, fetchMessages, signup, login, fetchImpactStats 
+    user, balance, walletInfo, jobs, transactions, escrow, loading, chatSessions, impactStats, userLocation, setUserLocation,
+    topUp, postJob, acceptJob, completeJob, releaseFunds, withdraw, sendMessage, fetchMessages, signup, login, fetchImpactStats, 
+    setRole, getAdminUsers, getSystemHealth, verifyUser
   } = usePayment();
 
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [isSigningUp, setIsSigningUp] = useState(false);
   
-  // Auth Form State
   const [authData, setAuthData] = useState({ name: '', phone: '', pin: '', kycType: 'GeneralWorker', icColor: 'Yellow', icNumber: '' });
   const [authLoading, setAuthLoading] = useState(false);
   const [portal, setPortal] = useState('seeker'); 
@@ -649,23 +702,26 @@ const App = () => {
   const [showWithdraw, setShowWithdraw] = useState(false);
   const [showChat, setShowChat] = useState(false);
   const [initialChatSession, setInitialChatSession] = useState(null);
-  const [searchRadius, setSearchRadius] = useState(5);
+  const [searchRadius, setSearchRadius] = useState(20);
 
   const mapInstanceRef = useRef(null);
+
+  // Accurate Geolocation Initialization
+  useEffect(() => {
+    if ("geolocation" in navigator) {
+      navigator.geolocation.getCurrentPosition((position) => {
+        setUserLocation([position.coords.latitude, position.coords.longitude]);
+      });
+    }
+  }, [setUserLocation]);
   
   const handleLocate = (job) => {
     setView('home');
     setTimeout(() => {
       if (mapInstanceRef.current) {
-        mapInstanceRef.current.flyTo(job.coords || [4.8903, 114.9401], 17, {
-          duration: 1.5,
-          easeLinearity: 0.25
-        });
-        // Open the popup automatically
+        mapInstanceRef.current.flyTo(job.coords || [4.8903, 114.9401], 17, { duration: 1.5 });
         mapInstanceRef.current.eachLayer(layer => {
-          if (layer instanceof L.Marker && layer.getLatLng().lat === (job.coords?.[0] || 4.8903)) {
-            layer.openPopup();
-          }
+          if (layer instanceof L.Marker && layer.getLatLng().lat === job.coords[0]) layer.openPopup();
         });
       }
     }, 300);
@@ -678,186 +734,266 @@ const App = () => {
     <p style={{ marginTop: '20px', fontWeight: 700, color: '#1C1C1E' }}>Initializing SideQuest...</p>
   </div>;
 
-  if (!isLoggedIn) return (
-    <div className="app-container" style={{ background: 'white' }}>
-      <div className="login-header" style={{ height: '40vh', background: 'linear-gradient(135deg, #00A550 0%, #008741 100%)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', color: 'white', borderBottomLeftRadius: '40px', borderBottomRightRadius: '40px', position: 'relative', overflow: 'hidden' }}>
-        <div style={{ position: 'absolute', top: '-10%', right: '-10%', width: '200px', height: '200px', background: 'rgba(255,255,255,0.05)', borderRadius: '50%' }}></div>
-        <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ type: 'spring', damping: 12 }}>
-          <div style={{ width: '80px', height: '80px', background: 'rgba(255,255,255,0.2)', backdropFilter: 'blur(10px)', borderRadius: '25px', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 10px 30px rgba(0,0,0,0.1)' }}>
-            <Zap size={40} color="white" />
-          </div>
-        </motion.div>
-        <h1 style={{ fontSize: '2.2rem', fontWeight: 900, marginTop: '1.5rem', letterSpacing: '-1px' }}>SideQuest.BN</h1>
-        <p style={{ opacity: 0.9, fontWeight: 700, marginTop: '5px' }}>Innovate for a Digital Brunei</p>
-        <div style={{ marginTop: '15px', background: 'rgba(0,0,0,0.2)', padding: '5px 12px', borderRadius: '12px', fontSize: '0.75rem', fontWeight: 800 }}>BICTA 2026 Pitch Demo</div>
+  if (!isLoggedIn) {
+    const portals = [
+      { id: 'SEEKER', title: 'Hustler', desc: 'Find quests and earn BND.', icon: <MapPin size={24}/>, color: '#00A550' },
+      { id: 'POSTER', title: 'Client', desc: 'Post quests and get help.', icon: <PlusCircle size={24}/>, color: '#FF9500' },
+      { id: 'ADMIN', title: 'Admin', desc: 'System monitoring & KYC.', icon: <ShieldCheck size={24}/>, color: '#1C1C1E' }
+    ];
+
+    return (
+      <div className="login-view">
+        {/* Left: Brand Section */}
+        <div className="login-brand" style={{ background: 'linear-gradient(135deg, #00A86B 0%, #008F5B 100%)' }}>
+           <motion.div initial={{ y: -20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} style={{ textAlign: 'center' }}>
+              <div style={{ width: '100px', height: '100px', background: 'rgba(255,255,255,0.2)', backdropFilter: 'blur(10px)', borderRadius: '30px', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 2rem', boxShadow: '0 20px 40px rgba(0,0,0,0.1)' }}>
+                 <Zap size={50} color="white" />
+              </div>
+              <h1 style={{ fontSize: '3rem', fontWeight: 900, letterSpacing: '-2px' }}>SideQuest.BN</h1>
+              <p style={{ fontSize: '1.1rem', fontWeight: 600, opacity: 0.9, marginTop: '10px' }}>The Premier Gig Economy of Brunei</p>
+              <div style={{ marginTop: '20px', background: 'rgba(255,255,255,0.15)', padding: '8px 20px', borderRadius: '14px', fontSize: '0.8rem', fontWeight: 800 }}>PROTOTYPE DEMO V2.0</div>
+           </motion.div>
+        </div>
+
+        {/* Right: Auth Section */}
+        <div className="login-form-container">
+          <AnimatePresence mode="wait">
+            {!isSigningUp ? (
+              <motion.div key="login" initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }} className="auth-card">
+                 <h2 style={{ fontSize: '1.8rem', fontWeight: 900, marginBottom: '0.5rem', letterSpacing: '-0.5px' }}>Onboarding</h2>
+                 <p style={{ color: '#64748B', fontWeight: 500, marginBottom: '2rem' }}>Choose your demo role to begin.</p>
+
+                 {/* Premium Quick Access Grid */}
+                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '12px', marginBottom: '2.5rem' }}>
+                    {portals.map(btn => (
+                      <motion.div
+                        key={btn.id}
+                        whileHover={{ y: -5, boxShadow: '0 10px 20px rgba(0,0,0,0.1)' }}
+                        whileTap={{ scale: 0.95 }}
+                        onClick={async () => {
+                          setAuthLoading(true);
+                          const phone = btn.id === 'ADMIN' ? '999' : (btn.id === 'POSTER' ? '+673819498' : '+673819498');
+                          setAuthData(prev => ({ ...prev, role: btn.id, phone: phone }));
+                          const res = await login({ phone: phone, pin: '12345678', role: btn.id });
+                          if (res.success) setIsLoggedIn(true);
+                          setAuthLoading(false);
+                        }}
+                        style={{ background: 'white', border: '1.5px solid #E2E8F0', padding: '20px 10px', borderRadius: '22px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '10px', cursor: 'pointer', transition: '0.3s' }}
+                      >
+                         <div style={{ width: '40px', height: '40px', background: `${btn.color}10`, borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: btn.color }}>
+                            {btn.icon}
+                         </div>
+                         <span style={{ fontSize: '0.7rem', fontWeight: 800, color: '#0F172A' }}>{btn.title}</span>
+                      </motion.div>
+                    ))}
+                 </div>
+
+                 <div style={{ display: 'flex', alignItems: 'center', gap: '15px', marginBottom: '2rem' }}>
+                    <div style={{ flex: 1, height: '1.5px', background: '#E2E8F0' }}></div>
+                    <span style={{ fontSize: '0.7rem', fontWeight: 900, color: '#94A3B8' }}>MANUAL ENTRY</span>
+                    <div style={{ flex: 1, height: '1.5px', background: '#E2E8F0' }}></div>
+                 </div>
+
+                 <div className="input-group">
+                    <label>Access Code / Phone</label>
+                    <input type="text" placeholder="+673 •••• ••••" value={authData.phone} onChange={e => setAuthData({...authData, phone: e.target.value})} />
+                 </div>
+                 
+                 <button className="btn-primary" style={{ width: '100%', padding: '18px', borderRadius: '20px', background: '#0F172A', marginTop: '10px' }} onClick={() => setIsLoggedIn(true)}>
+                    System Access <ChevronRight size={18} />
+                 </button>
+
+                 <p style={{ textAlign: 'center', marginTop: '1.5rem', fontSize: '0.85rem', fontWeight: 600, color: '#64748B' }}>
+                    New operative? <span onClick={() => setIsSigningUp(true)} style={{ color: '#00A86B', cursor: 'pointer', fontWeight: 800 }}>Register System Identity</span>
+                 </p>
+              </motion.div>
+            ) : (
+              <motion.div key="signup" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="auth-card" style={{ maxHeight: '90vh', overflowY: 'auto' }}>
+                 <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '1.5rem' }}>
+                    <button onClick={() => setIsSigningUp(false)} style={{ background: 'none', border: 'none', color: '#64748B', cursor: 'pointer' }}><ChevronLeft size={24}/></button>
+                    <h2 style={{ fontSize: '1.5rem', fontWeight: 900 }}>Create Identity</h2>
+                 </div>
+                 
+                 <div className="input-group" style={{ marginBottom: '1rem' }}>
+                    <label>Full Name (AS PER IC)</label>
+                    <input type="text" placeholder="ALI ABU" value={authData.name} onChange={e => setAuthData({...authData, name: e.target.value})} />
+                 </div>
+
+                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', marginBottom: '1.2rem' }}>
+                    <div className="input-group">
+                       <label>Identity Type</label>
+                       <select value={authData.kycType} onChange={e => setAuthData({...authData, kycType: e.target.value})}>
+                          <option value="GeneralWorker">General Resident</option>
+                          <option value="Student">Student (HND/Degree)</option>
+                       </select>
+                    </div>
+                    <div className="input-group">
+                       <label>Designated Role</label>
+                       <select value={authData.role} onChange={e => setAuthData({...authData, role: e.target.value})}>
+                          <option value="SEEKER">Hustler</option>
+                          <option value="POSTER">Client</option>
+                       </select>
+                    </div>
+                 </div>
+
+                 <div className="input-group" style={{ marginBottom: '1.2rem' }}>
+                    <label>Contact Number (BRUPAY/PHONE)</label>
+                    <input type="text" placeholder="+673 •••• ••••" value={authData.phone} onChange={e => setAuthData({...authData, phone: e.target.value})} />
+                 </div>
+
+                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1.2fr', gap: '10px', marginBottom: '1.2rem' }}>
+                    <div className="input-group">
+                       <label>IC Color</label>
+                       <select value={authData.icColor} onChange={e => setAuthData({...authData, icColor: e.target.value})} disabled={authData.kycType === 'Student'}>
+                          <option value="Yellow">Yellow (Citizen)</option>
+                          <option value="Purple">Purple (PR)</option>
+                          <option value="Green">Green (Foreigner)</option>
+                       </select>
+                    </div>
+                    <div className="input-group">
+                       <label>{authData.kycType === 'Student' ? 'Student ID Number' : 'IC Number'}</label>
+                       <input type="text" placeholder={authData.kycType === 'Student' ? 'ID-XXXXXX' : '01-XXXXXX'} value={authData.icNumber} onChange={e => setAuthData({...authData, icNumber: e.target.value})} />
+                    </div>
+                 </div>
+
+                 <div style={{ display: 'flex', alignItems: 'center', gap: '15px', margin: '1rem 0' }}>
+                    <div style={{ flex: 1, height: '1.5px', background: '#E2E8F0' }}></div>
+                    <span style={{ fontSize: '0.65rem', fontWeight: 900, color: '#94A3B8' }}>LOCALIZATION</span>
+                    <div style={{ flex: 1, height: '1.5px', background: '#E2E8F0' }}></div>
+                 </div>
+
+                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', marginBottom: '1.5rem' }}>
+                    <div className="input-group">
+                       <label>Home District</label>
+                       <select value={authData.district || 'Brunei-Muara'} onChange={e => setAuthData({...authData, district: e.target.value})}>
+                          <option value="Brunei-Muara">Brunei-Muara</option>
+                          <option value="Tutong">Tutong</option>
+                          <option value="Belait">Belait</option>
+                          <option value="Temburong">Temburong</option>
+                       </select>
+                    </div>
+                    <div className="input-group">
+                       <label>Mukim</label>
+                       <input type="text" placeholder="e.g. Gadong B" value={authData.mukim || ''} onChange={e => setAuthData({...authData, mukim: e.target.value})} />
+                    </div>
+                 </div>
+
+                 <button className="btn-primary" style={{ width: '100%', padding: '18px', borderRadius: '22px' }} onClick={async () => {
+                    setAuthLoading(true);
+                    const res = await signup(authData);
+                    if (res.success) setIsLoggedIn(true);
+                    setAuthLoading(false);
+                 }}>
+                    Initialize Profile <ChevronRight size={18} />
+                 </button>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
       </div>
-      
-      <AnimatePresence mode="wait">
-        {!isSigningUp ? (
-          <motion.div key="login" initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 20 }} className="auth-scroll-container" style={{ padding: '2rem' }}>
-            <h2 style={{ fontSize: '1.8rem', fontWeight: 900, marginBottom: '0.5rem' }}>Welcome Back</h2>
-            <p style={{ color: '#8E8E93', marginBottom: '1.5rem', fontWeight: 500 }}>Login to your hustle account</p>
-
-            {/* ── Quick Test Login Banner ── */}
-            <motion.div
-              whileTap={{ scale: 0.97 }}
-              onClick={async () => {
-                setAuthLoading(true);
-                const res = await login({ phone: '+673819498', pin: '12345678' });
-                if (res.success) setIsLoggedIn(true);
-                setAuthLoading(false);
-              }}
-              style={{ background: 'linear-gradient(135deg, #1e293b 0%, #0f172a 100%)', borderRadius: '20px', padding: '1.2rem 1.5rem', marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '14px', cursor: 'pointer', boxShadow: '0 8px 20px rgba(0,0,0,0.15)' }}
-            >
-              <div style={{ width: '44px', height: '44px', background: 'rgba(0,165,80,0.2)', borderRadius: '14px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                <Zap size={22} color="#00A550" fill="#00A550" />
-              </div>
-              <div style={{ flex: 1 }}>
-                <p style={{ color: 'white', fontWeight: 800, fontSize: '0.95rem' }}>Quick Test Login</p>
-                <p style={{ color: '#8E8E93', fontSize: '0.75rem', marginTop: '2px' }}>test · +673819498 · ••••••••</p>
-              </div>
-              <ChevronRight size={20} color="#8E8E93" />
-            </motion.div>
-
-            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '1.5rem' }}>
-              <div style={{ flex: 1, height: '1px', background: '#F2F2F7' }} />
-              <span style={{ fontSize: '0.75rem', color: '#C7C7CC', fontWeight: 700 }}>OR SIGN IN MANUALLY</span>
-              <div style={{ flex: 1, height: '1px', background: '#F2F2F7' }} />
-            </div>
-
-            <div style={{ marginBottom: '1.2rem' }}>
-              <label style={{ fontSize: '0.75rem', fontWeight: 800, color: '#8E8E93', textTransform: 'uppercase', marginBottom: '8px', display: 'block' }}>Phone Number</label>
-              <input type="text" value={authData.phone} onChange={e => setAuthData({...authData, phone: e.target.value})} placeholder="+673 8XXX XXX" style={{ width: '100%', padding: '1.2rem', borderRadius: '18px', border: '2px solid #F2F2F7', fontSize: '1rem', outline: 'none' }} />
-            </div>
-            <div style={{ marginBottom: '2rem' }}>
-              <label style={{ fontSize: '0.75rem', fontWeight: 800, color: '#8E8E93', textTransform: 'uppercase', marginBottom: '8px', display: 'block' }}>Security PIN</label>
-              <input type="password" value={authData.pin} onChange={e => setAuthData({...authData, pin: e.target.value})} placeholder="••••••" style={{ width: '100%', padding: '1.2rem', borderRadius: '18px', border: '2px solid #F2F2F7', fontSize: '1rem', outline: 'none' }} />
-            </div>
-            <button className="btn-primary" style={{ width: '100%', padding: '1.2rem', fontSize: '1.1rem', borderRadius: '20px', boxShadow: '0 10px 20px rgba(0,165,80,0.2)' }} onClick={async () => {
-              setAuthLoading(true);
-              const res = await login({ phone: authData.phone, pin: authData.pin });
-              if (res.success) setIsLoggedIn(true);
-              else alert('Login failed. Check your phone number.');
-              setAuthLoading(false);
-            }} disabled={authLoading}>{authLoading ? 'Verifying...' : 'Log In Securely'}</button>
-            <p style={{ textAlign: 'center', marginTop: '2rem', color: '#8E8E93', fontSize: '0.9rem' }}>Don't have an account? <span onClick={() => setIsSigningUp(true)} style={{ color: '#00A550', fontWeight: 800, cursor: 'pointer' }}>Join the Hustle</span></p>
-          </motion.div>
-        ) : (
-          <motion.div key="signup" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="auth-scroll-container" style={{ padding: '2rem' }}>
-            <h2 style={{ fontSize: '1.8rem', fontWeight: 900, marginBottom: '0.5rem' }}>Create Account</h2>
-            <p style={{ color: '#8E8E93', marginBottom: '2rem', fontWeight: 500 }}>Start your journey with SideQuest</p>
-            <div style={{ marginBottom: '1.2rem' }}>
-              <label style={{ fontSize: '0.75rem', fontWeight: 800, color: '#8E8E93', textTransform: 'uppercase', marginBottom: '8px', display: 'block' }}>Full Name</label>
-              <input type="text" value={authData.name} onChange={e => setAuthData({...authData, name: e.target.value})} placeholder="e.g. Ali Abu" style={{ width: '100%', padding: '1.2rem', borderRadius: '18px', border: '2px solid #F2F2F7', fontSize: '1rem', outline: 'none' }} />
-            </div>
-            <div style={{ marginBottom: '1.2rem' }}>
-              <label style={{ fontSize: '0.75rem', fontWeight: 800, color: '#8E8E93', textTransform: 'uppercase', marginBottom: '8px', display: 'block' }}>Phone Number</label>
-              <input type="text" value={authData.phone} onChange={e => setAuthData({...authData, phone: e.target.value})} placeholder="+673 8XXX XXX" style={{ width: '100%', padding: '1.2rem', borderRadius: '18px', border: '2px solid #F2F2F7', fontSize: '1rem', outline: 'none' }} />
-            </div>
-            <div style={{ marginBottom: '1.2rem' }}>
-              <label style={{ fontSize: '0.75rem', fontWeight: 800, color: '#8E8E93', textTransform: 'uppercase', marginBottom: '8px', display: 'block' }}>Set Security PIN</label>
-              <input type="password" value={authData.pin} onChange={e => setAuthData({...authData, pin: e.target.value})} placeholder="••••••" style={{ width: '100%', padding: '1.2rem', borderRadius: '18px', border: '2px solid #F2F2F7', fontSize: '1rem', outline: 'none' }} />
-            </div>
-            
-            <div style={{ display: 'flex', gap: '10px', marginBottom: '1.2rem' }}>
-              <button className="btn-outline" style={{ flex: 1, padding: '10px', borderRadius: '14px', background: authData.kycType === 'GeneralWorker' ? '#F2F2F7' : 'white', borderColor: authData.kycType === 'GeneralWorker' ? '#00A550' : '#E5E5EA' }} onClick={() => setAuthData({...authData, kycType: 'GeneralWorker'})}>General Worker</button>
-              <button className="btn-outline" style={{ flex: 1, padding: '10px', borderRadius: '14px', background: authData.kycType === 'Student' ? '#F2F2F7' : 'white', borderColor: authData.kycType === 'Student' ? '#00A550' : '#E5E5EA' }} onClick={() => setAuthData({...authData, kycType: 'Student'})}>Student (HND/Degree)</button>
-            </div>
-
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', marginBottom: '1.2rem' }}>
-              {authData.kycType === 'GeneralWorker' ? (
-                <div>
-                  <label style={{ fontSize: '0.75rem', fontWeight: 800, color: '#8E8E93', textTransform: 'uppercase', marginBottom: '8px', display: 'block' }}>IC Color</label>
-                  <select value={authData.icColor} onChange={e => setAuthData({...authData, icColor: e.target.value})} style={{ width: '100%', padding: '1.2rem', borderRadius: '18px', border: '2px solid #F2F2F7', fontSize: '1rem', outline: 'none', background: 'white' }}>
-                    <option>Yellow</option>
-                    <option>Purple</option>
-                    <option>Green</option>
-                    <option>None</option>
-                  </select>
-                </div>
-              ) : (
-                <div style={{ gridColumn: 'span 2' }}>
-                  <label style={{ fontSize: '0.75rem', fontWeight: 800, color: '#8E8E93', textTransform: 'uppercase', marginBottom: '8px', display: 'block' }}>Student ID Number</label>
-                  <input type="text" value={authData.icNumber} onChange={e => setAuthData({...authData, icNumber: e.target.value})} placeholder="e.g. 21B1234" style={{ width: '100%', padding: '1.2rem', borderRadius: '18px', border: '2px solid #F2F2F7', fontSize: '1rem', outline: 'none' }} />
-                </div>
-              )}
-              {authData.kycType === 'GeneralWorker' && (
-                <div>
-                  <label style={{ fontSize: '0.75rem', fontWeight: 800, color: '#8E8E93', textTransform: 'uppercase', marginBottom: '8px', display: 'block' }}>IC Number</label>
-                  <input type="text" value={authData.icNumber} onChange={e => setAuthData({...authData, icNumber: e.target.value})} placeholder="00-000000" style={{ width: '100%', padding: '1.2rem', borderRadius: '18px', border: '2px solid #F2F2F7', fontSize: '1rem', outline: 'none' }} />
-                </div>
-              )}
-            </div>
-
-            <div style={{ marginBottom: '2rem', padding: '1.5rem', border: '2px dashed #E5E5EA', borderRadius: '18px', textAlign: 'center', background: '#FAFAFC' }}>
-              <ShieldCheck size={24} color="#8E8E93" style={{ margin: '0 auto 8px' }} />
-              <p style={{ fontSize: '0.8rem', fontWeight: 700, color: '#1C1C1E' }}>Upload {authData.kycType === 'Student' ? 'Student ID' : 'Identity Card'} (Front & Back)</p>
-              <p style={{ fontSize: '0.7rem', color: '#8E8E93', marginTop: '4px' }}>Simulated Encrypted KYC Upload</p>
-            </div>
-
-            <button className="btn-primary" style={{ width: '100%', padding: '1.2rem', fontSize: '1.1rem', borderRadius: '20px', boxShadow: '0 10px 20px rgba(0,165,80,0.2)' }} onClick={async () => {
-              setAuthLoading(true);
-              const res = await signup(authData);
-              if (res.success) setIsLoggedIn(true);
-              setAuthLoading(false);
-            }} disabled={authLoading}>{authLoading ? 'Creating...' : 'Create My Account'}</button>
-            <p style={{ textAlign: 'center', marginTop: '2rem', color: '#8E8E93', fontSize: '0.9rem' }}>Already have an account? <span onClick={() => setIsSigningUp(false)} style={{ color: '#00A550', fontWeight: 800, cursor: 'pointer' }}>Sign In</span></p>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </div>
-  );
+    );
+  }
 
   return (
-    <div className="app-container">
-      <div className="app-content">
+    <div className={`app-container theme-${(user?.role || 'SEEKER').toLowerCase()}`}>
+      <nav className="bottom-nav">
+        {/* Seeker Nav */}
+        {user.role === 'SEEKER' && (
+          <>
+            <div className={`nav-item ${view === 'home' ? 'active' : ''}`} onClick={() => setView('home')}><MapIcon size={24}/><span>Map</span></div>
+            <div className={`nav-item ${view === 'activity' ? 'active' : ''}`} onClick={() => setView('activity')}><ClipboardCheck size={24}/><span>Tasks</span></div>
+            <div className={`nav-item ${view === 'impact' ? 'active' : ''}`} onClick={() => setView('impact')}><BarChart size={24}/><span>Impact</span></div>
+          </>
+        )}
+
+        {/* Poster Nav */}
+        {user.role === 'POSTER' && (
+          <>
+            <div className={`nav-item ${view === 'home' ? 'active' : ''}`} onClick={() => setView('home')}><LayoutDashboard size={24}/><span>Dashboard</span></div>
+            <div className={`nav-item ${view === 'activity' ? 'active' : ''}`} onClick={() => setView('activity')}><ClipboardCheck size={24}/><span>Management</span></div>
+            <div className={`nav-item ${view === 'wallet' ? 'active' : ''}`} onClick={() => setShowWallet(true)}><CreditCard size={24}/><span>Wallet</span></div>
+          </>
+        )}
+
+        {/* Admin Nav */}
+        {user.role === 'ADMIN' && (
+          <>
+            <div className={`nav-item ${view === 'home' ? 'active' : ''}`} onClick={() => setView('home')}><ShieldCheck size={24}/><span>Command</span></div>
+            <div className={`nav-item ${view === 'activity' ? 'active' : ''}`} onClick={() => setView('activity')}><Users size={24}/><span>Users</span></div>
+          </>
+        )}
+
+        {user.isAdmin && user.role !== 'ADMIN' && (
+           <div className={`nav-item ${view === 'admin' ? 'active' : ''}`} onClick={() => setView('admin')}><ShieldCheck size={24}/><span>Admin</span></div>
+        )}
+        <div className={`nav-item ${view === 'account' ? 'active' : ''}`} onClick={() => setView('account')}><User size={24}/><span>Account</span></div>
+        
+        {/* Desktop Footer (Sidebar only) */}
+        <div className="desktop-nav-footer" style={{ marginTop: 'auto', padding: '1rem', background: '#F2F2F7', borderRadius: '16px', display: 'none' }}>
+           <p style={{ fontSize: '0.7rem', fontWeight: 700, color: '#8E8E93' }}>SideQuest Prototype</p>
+        </div>
+      </nav>
+
+      <div className="app-content" style={{ overflow: view === 'home' ? 'hidden' : 'auto', paddingBottom: (view === 'home' || view === 'admin') ? '0' : '120px' }}>
         <AnimatePresence mode="wait">
           {view === 'home' && (
             <motion.div key="home" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} style={{ height: '100%', position: 'relative' }}>
-              <MapView jobs={jobs} onAccept={acceptJob} mapInstanceRef={mapInstanceRef} searchRadius={searchRadius} />
+              {user.role === 'SEEKER' && (
+                <>
+                  <MapView jobs={jobs} onAccept={acceptJob} mapInstanceRef={mapInstanceRef} searchRadius={searchRadius} />
+                  
+                  {/* Glass Top Controls */}
+                  <div style={{ position: 'absolute', top: '20px', left: '1rem', right: '1rem', zIndex: 600, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                     <div className="glass-modal" style={{ padding: '10px 18px', borderRadius: '24px', display: 'flex', alignItems: 'center', gap: '10px' }}>
+                        <Radius size={18} color="#00A86B" />
+                        <select value={searchRadius} onChange={e => setSearchRadius(parseInt(e.target.value))} style={{ border: 'none', fontSize: '0.9rem', fontWeight: 900, color: '#0F172A', outline: 'none', background: 'transparent' }}>
+                           <option value={2}>2km Radius</option>
+                           <option value={5}>5km Radius</option>
+                           <option value={10}>10km Radius</option>
+                        </select>
+                     </div>
+                     <div className="glass-modal" style={{ width: '45px', height: '45px', borderRadius: '15px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        <Search size={22} color="#64748B" />
+                     </div>
+                  </div>
 
-              {/* Radius & Portal Control */}
-              <div style={{ position: 'absolute', top: '75px', left: '1rem', right: '1rem', zIndex: 600, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                 <div style={{ background: 'rgba(255,255,255,0.9)', backdropFilter: 'blur(10px)', padding: '6px 14px', borderRadius: '24px', border: '1px solid rgba(0,0,0,0.05)', display: 'flex', alignItems: 'center', gap: '8px', boxShadow: '0 4px 12px rgba(0,0,0,0.08)' }}>
-                    <Radius size={14} color="#00A550" />
-                    <select value={searchRadius} onChange={e => setSearchRadius(parseInt(e.target.value))} style={{ border: 'none', fontSize: '0.8rem', fontWeight: 800, color: '#1C1C1E', outline: 'none', background: 'transparent' }}>
-                       <option value={2}>2km</option>
-                       <option value={5}>5km</option>
-                       <option value={10}>10km</option>
-                       <option value={20}>20km</option>
-                    </select>
-                 </div>
-                 <div style={{ background: 'rgba(255,255,255,0.9)', backdropFilter: 'blur(10px)', padding: '4px', borderRadius: '30px', display: 'flex', gap: '4px', boxShadow: '0 4px 12px rgba(0,0,0,0.08)', border: '1px solid rgba(0,0,0,0.05)' }}>
-                    <button onClick={() => setPortal('seeker')} style={{ padding: '8px 16px', borderRadius: '24px', fontSize: '0.7rem', fontWeight: 800, transition: '0.3s', background: portal === 'seeker' ? '#00A550' : 'transparent', color: portal === 'seeker' ? 'white' : '#8E8E93' }}>SEEKER</button>
-                    <button onClick={() => setPortal('poster')} style={{ padding: '8px 16px', borderRadius: '24px', fontSize: '0.7rem', fontWeight: 800, transition: '0.3s', background: portal === 'poster' ? '#FF9500' : 'transparent', color: portal === 'poster' ? 'white' : '#8E8E93' }}>POSTER</button>
-                 </div>
-              </div>
+                  {/* Live Feed Component - Elevated to avoid Bottom Nav */}
+                  <div style={{ position: 'absolute', bottom: '130px', left: '1rem', right: '1rem', zIndex: 600 }}>
+                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
+                        <div style={{ width: '8px', height: '8px', background: '#FF3B30', borderRadius: '50%', animation: 'pulse-soft 1.5s infinite' }}></div>
+                        <span style={{ fontSize: '0.7rem', fontWeight: 900, color: 'white', letterSpacing: '1px', textShadow: '0 2px 4px rgba(0,0,0,0.3)' }}>LIVE OPPORTUNITIES</span>
+                     </div>
+                     <div style={{ display: 'flex', gap: '12px', overflowX: 'auto', paddingBottom: '15px' }} className="no-scrollbar">
+                        {jobs.filter(j => j.status === 'open').slice(0, 5).map(job => (
+                          <motion.div whileHover={{ y: -5 }} whileTap={{ scale: 0.95 }} key={job.id} onClick={() => handleLocate(job)} className="glass-modal" style={{ flexShrink: 0, width: '280px', padding: '1.2rem', cursor: 'pointer', border: '1px solid rgba(255,255,255,0.5)' }}>
+                             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '8px' }}>
+                                <strong style={{ fontSize: '1rem', fontWeight: 900, letterSpacing: '-0.5px' }}>{job.title}</strong>
+                                <span style={{ color: '#00A86B', fontWeight: 900, fontSize: '0.9rem' }}>BND {job.reward}</span>
+                             </div>
+                             <div style={{ display: 'flex', alignItems: 'center', gap: '4px', opacity: 0.7 }}>
+                                <MapPin size={12}/>
+                                <span style={{ fontSize: '0.75rem', fontWeight: 600 }}>{job.mukim}</span>
+                             </div>
+                          </motion.div>
+                        ))}
+                     </div>
+                  </div>
 
-              {/* Floating Map UI — Balance chip + Expandable FAB */}
-              
-              {/* Bottom-Left Balance Chip */}
-              <motion.div
-                style={{ position: 'absolute', bottom: '100px', left: '1rem', zIndex: 600, pointerEvents: 'auto', background: 'rgba(255,255,255,0.95)', backdropFilter: 'blur(12px)', padding: '10px 16px', borderRadius: '22px', boxShadow: '0 8px 24px rgba(0,0,0,0.12)', border: '1px solid rgba(255,255,255,0.8)', display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer' }}
-                onClick={() => setShowWallet(true)}
-                whileTap={{ scale: 0.95 }}
-              >
-                <div style={{ background: 'rgba(0,165,80,0.1)', padding: '8px', borderRadius: '12px' }}>
-                  <CreditCard size={20} color="#00A550" />
+                  <MapFab onPost={() => setShowPostModal(true)} onChat={() => setShowChat(true)} onTasks={() => setView('activity')} onWallet={() => setShowWallet(true)} portal="seeker" />
+                </>
+              )}
+
+              {user.role === 'POSTER' && (
+                <div style={{ padding: '1rem', height: '100%', overflowY: 'auto', paddingBottom: '120px' }}>
+                   <PosterDashboard jobs={jobs} balance={balance} onPost={() => setShowPostModal(true)} onLocate={handleLocate} onViewActivity={() => setView('activity')} user={user} />
                 </div>
-                <div>
-                  <p style={{ fontSize: '0.6rem', color: '#8E8E93', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.5px' }}>Available</p>
-                  <strong style={{ fontSize: '1.1rem', color: '#1C1C1E', fontWeight: 900 }}>BND {balance.toFixed(2)}</strong>
-                </div>
-              </motion.div>
+              )}
 
-              {/* Bottom-Right Expandable FAB */}
-              <MapFab
-                onPost={() => setShowPostModal(true)}
-                onChat={() => setShowChat(true)}
-                onTasks={() => setView('activity')}
-                onWallet={() => setShowWallet(true)}
-                portal={portal}
-              />
+              {user.role === 'ADMIN' && (
+                <div style={{ padding: '1rem', height: '100%', overflowY: 'auto', paddingBottom: '120px' }}>
+                   <AdminPortal getAdminUsers={getAdminUsers} getSystemHealth={getSystemHealth} verifyUser={verifyUser} />
+                </div>
+              )}
             </motion.div>
           )}
 
@@ -963,31 +1099,37 @@ const App = () => {
                     </div>
                   </motion.div>
                   <h2 style={{ fontSize: '1.8rem', fontWeight: 900 }}>{walletInfo.holder}</h2>
-                  {walletInfo.bruVerified ? (
-                    <p style={{ fontSize: '0.9rem', color: '#00A550', fontWeight: 800, marginTop: '4px' }}>
-                      <ShieldCheck size={16} style={{ display: 'inline', verticalAlign: 'middle', marginRight: '4px' }}/> 
-                      Bru-Verified ({walletInfo.icColor} IC)
-                    </p>
-                  ) : (
-                    <p style={{ fontSize: '0.9rem', color: '#8E8E93', fontWeight: 600, marginTop: '4px' }}>Unverified User</p>
-                  )}
+                  <div style={{ display: 'flex', justifyContent: 'center', gap: '8px', marginTop: '8px' }}>
+                    <div style={{ background: 'var(--primary)', color: 'white', padding: '4px 12px', borderRadius: '10px', fontSize: '0.7rem', fontWeight: 800 }}>{user.role}</div>
+                    {walletInfo.bruVerified && <div style={{ background: 'rgba(0,165,80,0.1)', color: '#00A550', padding: '4px 12px', borderRadius: '10px', fontSize: '0.7rem', fontWeight: 800 }}>VERIFIED</div>}
+                  </div>
                </div>
+               
                <div className="wallet-card" style={{ margin: '-3.5rem 1.5rem 1.5rem', padding: '2rem', borderRadius: '28px', background: 'white', boxShadow: '0 15px 35px rgba(0,0,0,0.1)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                   <div>
                     <p style={{ fontSize: '0.75rem', color: '#8E8E93', fontWeight: 800, textTransform: 'uppercase', marginBottom: '4px' }}>Balance</p>
-                    <h2 style={{ fontSize: '2.2rem', fontWeight: 900, color: '#00A550', letterSpacing: '-1px' }}>BND {balance.toFixed(2)}</h2>
+                    <h2 style={{ fontSize: '2.2rem', fontWeight: 900, color: 'var(--primary)', letterSpacing: '-1px' }}>BND {balance.toFixed(2)}</h2>
                   </div>
                   <button className="btn-primary" style={{ width: '60px', height: '60px', borderRadius: '20px' }} onClick={() => setShowWallet(true)}><CreditCard size={24}/></button>
                </div>
+
                <div style={{ padding: '0 1.5rem' }}>
+                 {user.role !== 'ADMIN' && (
+                   <div style={{ background: '#F2F2F7', padding: '6px', borderRadius: '18px', display: 'flex', gap: '5px', marginBottom: '1.5rem' }}>
+                      <button onClick={() => setRole('SEEKER')} style={{ flex: 1, padding: '12px', borderRadius: '14px', fontSize: '0.85rem', fontWeight: 800, transition: '0.3s', background: user.role === 'SEEKER' ? 'white' : 'transparent', color: user.role === 'SEEKER' ? 'var(--primary)' : '#8E8E93', boxShadow: user.role === 'SEEKER' ? '0 4px 10px rgba(0,0,0,0.05)' : 'none' }}>Seeker Portal</button>
+                      <button onClick={() => setRole('POSTER')} style={{ flex: 1, padding: '12px', borderRadius: '14px', fontSize: '0.85rem', fontWeight: 800, transition: '0.3s', background: user.role === 'POSTER' ? 'white' : 'transparent', color: user.role === 'POSTER' ? 'var(--orange)' : '#8E8E93', boxShadow: user.role === 'POSTER' ? '0 4px 10px rgba(0,0,0,0.05)' : 'none' }}>Poster Portal</button>
+                   </div>
+                 )}
+
                  <div className="menu-item" style={{ background: 'white', padding: '1.2rem', borderRadius: '20px', display: 'flex', alignItems: 'center', gap: '15px', border: '1px solid #F2F2F7', cursor: 'pointer', marginBottom: '1rem' }} onClick={() => setShowTopUp(true)}>
-                    <div style={{ width: '40px', height: '40px', borderRadius: '12px', background: 'rgba(0,165,80,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><ArrowUpCircle color="#00A550" /></div>
+                    <div style={{ width: '40px', height: '40px', borderRadius: '12px', background: 'rgba(0,165,80,0.05)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><ArrowUpCircle color="var(--primary)" /></div>
                     <div style={{ flex: 1 }}>
-                      <strong style={{ display: 'block', fontSize: '1rem' }}>Top Up Wallet</strong>
-                      <span style={{ fontSize: '0.75rem', color: '#8E8E93' }}>Instant credit from BIBD/Baiduri</span>
+                      <strong style={{ display: 'block', fontSize: '1rem' }}>Add Funds</strong>
+                      <span style={{ fontSize: '0.75rem', color: '#8E8E93' }}>BIBD / Baiduri / BruPay</span>
                     </div>
                     <ChevronRight size={18} color="#C7C7CC" />
                  </div>
+
                  <div className="menu-item" style={{ background: 'white', padding: '1.2rem', borderRadius: '20px', display: 'flex', alignItems: 'center', gap: '15px', border: '1px solid #F2F2F7', cursor: 'pointer', marginBottom: '1rem' }} onClick={() => setIsLoggedIn(false)}>
                     <div style={{ width: '40px', height: '40px', borderRadius: '12px', background: 'rgba(255,59,48,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><LogOut color="#FF3B30" /></div>
                     <strong style={{ flex: 1, color: '#FF3B30' }}>Sign Out</strong>
@@ -996,15 +1138,14 @@ const App = () => {
                </div>
             </motion.div>
           )}
+
+          {view === 'admin' && (
+            <motion.div key="admin" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+               <AdminPortal getAdminUsers={getAdminUsers} getSystemHealth={getSystemHealth} verifyUser={verifyUser} />
+            </motion.div>
+          )}
         </AnimatePresence>
       </div>
-
-      <nav className="bottom-nav">
-        <div className={`nav-item ${view === 'home' ? 'active' : ''}`} onClick={() => setView('home')}><MapIcon size={24}/><span>Map</span></div>
-        <div className={`nav-item ${view === 'activity' ? 'active' : ''}`} onClick={() => setView('activity')}><ClipboardCheck size={24}/><span>Activity</span></div>
-        <div className={`nav-item ${view === 'impact' ? 'active' : ''}`} onClick={() => setView('impact')}><BarChart size={24}/><span>Impact</span></div>
-        <div className={`nav-item ${view === 'account' ? 'active' : ''}`} onClick={() => setView('account')}><User size={24}/><span>Account</span></div>
-      </nav>
 
       {/* MODALS */}
       <AnimatePresence>
@@ -1024,7 +1165,7 @@ const App = () => {
         )}
 
         {showPostModal && (
-          <PostQuestModal onClose={() => setShowPostModal(false)} onPost={postJob} />
+          <PostQuestModal onClose={() => setShowPostModal(false)} onPost={postJob} userLocation={userLocation} />
         )}
 
         {showWallet && (
