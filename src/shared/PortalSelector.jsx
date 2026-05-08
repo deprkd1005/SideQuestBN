@@ -45,12 +45,12 @@ const PortalSelector = () => {
       <div style={{
         padding: '60px 24px 40px',
         textAlign: 'center',
-        background: 'linear-gradient(180deg, rgba(16, 185, 129, 0.1) 0%, transparent 100%)',
+        background: 'linear-gradient(180deg, var(--bg-secondary) 0%, var(--bg-primary) 100%)',
         position: 'relative',
         overflow: 'hidden'
       }}>
         {/* Abstract Glows */}
-        <div style={{ position: 'absolute', top: '-100px', left: '-100px', width: '300px', height: '300px', background: 'var(--emerald-glow)', filter: 'blur(100px)', opacity: 0.3 }} />
+        <div style={{ position: 'absolute', top: '-100px', left: '-100px', width: '300px', height: '300px', background: 'var(--emerald-soft)', filter: 'blur(100px)', opacity: 0.5 }} />
         
         <motion.div
           initial={{ scale: 0.8, opacity: 0 }}
@@ -60,14 +60,14 @@ const PortalSelector = () => {
           <div style={{
             width: '80px',
             height: '80px',
-            background: 'var(--bg-tertiary)',
+            background: 'white',
             borderRadius: '24px',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
             margin: '0 auto 24px',
-            border: '1px solid var(--border-glass)',
-            boxShadow: '0 20px 40px rgba(0,0,0,0.3)',
+            border: '1px solid var(--border-color)',
+            boxShadow: 'var(--shadow-lg)',
             color: 'var(--emerald)'
           }}>
             <Zap size={40} fill="currentColor" />
@@ -76,7 +76,7 @@ const PortalSelector = () => {
             fontSize: '2.5rem',
             fontWeight: 900,
             letterSpacing: '-1.5px',
-            color: 'white',
+            color: 'var(--text-primary)',
             lineHeight: 1
           }}>
             SideQuest<span style={{ color: 'var(--emerald)' }}>.BN</span>
@@ -114,10 +114,12 @@ const PortalSelector = () => {
           initial={{ y: 20, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ delay: 0.2 }}
-          className="card-glass"
           style={{
             padding: '32px 24px',
-            background: 'var(--bg-glass-strong)'
+            background: 'white',
+            borderRadius: '32px',
+            boxShadow: 'var(--shadow-lg)',
+            border: '1px solid var(--border-color)'
           }}
         >
           <h2 style={{
@@ -145,12 +147,12 @@ const PortalSelector = () => {
                 initial={{ x: -20, opacity: 0 }}
                 animate={{ x: 0, opacity: 1 }}
                 transition={{ delay: 0.3 + (idx * 0.1) }}
-                whileHover={{ x: 4, background: 'var(--bg-tertiary)' }}
+                whileHover={{ x: 4, background: 'var(--bg-secondary)' }}
                 whileTap={{ scale: 0.98 }}
                 onClick={() => navigate(portal.path)}
                 style={{
-                  background: 'var(--bg-secondary)',
-                  border: '1px solid var(--border-glass)',
+                  background: 'white',
+                  border: '1px solid var(--border-color)',
                   padding: '20px',
                   borderRadius: '20px',
                   display: 'flex',
@@ -158,7 +160,8 @@ const PortalSelector = () => {
                   gap: '16px',
                   cursor: 'pointer',
                   textAlign: 'left',
-                  width: '100%'
+                  width: '100%',
+                  transition: 'all 0.2s'
                 }}
               >
                 <div style={{
@@ -178,14 +181,14 @@ const PortalSelector = () => {
                   <div style={{
                     fontSize: '1.05rem',
                     fontWeight: 800,
-                    color: 'white',
+                    color: 'var(--text-primary)',
                     marginBottom: '2px'
                   }}>
                     {portal.title}
                   </div>
                   <div style={{
                     fontSize: '0.75rem',
-                    color: 'var(--text-muted)',
+                    color: 'var(--text-secondary)',
                     fontWeight: 600,
                     lineHeight: '1.3'
                   }}>
@@ -197,6 +200,7 @@ const PortalSelector = () => {
             ))}
           </div>
         </motion.div>
+
         
         <p style={{ 
           textAlign: 'center', 

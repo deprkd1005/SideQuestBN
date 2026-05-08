@@ -6,6 +6,7 @@ import { usePayment } from '../../context/PaymentContext';
 const Wallet = () => {
   const { balance, transactions, escrow } = usePayment();
   const [showWithdraw, setShowWithdraw] = useState(false);
+  const [stage, setStage] = useState('idle'); // idle, transferring, success
 
   const escrowAmount = escrow?.pending || 0;
   const availableBalance = balance - escrowAmount;
@@ -14,51 +15,67 @@ const Wallet = () => {
   return (
     <div style={{ flex: 1 }}>
       {/* Balance Section */}
-      <div style={{ padding: '32px 24px 24px', background: 'linear-gradient(180deg, var(--bg-tertiary) 0%, var(--bg-primary) 100%)' }}>
+      <div style={{ padding: '32px 24px 24px', background: 'var(--bg-secondary)' }}>
         <div className="flex-between" style={{ marginBottom: '24px' }}>
           <div>
-            <h1 className="section-title">Earnings</h1>
-            <p className="section-subtitle">Manage your Secure Wallet</p>
+            <h1 className="section-title">My Wallet</h1>
+            <p className="section-subtitle">Secure Digital Payments</p>
           </div>
-          <div style={{ width: '40px', height: '40px', borderRadius: '12px', background: 'var(--bg-tertiary)', border: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <div style={{ width: '40px', height: '40px', borderRadius: '12px', background: 'white', border: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: 'var(--shadow-sm)' }}>
             <Info size={18} className="text-muted" />
           </div>
         </div>
 
-        {/* Main Card */}
-        <div className="card-glass" style={{ 
-          padding: '24px', 
-          background: 'var(--bg-glass-strong)', 
-          borderColor: 'var(--border-glass)',
-          boxShadow: '0 20px 40px rgba(0,0,0,0.4)',
-          position: 'relative',
-          overflow: 'hidden'
-        }}>
-          <div style={{ position: 'absolute', top: '-20px', right: '-20px', width: '100px', height: '100px', background: 'var(--emerald)', opacity: 0.1, filter: 'blur(40px)', borderRadius: '50%' }} />
+        {/* Digital Card - Premium Design */}
+        <motion.div 
+          whileHover={{ y: -5, rotateX: 5 }}
+          style={{ 
+            padding: '24px', 
+            background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)', 
+            borderRadius: '24px',
+            boxShadow: '0 20px 40px rgba(16, 185, 129, 0.25)',
+            position: 'relative',
+            overflow: 'hidden',
+            color: 'white',
+            aspectRatio: '1.6 / 1',
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'space-between'
+          }}
+        >
+          {/* Card Texture */}
+          <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, opacity: 0.1, background: 'radial-gradient(circle at 20% 20%, white 0%, transparent 40%)' }} />
           
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '32px' }}>
-            <div>
-              <div style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '8px' }}>Total Balance</div>
-              <div style={{ display: 'flex', alignItems: 'baseline', gap: '6px' }}>
-                <span style={{ fontSize: '1.2rem', fontWeight: 800, color: 'var(--emerald)' }}>BND</span>
-                <span style={{ fontSize: '2.8rem', fontWeight: 900 }}>{balance.toFixed(2)}</span>
-              </div>
-            </div>
-            <div style={{ width: '44px', height: '44px', borderRadius: '14px', background: 'var(--emerald-soft)', color: 'var(--emerald)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <CreditCard size={24} />
+          <div className="flex-between" style={{ position: 'relative' }}>
+            <div style={{ fontWeight: 800, fontSize: '1.2rem', letterSpacing: '1px' }}>SIDEQUEST<span style={{ opacity: 0.7 }}>BN</span></div>
+            <Shield size={24} fill="rgba(255,255,255,0.3)" stroke="none" />
+          </div>
+
+          <div style={{ position: 'relative' }}>
+            <div style={{ fontSize: '0.75rem', opacity: 0.8, marginBottom: '4px', textTransform: 'uppercase', letterSpacing: '1px' }}>Current Balance</div>
+            <div style={{ fontSize: '2.4rem', fontWeight: 900, display: 'flex', alignItems: 'baseline', gap: '8px' }}>
+              <span style={{ fontSize: '1.2rem', opacity: 0.7 }}>BND</span>
+              {balance.toFixed(2)}
             </div>
           </div>
 
-          <div style={{ display: 'flex', gap: '12px' }}>
-            <button className="btn-primary" style={{ flex: 1, height: '52px', borderRadius: '16px' }} onClick={() => setShowWithdraw(true)}>
-              <Download size={18} /> Withdraw
-            </button>
-            <button className="btn-outline" style={{ width: '52px', height: '52px', padding: 0, borderRadius: '16px' }}>
-              <Plus size={20} />
-            </button>
+          <div className="flex-between" style={{ position: 'relative' }}>
+            <div style={{ fontSize: '0.9rem', fontWeight: 600, letterSpacing: '2px' }}>**** **** **** 8842</div>
+            <div style={{ width: '40px', height: '28px', background: 'rgba(255,255,255,0.2)', borderRadius: '6px' }} />
           </div>
+        </motion.div>
+
+        {/* Quick Actions */}
+        <div style={{ display: 'flex', gap: '12px', marginTop: '24px' }}>
+          <button className="btn-primary" style={{ flex: 1, height: '52px', borderRadius: '16px', boxShadow: '0 10px 20px rgba(16, 185, 129, 0.2)' }} onClick={() => setShowWithdraw(true)}>
+            <Download size={18} /> Withdraw
+          </button>
+          <button className="btn-outline" style={{ width: '52px', height: '52px', padding: 0, borderRadius: '16px', background: 'white' }}>
+            <Plus size={20} />
+          </button>
         </div>
       </div>
+
 
       <div style={{ padding: '0 24px 24px' }}>
         {/* Secondary Stats */}
@@ -185,7 +202,44 @@ const Wallet = () => {
                 </div>
               </div>
 
-              <button className="btn-primary" style={{ width: '100%', height: '60px', fontSize: '1.1rem' }}>Confirm Withdrawal</button>
+              <button 
+                className="btn-primary" 
+                style={{ width: '100%', height: '60px', fontSize: '1.1rem', position: 'relative', overflow: 'hidden' }}
+                onClick={() => {
+                  setStage('transferring');
+                  setTimeout(() => {
+                    setStage('success');
+                    setTimeout(() => {
+                      setShowWithdraw(false);
+                      setStage('idle');
+                    }, 2000);
+                  }, 2500);
+                }}
+                disabled={stage !== 'idle'}
+              >
+                {stage === 'idle' && 'Confirm Withdrawal'}
+                {stage === 'transferring' && (
+                  <motion.div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <div className="spinner-small" /> Transferring...
+                  </motion.div>
+                )}
+                {stage === 'success' && 'Transfer Successful! ✅'}
+
+                {/* Money Animation Overlay */}
+                <AnimatePresence>
+                  {stage === 'transferring' && (
+                    <motion.div
+                      initial={{ x: -100, opacity: 0 }}
+                      animate={{ x: 300, opacity: [0, 1, 0] }}
+                      transition={{ duration: 1.5, repeat: Infinity, ease: 'linear' }}
+                      style={{ position: 'absolute', top: '50%', left: 0, color: 'white' }}
+                    >
+                      <Zap size={20} fill="currentColor" />
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </button>
+
             </motion.div>
           </>
         )}

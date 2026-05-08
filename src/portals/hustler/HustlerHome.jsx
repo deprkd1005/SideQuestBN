@@ -35,7 +35,7 @@ const HustlerHome = () => {
         top: '20px',
         left: '20px',
         right: '20px',
-        zIndex: 100,
+        zIndex: 500,
         display: 'flex',
         gap: '10px'
       }}>
@@ -46,7 +46,8 @@ const HustlerHome = () => {
             padding: '4px 16px', 
             borderRadius: '16px',
             background: 'var(--bg-glass-strong)',
-            boxShadow: '0 8px 32px rgba(0,0,0,0.4)'
+            boxShadow: 'var(--shadow-md)',
+            border: '1px solid var(--border-color)'
           }}>
             <Search size={18} className="text-muted" />
             <input 
@@ -57,7 +58,7 @@ const HustlerHome = () => {
                 padding: '12px', 
                 background: 'none', 
                 border: 'none', 
-                color: 'white',
+                color: 'var(--text-primary)',
                 fontSize: '0.9rem',
                 fontWeight: 600,
                 outline: 'none'
@@ -65,8 +66,8 @@ const HustlerHome = () => {
             />
           </div>
         </div>
-        <button className="card-glass" style={{ width: '48px', height: '48px', borderRadius: '16px', padding: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          <Sliders size={20} />
+        <button className="card-glass" style={{ width: '48px', height: '48px', borderRadius: '16px', padding: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--bg-glass-strong)', boxShadow: 'var(--shadow-md)', border: '1px solid var(--border-color)' }}>
+          <Sliders size={20} className="text-primary" />
         </button>
       </div>
 
@@ -75,7 +76,7 @@ const HustlerHome = () => {
         position: 'absolute',
         top: '84px',
         right: '20px',
-        zIndex: 100,
+        zIndex: 500,
         display: 'flex',
         flexDirection: 'column',
         gap: '10px'
@@ -88,16 +89,16 @@ const HustlerHome = () => {
             height: '48px', 
             padding: 0, 
             borderRadius: '16px',
-            background: 'var(--emerald)',
-            boxShadow: '0 0 20px var(--emerald-glow)'
+            boxShadow: 'var(--shadow-lg)'
           }}
         >
           {viewMode === 'map' ? <List size={22} /> : <MapIcon size={22} />}
         </button>
-        <button className="card-glass" style={{ width: '48px', height: '48px', borderRadius: '16px', padding: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          <Navigation size={22} />
+        <button className="card-glass" style={{ width: '48px', height: '48px', borderRadius: '16px', padding: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--bg-glass-strong)', boxShadow: 'var(--shadow-md)', border: '1px solid var(--border-color)' }}>
+          <Navigation size={22} className="text-primary" />
         </button>
       </div>
+
 
       <AnimatePresence mode="wait">
         {viewMode === 'map' ? (
