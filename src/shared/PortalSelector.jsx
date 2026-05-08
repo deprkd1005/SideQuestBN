@@ -1,7 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
-import { MapPin, PlusCircle, ShieldCheck, Zap } from 'lucide-react';
+import { MapPin, PlusCircle, ShieldCheck, Zap, ChevronRight } from 'lucide-react';
 
 const PortalSelector = () => {
   const navigate = useNavigate();
@@ -12,7 +12,7 @@ const PortalSelector = () => {
       title: 'Hustler',
       desc: 'Find nearby jobs and earn side income quickly.',
       icon: <MapPin size={24} />,
-      color: '#10b981',
+      color: 'var(--emerald)',
       path: '/hustler'
     },
     {
@@ -20,7 +20,7 @@ const PortalSelector = () => {
       title: 'Poster',
       desc: 'Post tasks and quickly find trusted local help.',
       icon: <PlusCircle size={24} />,
-      color: '#f59e0b',
+      color: 'var(--orange)',
       path: '/poster'
     },
     {
@@ -28,168 +28,191 @@ const PortalSelector = () => {
       title: 'Admin',
       desc: 'Platform moderation and safety.',
       icon: <ShieldCheck size={24} />,
-      color: '#6b7280',
+      color: 'var(--blue)',
       path: '/admin'
     }
   ];
 
   return (
-    <div className="login-view">
+    <div className="login-view" style={{ 
+      flexDirection: 'column', 
+      overflowY: 'auto', 
+      background: 'var(--bg-primary)',
+      display: 'flex',
+      height: '100dvh'
+    }}>
       {/* Brand Section */}
-      <div className="login-brand" style={{
-        background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        flexDirection: 'column',
-        padding: '2rem'
+      <div style={{
+        padding: '60px 24px 40px',
+        textAlign: 'center',
+        background: 'linear-gradient(180deg, rgba(16, 185, 129, 0.1) 0%, transparent 100%)',
+        position: 'relative',
+        overflow: 'hidden'
       }}>
+        {/* Abstract Glows */}
+        <div style={{ position: 'absolute', top: '-100px', left: '-100px', width: '300px', height: '300px', background: 'var(--emerald-glow)', filter: 'blur(100px)', opacity: 0.3 }} />
+        
         <motion.div
-          initial={{ y: -20, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          style={{ textAlign: 'center' }}
+          initial={{ scale: 0.8, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          transition={{ duration: 0.6, ease: 'easeOut' }}
         >
           <div style={{
-            width: '100px',
-            height: '100px',
-            background: 'rgba(255,255,255,0.2)',
-            backdropFilter: 'blur(10px)',
-            borderRadius: '30px',
+            width: '80px',
+            height: '80px',
+            background: 'var(--bg-tertiary)',
+            borderRadius: '24px',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            margin: '0 auto 2rem',
-            boxShadow: '0 20px 40px rgba(0,0,0,0.1)'
+            margin: '0 auto 24px',
+            border: '1px solid var(--border-glass)',
+            boxShadow: '0 20px 40px rgba(0,0,0,0.3)',
+            color: 'var(--emerald)'
           }}>
-            <Zap size={50} color="white" />
+            <Zap size={40} fill="currentColor" />
           </div>
           <h1 style={{
-            fontSize: '3rem',
+            fontSize: '2.5rem',
             fontWeight: 900,
-            letterSpacing: '-2px',
-            color: 'white'
+            letterSpacing: '-1.5px',
+            color: 'white',
+            lineHeight: 1
           }}>
-            SideQuest.BN
+            SideQuest<span style={{ color: 'var(--emerald)' }}>.BN</span>
           </h1>
           <p style={{
-            fontSize: '1.1rem',
+            fontSize: '0.9rem',
             fontWeight: 600,
-            opacity: 0.9,
-            marginTop: '10px',
-            color: 'white'
+            color: 'var(--text-secondary)',
+            marginTop: '12px'
           }}>
             Brunei's Premier Gig Marketplace
           </p>
           <div style={{
             marginTop: '20px',
-            background: 'rgba(255,255,255,0.15)',
-            padding: '8px 20px',
-            borderRadius: '14px',
-            fontSize: '0.8rem',
+            display: 'inline-flex',
+            background: 'var(--emerald-soft)',
+            padding: '6px 16px',
+            borderRadius: '100px',
+            fontSize: '0.65rem',
             fontWeight: 800,
-            color: 'white'
+            color: 'var(--emerald)',
+            letterSpacing: '1px'
           }}>
             REDESIGNED V3.0
           </div>
         </motion.div>
       </div>
 
-      {/* Auth Section */}
-      <div className="login-form-container" style={{
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        padding: '2rem'
+      {/* Role Selection Section */}
+      <div style={{
+        padding: '0 24px 60px',
+        flex: 1
       }}>
-        <div
+        <motion.div
+          initial={{ y: 20, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ delay: 0.2 }}
+          className="card-glass"
           style={{
-            background: 'white',
-            borderRadius: '24px',
-            padding: '2rem',
-            boxShadow: '0 20px 40px rgba(0,0,0,0.1)',
-            maxWidth: '400px',
-            width: '100%'
+            padding: '32px 24px',
+            background: 'var(--bg-glass-strong)'
           }}
         >
           <h2 style={{
-            fontSize: '1.8rem',
-            fontWeight: 900,
-            marginBottom: '0.5rem',
-            letterSpacing: '-0.5px',
+            fontSize: '1.4rem',
+            fontWeight: 800,
+            marginBottom: '8px',
             textAlign: 'center'
           }}>
             Choose Your Portal
           </h2>
           <p style={{
-            color: '#6b7280',
-            fontWeight: 500,
-            marginBottom: '2rem',
+            color: 'var(--text-muted)',
+            fontWeight: 600,
+            fontSize: '0.85rem',
+            marginBottom: '32px',
             textAlign: 'center'
           }}>
-            Select your role to get started.
+            Select a role to start your journey
           </p>
 
-          {/* Portal Grid */}
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: '1fr',
-            gap: '16px'
-          }}>
-            {portals.map(portal => (
+          <div style={{ display: 'grid', gap: '16px' }}>
+            {portals.map((portal, idx) => (
               <motion.button
                 key={portal.id}
-                whileHover={{ y: -2, boxShadow: '0 10px 20px rgba(0,0,0,0.1)' }}
+                initial={{ x: -20, opacity: 0 }}
+                animate={{ x: 0, opacity: 1 }}
+                transition={{ delay: 0.3 + (idx * 0.1) }}
+                whileHover={{ x: 4, background: 'var(--bg-tertiary)' }}
                 whileTap={{ scale: 0.98 }}
                 onClick={() => navigate(portal.path)}
                 style={{
-                  background: 'white',
-                  border: '2px solid #e5e7eb',
-                  padding: '1.5rem',
-                  borderRadius: '16px',
+                  background: 'var(--bg-secondary)',
+                  border: '1px solid var(--border-glass)',
+                  padding: '20px',
+                  borderRadius: '20px',
                   display: 'flex',
                   alignItems: 'center',
                   gap: '16px',
                   cursor: 'pointer',
-                  transition: 'all 0.2s',
-                  textAlign: 'left'
+                  textAlign: 'left',
+                  width: '100%'
                 }}
               >
                 <div style={{
                   width: '48px',
                   height: '48px',
                   background: `${portal.color}15`,
-                  borderRadius: '12px',
+                  borderRadius: '14px',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  color: portal.color
+                  color: portal.color,
+                  flexShrink: 0
                 }}>
                   {portal.icon}
                 </div>
-                <div>
+                <div style={{ flex: 1 }}>
                   <div style={{
-                    fontSize: '1.1rem',
-                    fontWeight: 700,
-                    color: '#111827',
-                    marginBottom: '4px'
+                    fontSize: '1.05rem',
+                    fontWeight: 800,
+                    color: 'white',
+                    marginBottom: '2px'
                   }}>
                     {portal.title}
                   </div>
                   <div style={{
-                    fontSize: '0.9rem',
-                    color: '#6b7280',
-                    lineHeight: '1.4'
+                    fontSize: '0.75rem',
+                    color: 'var(--text-muted)',
+                    fontWeight: 600,
+                    lineHeight: '1.3'
                   }}>
                     {portal.desc}
                   </div>
                 </div>
+                <ChevronRight size={18} className="text-muted" />
               </motion.button>
             ))}
           </div>
-        </div>
+        </motion.div>
+        
+        <p style={{ 
+          textAlign: 'center', 
+          marginTop: '32px', 
+          fontSize: '0.7rem', 
+          color: 'var(--text-muted)', 
+          fontWeight: 600,
+          opacity: 0.5
+        }}>
+          &copy; 2026 SIDEQUEST.BN • BRU-VERIFIED
+        </p>
       </div>
     </div>
   );
 };
+
+export default PortalSelector;
 
 export default PortalSelector;

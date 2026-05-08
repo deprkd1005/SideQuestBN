@@ -13,7 +13,7 @@ function App() {
       <Router>
         <div className="app-container">
           <Routes>
-            <Route path="/" element={<PortalSelector />} />
+            <Route path="/" element={<div className="app-content no-pad"><PortalSelector /></div>} />
             <Route path="/hustler/*" element={<HustlerPortal />} />
             <Route path="/poster/*" element={<PosterPortal />} />
             <Route path="/admin/*" element={<AdminPortal />} />

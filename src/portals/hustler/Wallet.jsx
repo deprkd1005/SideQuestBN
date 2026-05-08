@@ -12,7 +12,7 @@ const Wallet = () => {
   const recentTransactions = transactions.slice(0, 10);
 
   return (
-    <div className="app-content no-pad">
+    <div style={{ flex: 1 }}>
       {/* Balance Section */}
       <div style={{ padding: '32px 24px 24px', background: 'linear-gradient(180deg, var(--bg-tertiary) 0%, var(--bg-primary) 100%)' }}>
         <div className="flex-between" style={{ marginBottom: '24px' }}>

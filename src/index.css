@@ -71,7 +71,7 @@
 
 body {
   font-family: 'Inter', 'Poppins', -apple-system, BlinkMacSystemFont, sans-serif;
-  background-color: var(--bg-primary);
+  background-color: #000; /* Outer background for desktop */
   color: var(--text-primary);
   overflow: hidden;
   height: 100vh;
@@ -90,8 +90,9 @@ body {
   display: flex;
   flex-direction: column;
   position: relative;
-  background: var(--bg-primary);
+  background: var(--bg-primary); /* Charcoal */
   overflow: hidden;
+  box-shadow: 0 0 100px rgba(0,0,0,0.5);
 }
 
 .app-content {
@@ -100,19 +101,19 @@ body {
   overflow-x: hidden;
   padding-bottom: calc(var(--nav-height) + var(--nav-bottom) + 20px);
   scroll-behavior: smooth;
+  display: flex;
+  flex-direction: column;
 }
 
 .app-content.no-pad {
   padding-bottom: 0;
 }
 
+
 /* ═══════════════════ LOGIN VIEW ═══════════════════ */
 .login-view {
   width: 100%;
-  max-width: 480px;
-  margin: 0 auto;
-  height: 100vh;
-  height: 100dvh;
+  flex: 1;
   display: flex;
   background: var(--bg-primary);
 }

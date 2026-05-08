@@ -18,7 +18,7 @@ const PosterDashboard = () => {
   ];
 
   return (
-    <div className="app-content no-pad">
+    <div style={{ flex: 1 }}>
       {/* Header Overlay */}
       <div style={{ padding: '32px 24px 12px' }}>
         <div className="flex-between">

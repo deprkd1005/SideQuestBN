@@ -30,7 +30,7 @@ const MyJobs = () => {
   };
 
   return (
-    <div className="app-content no-pad" style={{ background: 'var(--bg-primary)', height: '100%', display: 'flex', flexDirection: 'column' }}>
+    <div style={{ background: 'var(--bg-primary)', height: '100%', display: 'flex', flexDirection: 'column' }}>
       {/* Header */}
       <div style={{ padding: '32px 24px 24px' }}>
         <h1 className="section-title" style={{ fontSize: '1.6rem' }}>My Quests</h1>

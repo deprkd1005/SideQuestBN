@@ -28,7 +28,7 @@ const HustlerHome = () => {
   };
 
   return (
-    <div className="app-content no-pad" style={{ display: 'flex', flexDirection: 'column', height: '100%', position: 'relative', background: 'var(--bg-primary)' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', height: '100%', position: 'relative', background: 'var(--bg-primary)' }}>
       {/* Search Header Overlay */}
       <div style={{
         position: 'absolute',
