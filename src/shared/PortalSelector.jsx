@@ -214,5 +214,3 @@ const PortalSelector = () => {
 };
 
 export default PortalSelector;
-
-export default PortalSelector;
