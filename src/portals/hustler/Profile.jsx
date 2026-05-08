@@ -1,12 +1,11 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { User, Star, MapPin, Briefcase, Award, Settings, LogOut } from 'lucide-react';
+import { User, Star, MapPin, Briefcase, Award, Settings, LogOut, ChevronRight, Shield, Bell, HelpCircle, FileText } from 'lucide-react';
 import { usePayment } from '../../context/PaymentContext';
 
 const Profile = () => {
   const { user } = usePayment();
 
-  // Mock user data
   const profileData = {
     name: user?.name || 'John Doe',
     rating: 4.8,
@@ -14,292 +13,100 @@ const Profile = () => {
     skills: ['Cleaning', 'Delivery', 'Gardening'],
     location: 'Bandar Seri Begawan',
     memberSince: 'January 2024',
-    verificationStatus: 'Verified'
+    verificationStatus: 'Verified Hustler'
   };
 
-  const stats = [
-    { label: 'Completed Jobs', value: profileData.completedJobs, icon: Briefcase },
-    { label: 'Rating', value: `${profileData.rating}★`, icon: Star },
-    { label: 'Response Rate', value: '98%', icon: Award }
+  const menuItems = [
+    { icon: User, label: 'Edit Profile', color: 'var(--blue)' },
+    { icon: Shield, label: 'Security & Verification', color: 'var(--emerald)' },
+    { icon: Bell, label: 'Notifications', color: 'var(--orange)' },
+    { icon: FileText, label: 'Tax Documents', color: 'var(--text-muted)' },
+    { icon: HelpCircle, label: 'Support Center', color: 'var(--text-muted)' },
   ];
 
   return (
-    <div style={{
-      height: '100%',
-      display: 'flex',
-      flexDirection: 'column',
-      background: 'var(--bg-primary)'
-    }}>
-      {/* Header */}
-      <div style={{
-        padding: '1rem',
-        background: 'var(--bg-primary)',
-        borderBottom: '1px solid var(--border-color)'
-      }}>
-        <h1 style={{
-          fontSize: '1.5rem',
-          fontWeight: 900,
-          color: 'var(--text-primary)'
-        }}>
-          Profile
-        </h1>
+    <div className="app-content no-pad">
+      {/* Profile Header with Cover */}
+      <div style={{ position: 'relative', height: '180px', background: 'linear-gradient(135deg, var(--emerald-soft) 0%, var(--emerald) 100%)', marginBottom: '60px' }}>
+        <div style={{ position: 'absolute', bottom: '-40px', left: '20px', display: 'flex', alignItems: 'flex-end', gap: '16px' }}>
+          <div style={{ 
+            width: '100px', 
+            height: '100px', 
+            borderRadius: '30px', 
+            background: 'var(--bg-primary)', 
+            padding: '4px',
+            boxShadow: '0 10px 25px rgba(0,0,0,0.2)'
+          }}>
+            <div style={{ 
+              width: '100%', 
+              height: '100%', 
+              borderRadius: '26px', 
+              background: 'var(--bg-tertiary)',
+              overflow: 'hidden'
+            }}>
+              <img src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${profileData.name}`} alt="profile" />
+            </div>
+          </div>
+          <div style={{ marginBottom: '10px' }}>
+            <h1 style={{ fontSize: '1.4rem', fontWeight: 900, color: 'white', textShadow: '0 2px 4px rgba(0,0,0,0.3)' }}>{profileData.name}</h1>
+            <div style={{ display: 'flex', gap: '6px', alignItems: 'center', color: 'rgba(255,255,255,0.8)', fontSize: '0.8rem', fontWeight: 600 }}>
+              <MapPin size={14} /> {profileData.location}
+            </div>
+          </div>
+        </div>
       </div>
 
-      <div style={{
-        flex: 1,
-        overflowY: 'auto',
-        padding: '1rem'
-      }}>
-        {/* Profile Header */}
-        <div style={{
-          background: 'var(--bg-card)',
-          borderRadius: '16px',
-          padding: '1.5rem',
-          marginBottom: '1rem',
-          border: '1px solid var(--border-color)',
-          textAlign: 'center'
-        }}>
-          <div style={{
-            width: '80px',
-            height: '80px',
-            borderRadius: '40px',
-            background: 'var(--emerald-soft)',
-            margin: '0 auto 1rem',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center'
-          }}>
-            <User size={40} color="var(--emerald)" />
+      <div style={{ padding: '0 20px 24px' }}>
+        {/* Verification Status */}
+        <div className="card-glass" style={{ marginBottom: '24px', display: 'flex', alignItems: 'center', gap: '12px', borderColor: 'var(--emerald-soft)' }}>
+          <div style={{ width: '40px', height: '40px', borderRadius: '12px', background: 'var(--emerald-soft)', color: 'var(--emerald)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <Award size={22} />
           </div>
-          <h2 style={{
-            fontSize: '1.5rem',
-            fontWeight: 900,
-            color: 'var(--text-primary)',
-            marginBottom: '0.5rem'
-          }}>
-            {profileData.name}
-          </h2>
-          <div style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            gap: '4px',
-            marginBottom: '0.5rem'
-          }}>
-            <MapPin size={16} color="var(--text-muted)" />
-            <span style={{
-              fontSize: '0.9rem',
-              color: 'var(--text-secondary)'
-            }}>
-              {profileData.location}
-            </span>
+          <div style={{ flex: 1 }}>
+            <div style={{ fontSize: '0.9rem', fontWeight: 800, color: 'var(--emerald)' }}>{profileData.verificationStatus}</div>
+            <div style={{ fontSize: '0.7rem', color: 'var(--text-secondary)' }}>Bru-Verified Level 2 • Trusted Member</div>
           </div>
-          <div style={{
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: '4px',
-            background: 'var(--emerald-soft)',
-            padding: '4px 8px',
-            borderRadius: '12px'
-          }}>
-            <Award size={14} color="var(--emerald)" />
-            <span style={{
-              fontSize: '0.8rem',
-              color: 'var(--emerald)',
-              fontWeight: 600
-            }}>
-              {profileData.verificationStatus}
-            </span>
+          <ChevronRight size={18} className="text-muted" />
+        </div>
+
+        {/* Stats Grid */}
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '12px', marginBottom: '24px' }}>
+          <div className="card" style={{ textAlign: 'center', padding: '16px 8px' }}>
+            <div style={{ fontSize: '1.2rem', fontWeight: 900, marginBottom: '2px' }}>{profileData.completedJobs}</div>
+            <div style={{ fontSize: '0.65rem', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: 700 }}>Quests</div>
+          </div>
+          <div className="card" style={{ textAlign: 'center', padding: '16px 8px' }}>
+            <div style={{ fontSize: '1.2rem', fontWeight: 900, marginBottom: '2px', color: 'var(--orange)' }}>{profileData.rating}★</div>
+            <div style={{ fontSize: '0.65rem', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: 700 }}>Rating</div>
+          </div>
+          <div className="card" style={{ textAlign: 'center', padding: '16px 8px' }}>
+            <div style={{ fontSize: '1.2rem', fontWeight: 900, marginBottom: '2px', color: 'var(--emerald)' }}>98%</div>
+            <div style={{ fontSize: '0.65rem', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: 700 }}>Success</div>
           </div>
         </div>
 
-        {/* Stats */}
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: '1fr 1fr 1fr',
-          gap: '12px',
-          marginBottom: '1rem'
-        }}>
-          {stats.map(stat => (
-            <div key={stat.label} style={{
-              background: 'var(--bg-card)',
-              borderRadius: '12px',
-              padding: '1rem',
-              textAlign: 'center',
-              border: '1px solid var(--border-color)'
-            }}>
-              <div style={{
-                width: '32px',
-                height: '32px',
-                borderRadius: '8px',
-                background: 'var(--emerald-soft)',
-                margin: '0 auto 8px',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center'
-              }}>
-                <stat.icon size={16} color="var(--emerald)" />
+        {/* Settings Menu */}
+        <h3 style={{ fontSize: '1rem', fontWeight: 800, marginBottom: '16px', color: 'var(--text-primary)' }}>Account Settings</h3>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: '24px' }}>
+          {menuItems.map((item, idx) => (
+            <div key={idx} className="card" style={{ padding: '12px 16px', display: 'flex', alignItems: 'center', gap: '16px', cursor: 'pointer' }}>
+              <div style={{ color: item.color }}>
+                <item.icon size={20} />
               </div>
-              <p style={{
-                fontSize: '1.2rem',
-                fontWeight: 900,
-                color: 'var(--text-primary)',
-                margin: '0 0 4px 0'
-              }}>
-                {stat.value}
-              </p>
-              <p style={{
-                fontSize: '0.8rem',
-                color: 'var(--text-secondary)',
-                margin: 0
-              }}>
-                {stat.label}
-              </p>
+              <span style={{ flex: 1, fontSize: '0.95rem', fontWeight: 600 }}>{item.label}</span>
+              <ChevronRight size={18} className="text-muted" />
             </div>
           ))}
         </div>
 
-        {/* Skills */}
-        <div style={{
-          background: 'var(--bg-card)',
-          borderRadius: '16px',
-          padding: '1.5rem',
-          marginBottom: '1rem',
-          border: '1px solid var(--border-color)'
-        }}>
-          <h3 style={{
-            fontSize: '1.2rem',
-            fontWeight: 700,
-            color: 'var(--text-primary)',
-            marginBottom: '1rem'
-          }}>
-            Skills
-          </h3>
-          <div style={{
-            display: 'flex',
-            flexWrap: 'wrap',
-            gap: '8px'
-          }}>
-            {profileData.skills.map(skill => (
-              <span key={skill} style={{
-                background: 'var(--emerald-soft)',
-                color: 'var(--emerald)',
-                padding: '6px 12px',
-                borderRadius: '20px',
-                fontSize: '0.9rem',
-                fontWeight: 600
-              }}>
-                {skill}
-              </span>
-            ))}
-          </div>
-        </div>
+        {/* Log Out */}
+        <button className="btn-outline" style={{ width: '100%', borderColor: 'var(--red)', color: 'var(--red)', background: 'var(--red-soft)', display: 'flex', gap: '10px', height: '56px' }}>
+          <LogOut size={20} /> Sign Out
+        </button>
 
-        {/* Account Info */}
-        <div style={{
-          background: 'var(--bg-card)',
-          borderRadius: '16px',
-          padding: '1.5rem',
-          marginBottom: '1rem',
-          border: '1px solid var(--border-color)'
-        }}>
-          <h3 style={{
-            fontSize: '1.2rem',
-            fontWeight: 700,
-            color: 'var(--text-primary)',
-            marginBottom: '1rem'
-          }}>
-            Account Information
-          </h3>
-          <div style={{ display: 'grid', gap: '12px' }}>
-            <div style={{
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'center'
-            }}>
-              <span style={{
-                fontSize: '0.9rem',
-                color: 'var(--text-secondary)'
-              }}>
-                Member Since
-              </span>
-              <span style={{
-                fontSize: '0.9rem',
-                fontWeight: 600,
-                color: 'var(--text-primary)'
-              }}>
-                {profileData.memberSince}
-              </span>
-            </div>
-            <div style={{
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'center'
-            }}>
-              <span style={{
-                fontSize: '0.9rem',
-                color: 'var(--text-secondary)'
-              }}>
-                Account Status
-              </span>
-              <span style={{
-                fontSize: '0.9rem',
-                fontWeight: 600,
-                color: 'var(--emerald)'
-              }}>
-                Active
-              </span>
-            </div>
-          </div>
-        </div>
-
-        {/* Actions */}
-        <div style={{
-          display: 'grid',
-          gap: '12px',
-          marginBottom: '2rem'
-        }}>
-          <motion.button
-            whileTap={{ scale: 0.95 }}
-            style={{
-              width: '100%',
-              padding: '14px',
-              background: 'var(--bg-card)',
-              border: '1px solid var(--border-color)',
-              borderRadius: '12px',
-              color: 'var(--text-primary)',
-              fontSize: '1rem',
-              fontWeight: 600,
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '12px'
-            }}
-          >
-            <Settings size={20} />
-            Account Settings
-          </motion.button>
-
-          <motion.button
-            whileTap={{ scale: 0.95 }}
-            style={{
-              width: '100%',
-              padding: '14px',
-              background: 'var(--red-soft)',
-              border: '1px solid var(--red)',
-              borderRadius: '12px',
-              color: 'var(--red)',
-              fontSize: '1rem',
-              fontWeight: 600,
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '12px'
-            }}
-          >
-            <LogOut size={20} />
-            Sign Out
-          </motion.button>
+        <div style={{ textAlign: 'center', marginTop: '32px', opacity: 0.3 }}>
+          <p style={{ fontSize: '0.7rem', fontWeight: 700 }}>SIDEQUEST.BN V3.0.4 PROTOTYPE</p>
+          <p style={{ fontSize: '0.6rem' }}>© 2026 TechBrunei Solutions</p>
         </div>
       </div>
     </div>

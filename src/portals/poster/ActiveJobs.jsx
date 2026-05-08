@@ -1,67 +1,84 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { usePayment } from '../../context/PaymentContext';
-import { Briefcase, Clock, DollarSign } from 'lucide-react';
+import { Briefcase, Clock, DollarSign, ChevronRight, MapPin, Users, Shield } from 'lucide-react';
 
 const ActiveJobs = () => {
   const navigate = useNavigate();
   const { jobs } = usePayment();
   const activeJobs = jobs.filter(job => job.status !== 'completed');
 
+  const handleJobClick = (job) => {
+    if (job.status === 'open') {
+      navigate(`/poster/applicants/${job.id}`);
+    } else {
+      navigate(`/poster/tracking/${job.id}`);
+    }
+  };
+
   return (
-    <div style={{
-      height: '100%',
-      display: 'flex',
-      flexDirection: 'column',
-      background: 'var(--bg-primary)'
-    }}>
-      <div style={{
-        padding: '1rem',
-        borderBottom: '1px solid var(--border-color)',
-        background: 'var(--bg-primary)'
-      }}>
-        <h1 style={{ fontSize: '1.5rem', fontWeight: 900, color: 'var(--text-primary)' }}>
-          Active Jobs
-        </h1>
+    <div className="app-content no-pad" style={{ background: 'var(--bg-primary)', height: '100%' }}>
+      <div style={{ padding: '32px 24px 12px' }}>
+        <h1 className="section-title">Your Tasks</h1>
+        <p className="section-subtitle">Track progress and manage candidates</p>
       </div>
 
-      <div style={{ flex: 1, overflowY: 'auto', padding: '1rem' }}>
+      <div style={{ padding: '0 24px 24px' }}>
         {activeJobs.length === 0 ? (
-          <div style={{ textAlign: 'center', padding: '4rem 1rem', color: 'var(--text-secondary)' }}>
-            <Briefcase size={40} color='var(--text-muted)' />
-            <p style={{ marginTop: '1rem', fontSize: '1rem', fontWeight: 700 }}>No active jobs yet</p>
-            <p style={{ color: 'var(--text-secondary)' }}>Post a job and it will appear here for review.</p>
+          <div className="card" style={{ textAlign: 'center', padding: '60px 24px', borderStyle: 'dashed' }}>
+            <Briefcase size={40} className="text-muted" style={{ marginBottom: '16px', opacity: 0.3 }} />
+            <p style={{ fontSize: '1rem', fontWeight: 800, marginBottom: '8px' }}>No active tasks</p>
+            <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', marginBottom: '24px' }}>Post a job to find local help in Brunei.</p>
+            <button className="btn-primary" onClick={() => navigate('/poster/post')} style={{ width: '100%' }}>Post First Task</button>
           </div>
         ) : (
-          <div style={{ display: 'grid', gap: '14px' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
             {activeJobs.map(job => (
-              <button
-                key={job.id}
-                onClick={() => navigate(`/poster/applicants/${job.id}`)}
-                style={{
-                  width: '100%',
-                  textAlign: 'left',
-                  background: 'var(--bg-card)',
-                  borderRadius: '18px',
-                  border: '1px solid var(--border-color)',
-                  padding: '1.2rem',
-                  display: 'grid',
-                  gap: '10px',
-                  cursor: 'pointer'
-                }}
+              <div 
+                key={job.id} 
+                className="card" 
+                onClick={() => handleJobClick(job)}
+                style={{ padding: '20px' }}
               >
-                <div style={{ display: 'flex', justifyContent: 'space-between', gap: '12px' }}>
-                  <div>
-                    <h2 style={{ margin: 0, fontSize: '1.1rem', fontWeight: 700, color: 'var(--text-primary)' }}>{job.title}</h2>
-                    <p style={{ margin: '6px 0 0', color: 'var(--text-secondary)', fontSize: '0.9rem' }}>{job.category} • {job.mukim}</p>
+                <div className="flex-between" style={{ marginBottom: '12px' }}>
+                  <div style={{ display: 'flex', gap: '8px' }}>
+                    <span className={`badge ${job.status === 'open' ? 'badge-orange' : 'badge-emerald'}`}>
+                      {job.status === 'open' ? 'Hiring' : 'In Progress'}
+                    </span>
+                    <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '4px' }}>
+                      <Clock size={12} /> {job.timestamp_human || 'Active'}
+                    </span>
                   </div>
-                  <span style={{ fontSize: '1rem', fontWeight: 900, color: 'var(--orange)' }}>BND {job.reward}</span>
+                  <div style={{ fontSize: '1.1rem', fontWeight: 900, color: 'white' }}>BND {job.reward}</div>
                 </div>
-                <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
-                  <span style={{ padding: '6px 10px', borderRadius: '14px', background: 'var(--bg-secondary)', color: 'var(--text-secondary)', fontSize: '0.8rem' }}>Status: {job.status.replace('_', ' ')}</span>
-                  <span style={{ padding: '6px 10px', borderRadius: '14px', background: 'var(--bg-secondary)', color: 'var(--text-secondary)', fontSize: '0.8rem' }}>ETA: {job.duration || 'Flexible'}</span>
+
+                <h3 style={{ fontSize: '1.1rem', fontWeight: 800, marginBottom: '6px' }}>{job.title}</h3>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '4px', color: 'var(--text-secondary)', fontSize: '0.8rem', fontWeight: 600, marginBottom: '16px' }}>
+                  <MapPin size={12} className="text-orange" />
+                  <span>{job.location_name || 'Gadong Area'}</span>
                 </div>
-              </button>
+
+                <div className="flex-between" style={{ background: 'var(--bg-primary)', padding: '12px', borderRadius: '12px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    {job.status === 'open' ? (
+                      <>
+                        <Users size={16} className="text-muted" />
+                        <span style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--text-secondary)' }}>3 Applicants</span>
+                      </>
+                    ) : (
+                      <>
+                        <div style={{ width: '24px', height: '24px', borderRadius: '50%', background: 'var(--bg-tertiary)', overflow: 'hidden' }}>
+                          <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Hafizah" alt="worker" />
+                        </div>
+                        <span style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--text-secondary)' }}>Assigned to Hafizah</span>
+                      </>
+                    )}
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '0.8rem', fontWeight: 800, color: job.status === 'open' ? 'var(--orange)' : 'var(--emerald)' }}>
+                    {job.status === 'open' ? 'Review' : 'Track'} <ChevronRight size={16} />
+                  </div>
+                </div>
+              </div>
             ))}
           </div>
         )}

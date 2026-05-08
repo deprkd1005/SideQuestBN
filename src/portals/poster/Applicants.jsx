@@ -1,7 +1,8 @@
 import React from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { motion } from 'framer-motion';
+import { UserCheck, Users, Clock, DollarSign, ArrowLeft, Star, MapPin, MessageCircle, X, Check, Shield } from 'lucide-react';
 import { usePayment } from '../../context/PaymentContext';
-import { UserCheck, Users, Clock, DollarSign } from 'lucide-react';
 
 const Applicants = () => {
   const { jobId } = useParams();
@@ -10,105 +11,92 @@ const Applicants = () => {
   const job = jobs.find(item => item.id === jobId);
 
   const applicants = [
-    { id: 'a1', name: 'Hafizah', rating: 4.9, eta: '30 min', bid: 'BND 25' },
-    { id: 'a2', name: 'Farhan', rating: 4.7, eta: '45 min', bid: 'BND 30' },
-    { id: 'a3', name: 'Aisyah', rating: 4.8, eta: '35 min', bid: 'BND 28' }
+    { id: 'a1', name: 'Hafizah', rating: 4.9, distance: '1.2 km', skills: ['Gardening', 'Fast'], jobs: 42 },
+    { id: 'a2', name: 'Farhan', rating: 4.7, distance: '0.8 km', skills: ['Heavy Lifting', 'Pro'], jobs: 18 },
+    { id: 'a3', name: 'Aisyah', rating: 4.8, distance: '2.5 km', skills: ['Cleaning', 'Punctual'], jobs: 24 }
   ];
 
   return (
-    <div style={{
-      height: '100%',
-      display: 'flex',
-      flexDirection: 'column',
-      background: 'var(--bg-primary)'
-    }}>
-      <div style={{
-        padding: '1rem',
-        borderBottom: '1px solid var(--border-color)',
-        background: 'var(--bg-primary)',
-        display: 'flex',
-        alignItems: 'center',
-        gap: '12px'
-      }}>
-        <button
-          onClick={() => navigate(-1)}
-          style={{
-            border: 'none',
-            background: 'var(--bg-secondary)',
-            borderRadius: '12px',
-            padding: '10px',
-            cursor: 'pointer',
-            color: 'var(--text-secondary)'
-          }}>
-          ←
+    <div className="app-content no-pad" style={{ display: 'flex', flexDirection: 'column', height: '100%', background: 'var(--bg-primary)' }}>
+      {/* Header */}
+      <div style={{ padding: '24px 20px', display: 'flex', alignItems: 'center', gap: '16px', borderBottom: '1px solid var(--border-glass)' }}>
+        <button className="card-glass" style={{ width: '40px', height: '40px', borderRadius: '12px', padding: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }} onClick={() => navigate(-1)}>
+          <ArrowLeft size={20} />
         </button>
-        <h1 style={{ fontSize: '1.4rem', fontWeight: 900, color: 'var(--text-primary)' }}>
-          Applicants
-        </h1>
+        <div>
+          <h1 style={{ fontSize: '1.25rem', fontWeight: 900 }}>Applicants</h1>
+          <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', fontWeight: 700 }}>{job?.title || 'Job Selection'}</p>
+        </div>
       </div>
 
-      <div style={{ flex: 1, overflowY: 'auto', padding: '1rem' }}>
-        <div style={{
-          background: 'var(--bg-card)',
-          borderRadius: '18px',
-          padding: '1.25rem',
-          border: '1px solid var(--border-color)',
-          marginBottom: '1rem'
-        }}>
-          <h2 style={{ margin: 0, fontSize: '1.1rem', fontWeight: 700, color: 'var(--text-primary)' }}>
-            {job?.title || 'Job Applicants'}
-          </h2>
-          <p style={{ margin: '8px 0 0', color: 'var(--text-secondary)', fontSize: '0.9rem' }}>
-            Review the best local candidates and accept the right hustler.
+      <div style={{ flex: 1, overflowY: 'auto', padding: '24px 20px' }} className="no-scrollbar">
+        {/* Job Summary Card */}
+        <div className="card-glass" style={{ padding: '20px', marginBottom: '32px', borderColor: 'var(--orange-soft)' }}>
+          <div className="flex-between" style={{ marginBottom: '12px' }}>
+            <span className="badge badge-orange">Budget: BND {job?.reward}</span>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '0.75rem', fontWeight: 700, color: 'var(--emerald)' }}>
+              <Shield size={14} /> Escrow Protected
+            </div>
+          </div>
+          <h2 style={{ fontSize: '1.1rem', fontWeight: 800, marginBottom: '8px' }}>{job?.title}</h2>
+          <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', lineHeight: '1.5' }}>
+            Choose the best candidate for your task. Funds are already secured in escrow.
           </p>
         </div>
 
-        <div style={{ display: 'grid', gap: '12px' }}>
+        <h3 style={{ fontSize: '1rem', fontWeight: 800, marginBottom: '16px', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '1px' }}>Top Candidates ({applicants.length})</h3>
+
+        <div style={{ display: 'grid', gap: '16px' }}>
           {applicants.map(applicant => (
-            <div key={applicant.id} style={{
-              background: 'var(--bg-card)',
-              borderRadius: '18px',
-              padding: '1rem',
-              border: '1px solid var(--border-color)'
-            }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '12px' }}>
-                <div>
-                  <h3 style={{ margin: 0, fontSize: '1rem', fontWeight: 700, color: 'var(--text-primary)' }}>{applicant.name}</h3>
-                  <p style={{ margin: '6px 0 0', color: 'var(--text-secondary)', fontSize: '0.9rem' }}>
-                    Rating {applicant.rating} • ETA {applicant.eta}
-                  </p>
+            <motion.div 
+              key={applicant.id} 
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="card" 
+              style={{ padding: '20px' }}
+            >
+              <div style={{ display: 'flex', gap: '16px', marginBottom: '20px' }}>
+                <div style={{ width: '60px', height: '60px', borderRadius: '18px', background: 'var(--bg-tertiary)', border: '1px solid var(--border-color)', overflow: 'hidden' }}>
+                  <img src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${applicant.name}`} alt="avatar" />
                 </div>
-                <div style={{ textAlign: 'right' }}>
-                  <p style={{ margin: 0, fontSize: '1rem', fontWeight: 900, color: 'var(--emerald)' }}>{applicant.bid}</p>
-                  <p style={{ margin: '4px 0 0', color: 'var(--text-muted)', fontSize: '0.8rem' }}>Bid</p>
+                <div style={{ flex: 1 }}>
+                  <div className="flex-between">
+                    <h4 style={{ fontSize: '1.1rem', fontWeight: 800 }}>{applicant.name}</h4>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '4px', background: 'var(--orange-soft)', padding: '4px 8px', borderRadius: '8px', color: 'var(--orange)', fontSize: '0.8rem', fontWeight: 800 }}>
+                      <Star size={14} fill="var(--orange)" /> {applicant.rating}
+                    </div>
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginTop: '6px', fontSize: '0.75rem', color: 'var(--text-muted)', fontWeight: 700 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                      <MapPin size={14} /> {applicant.distance}
+                    </div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                      <UserCheck size={14} /> {applicant.jobs} Jobs
+                    </div>
+                  </div>
                 </div>
               </div>
-              <div style={{ display: 'flex', gap: '10px', marginTop: '12px' }}>
-                <button style={{
-                  flex: 1,
-                  padding: '12px',
-                  borderRadius: '14px',
-                  border: 'none',
-                  background: 'var(--emerald)',
-                  color: 'white',
-                  fontWeight: 700,
-                  cursor: 'pointer'
-                }}>
-                  Accept
+
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginBottom: '20px' }}>
+                {applicant.skills.map(skill => (
+                  <span key={skill} style={{ fontSize: '0.7rem', fontWeight: 700, padding: '4px 10px', background: 'var(--bg-primary)', border: '1px solid var(--border-color)', borderRadius: '8px', color: 'var(--text-secondary)' }}>
+                    {skill}
+                  </span>
+                ))}
+              </div>
+
+              <div style={{ display: 'flex', gap: '12px' }}>
+                <button className="btn-primary" style={{ flex: 2, height: '48px', background: 'var(--emerald)', boxShadow: '0 4px 15px var(--emerald-glow)' }}>
+                  <Check size={18} /> Accept
                 </button>
-                <button style={{
-                  flex: 1,
-                  padding: '12px',
-                  borderRadius: '14px',
-                  border: '1px solid var(--border-color)',
-                  background: 'var(--bg-secondary)',
-                  color: 'var(--text-primary)',
-                  cursor: 'pointer'
-                }}>
-                  Message
+                <button className="btn-outline" style={{ flex: 1, height: '48px', padding: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <MessageCircle size={20} />
+                </button>
+                <button className="btn-ghost" style={{ width: '48px', height: '48px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--bg-secondary)', borderRadius: '14px' }}>
+                  <X size={20} className="text-red" />
                 </button>
               </div>
-            </div>
+            </motion.div>
           ))}
         </div>
       </div>

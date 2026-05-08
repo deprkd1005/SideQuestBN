@@ -1,179 +1,220 @@
-import React, { useState, useEffect } from 'react';
-import { MessageSquare, User, Clock, Send } from 'lucide-react';
+import React, { useState, useEffect, useRef } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { MessageSquare, Send, X, User, ChevronLeft, MoreVertical, Paperclip, Smile, Search } from 'lucide-react';
 import { usePayment } from '../../context/PaymentContext';
 
 const PosterMessages = () => {
   const { chatSessions, fetchMessages, sendMessage } = usePayment();
   const [activeSession, setActiveSession] = useState(null);
   const [messages, setMessages] = useState([]);
-  const [draft, setDraft] = useState('');
+  const [inputText, setInputText] = useState('');
+  const scrollRef = useRef();
 
   useEffect(() => {
-    if (!activeSession) return;
-    const fetchThread = async () => {
-      const msgs = await fetchMessages(activeSession.id);
-      setMessages(msgs);
-    };
-    fetchThread();
-    const interval = setInterval(fetchThread, 3000);
-    return () => clearInterval(interval);
+    if (activeSession) {
+      const interval = setInterval(async () => {
+        const msgs = await fetchMessages(activeSession.id);
+        setMessages(msgs);
+      }, 3000);
+      return () => clearInterval(interval);
+    }
   }, [activeSession, fetchMessages]);
 
+  useEffect(() => {
+    if (scrollRef.current) scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+  }, [messages]);
+
   const handleSend = async () => {
-    if (!draft.trim() || !activeSession) return;
-    await sendMessage(activeSession.id, draft.trim());
-    setDraft('');
+    if (!inputText.trim() || !activeSession) return;
+    await sendMessage(activeSession.id, inputText);
+    setInputText('');
   };
 
   return (
-    <div style={{
-      height: '100%',
-      display: 'flex',
-      flexDirection: 'column',
-      background: 'var(--bg-primary)'
-    }}>
-      <div style={{
-        padding: '1rem',
-        background: 'var(--bg-primary)',
-        borderBottom: '1px solid var(--border-color)'
-      }}>
-        <h1 style={{
-          fontSize: '1.5rem',
-          fontWeight: 900,
-          color: 'var(--text-primary)'
-        }}>
-          Poster Messages
-        </h1>
-      </div>
-
-      {!activeSession ? (
-        <div style={{ flex: 1, overflowY: 'auto', padding: '1rem' }}>
-          {chatSessions.length === 0 ? (
-            <div style={{ textAlign: 'center', padding: '4rem 1rem', color: 'var(--text-secondary)' }}>
-              <div style={{
-                width: '80px',
-                height: '80px',
-                borderRadius: '24px',
-                background: 'var(--bg-secondary)',
-                margin: '0 auto 1.5rem',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center'
-              }}>
-                <MessageSquare size={40} color='var(--text-muted)' />
+    <div className="app-content no-pad" style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+      <AnimatePresence mode="wait">
+        {!activeSession ? (
+          <motion.div 
+            key="list"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            style={{ display: 'flex', flexDirection: 'column', height: '100%' }}
+          >
+            {/* Header */}
+            <div className="flex-between" style={{ padding: '24px 20px 12px' }}>
+              <div>
+                <h1 className="section-title">Messages</h1>
+                <p className="section-subtitle">Chat with your Hustlers</p>
               </div>
-              <p style={{ fontSize: '1.05rem', fontWeight: 700, marginBottom: '0.5rem' }}>No chats yet</p>
-              <p style={{ color: 'var(--text-secondary)' }}>Messages will appear here when you connect with a hustler.</p>
+              <button className="btn-ghost" style={{ background: 'var(--bg-card)', borderRadius: '12px' }}>
+                <Search size={20} />
+              </button>
             </div>
-          ) : (
-            <div style={{ display: 'grid', gap: '12px' }}>
-              {chatSessions.map(session => (
-                <button
-                  key={session.id}
-                  onClick={() => setActiveSession(session)}
-                  style={{
-                    width: '100%',
-                    background: 'var(--bg-card)',
-                    borderRadius: '16px',
-                    border: '1px solid var(--border-color)',
-                    padding: '1rem',
-                    textAlign: 'left',
-                    cursor: 'pointer'
+
+            {/* Chat List */}
+            <div style={{ flex: 1, overflowY: 'auto', padding: '0 20px 24px' }}>
+              {chatSessions.length === 0 ? (
+                <div className="flex-center" style={{ height: '60%', flexDirection: 'column', gap: '16px', opacity: 0.5 }}>
+                  <div style={{ width: '80px', height: '80px', background: 'var(--bg-tertiary)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <MessageSquare size={32} />
+                  </div>
+                  <p>No conversations yet</p>
+                </div>
+              ) : (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                  {chatSessions.map(session => (
+                    <div 
+                      key={session.id}
+                      onClick={() => setActiveSession(session)}
+                      className="card" 
+                      style={{ 
+                        padding: '12px', 
+                        display: 'flex', 
+                        gap: '12px', 
+                        alignItems: 'center',
+                        background: session.unread ? 'var(--portal-soft)' : 'var(--bg-card)',
+                        borderColor: session.unread ? 'var(--portal-color)' : 'var(--border-color)'
+                      }}
+                    >
+                      <div style={{ width: '56px', height: '56px', borderRadius: '16px', background: 'var(--bg-tertiary)', overflow: 'hidden', border: '1px solid var(--border-color)' }}>
+                        <img src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${session.participant}`} alt="avatar" />
+                      </div>
+                      <div style={{ flex: 1 }}>
+                        <div className="flex-between" style={{ marginBottom: '4px' }}>
+                          <h4 style={{ fontSize: '0.95rem', fontWeight: 700 }}>{session.participant}</h4>
+                          <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>
+                            {new Date(session.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                          </span>
+                        </div>
+                        <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '200px' }}>
+                          {session.lastMessage}
+                        </p>
+                      </div>
+                      {session.unread && <div style={{ width: '8px', height: '8px', background: 'var(--portal-color)', borderRadius: '50%' }} />}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </motion.div>
+        ) : (
+          <motion.div 
+            key="chat"
+            initial={{ x: '100%' }}
+            animate={{ x: 0 }}
+            exit={{ x: '100%' }}
+            transition={{ type: 'spring', damping: 25, stiffness: 200 }}
+            style={{ display: 'flex', flexDirection: 'column', height: '100%', background: 'var(--bg-primary)', position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 1000 }}
+          >
+            {/* Chat Header */}
+            <div className="flex-between" style={{ padding: '16px 20px', borderBottom: '1px solid var(--border-color)', background: 'var(--bg-glass)', backdropFilter: 'blur(20px)' }}>
+              <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+                <button className="btn-ghost" onClick={() => setActiveSession(null)} style={{ padding: '8px', marginLeft: '-8px' }}>
+                  <ChevronLeft size={24} />
+                </button>
+                <div style={{ width: '40px', height: '40px', borderRadius: '12px', background: 'var(--bg-tertiary)', overflow: 'hidden', border: '1px solid var(--border-color)' }}>
+                  <img src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${activeSession.participant}`} alt="avatar" />
+                </div>
+                <div>
+                  <h4 style={{ fontSize: '0.95rem', fontWeight: 800 }}>{activeSession.participant}</h4>
+                  <div style={{ display: 'flex', gap: '4px', alignItems: 'center' }}>
+                    <div style={{ width: '6px', height: '6px', background: 'var(--emerald)', borderRadius: '50%' }} />
+                    <span style={{ fontSize: '0.65rem', color: 'var(--text-secondary)', fontWeight: 600 }}>Online</span>
+                  </div>
+                </div>
+              </div>
+              <button className="btn-ghost"><MoreVertical size={20} /></button>
+            </div>
+
+            {/* Messages Area */}
+            <div 
+              ref={scrollRef}
+              style={{ flex: 1, overflowY: 'auto', padding: '20px', display: 'flex', flexDirection: 'column', gap: '16px' }}
+            >
+              <div style={{ textAlign: 'center', padding: '20px' }}>
+                <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)', background: 'var(--bg-tertiary)', padding: '4px 12px', borderRadius: '12px', fontWeight: 700, textTransform: 'uppercase' }}>Today</span>
+              </div>
+              
+              {messages.map((msg, i) => {
+                const isMe = msg.sender === 'Me';
+                return (
+                  <div 
+                    key={msg.id}
+                    style={{ 
+                      alignSelf: isMe ? 'flex-end' : 'flex-start',
+                      maxWidth: '80%',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      alignItems: isMe ? 'flex-end' : 'flex-start'
+                    }}
+                  >
+                    <div style={{ 
+                      padding: '12px 16px',
+                      borderRadius: isMe ? '20px 20px 4px 20px' : '20px 20px 20px 4px',
+                      background: isMe ? 'var(--portal-color)' : 'var(--bg-tertiary)',
+                      color: isMe ? 'white' : 'var(--text-primary)',
+                      fontSize: '0.95rem',
+                      lineHeight: '1.5',
+                      boxShadow: isMe ? 'var(--portal-glow)' : 'none',
+                      border: isMe ? 'none' : '1px solid var(--border-color)'
+                    }}>
+                      {msg.text}
+                    </div>
+                    <span style={{ fontSize: '0.65rem', color: 'var(--text-muted)', marginTop: '4px', fontWeight: 600 }}>
+                      {new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* Input Area */}
+            <div style={{ padding: '20px', background: 'var(--bg-primary)', borderTop: '1px solid var(--border-color)' }}>
+              <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+                <button className="btn-ghost" style={{ padding: '10px', color: 'var(--text-muted)' }}><Paperclip size={20} /></button>
+                <div style={{ flex: 1, position: 'relative' }}>
+                  <input 
+                    type="text" 
+                    value={inputText}
+                    onChange={(e) => setInputText(e.target.value)}
+                    onKeyPress={(e) => e.key === 'Enter' && handleSend()}
+                    placeholder="Message..."
+                    style={{ 
+                      width: '100%',
+                      padding: '14px 48px 14px 16px',
+                      borderRadius: '24px',
+                      background: 'var(--bg-secondary)',
+                      border: '1px solid var(--border-color)',
+                      color: 'white',
+                      fontSize: '0.95rem',
+                      outline: 'none'
+                    }}
+                  />
+                  <button style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', color: 'var(--text-muted)', padding: '4px' }}>
+                    <Smile size={20} />
+                  </button>
+                </div>
+                <button 
+                  onClick={handleSend}
+                  disabled={!inputText.trim()}
+                  className="btn-primary" 
+                  style={{ 
+                    width: '50px', 
+                    height: '50px', 
+                    borderRadius: '25px', 
+                    padding: 0, 
+                    background: inputText.trim() ? 'var(--portal-color)' : 'var(--bg-tertiary)',
+                    opacity: inputText.trim() ? 1 : 0.5
                   }}
                 >
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                    <div style={{
-                      width: '44px',
-                      height: '44px',
-                      borderRadius: '14px',
-                      background: 'var(--bg-secondary)',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center'
-                    }}>
-                      <User size={24} color='var(--text-secondary)' />
-                    </div>
-                    <div style={{ flex: 1 }}>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', gap: '12px' }}>
-                        <strong style={{ color: 'var(--text-primary)', fontSize: '0.95rem' }}>{session.participant}</strong>
-                        <span style={{ color: 'var(--text-muted)', fontSize: '0.75rem' }}>{new Date(session.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
-                      </div>
-                      <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', marginTop: '6px' }}>{session.lastMessage}</p>
-                    </div>
-                  </div>
+                  <Send size={20} />
                 </button>
-              ))}
+              </div>
             </div>
-          )}
-        </div>
-      ) : (
-        <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
-          <div style={{ padding: '1rem', borderBottom: '1px solid var(--border-color)', background: 'var(--bg-primary)' }}>
-            <button
-              onClick={() => setActiveSession(null)}
-              style={{
-                background: 'none',
-                border: 'none',
-                color: 'var(--orange)',
-                fontWeight: 700,
-                cursor: 'pointer'
-              }}>
-              ← Back to chats
-            </button>
-          </div>
-          <div style={{ flex: 1, overflowY: 'auto', padding: '1rem', display: 'grid', gap: '12px' }}>
-            {messages.length === 0 ? (
-              <div style={{ textAlign: 'center', color: 'var(--text-secondary)', paddingTop: '4rem' }}>
-                <p>No messages yet.</p>
-              </div>
-            ) : messages.map(msg => (
-              <div key={msg.id} style={{
-                alignSelf: msg.sender === 'Me' ? 'end' : 'start',
-                background: msg.sender === 'Me' ? 'var(--emerald)' : 'var(--bg-card)',
-                color: msg.sender === 'Me' ? 'white' : 'var(--text-primary)',
-                borderRadius: '18px',
-                padding: '12px 16px',
-                maxWidth: '80%'
-              }}>
-                <p style={{ margin: 0, fontSize: '0.9rem' }}>{msg.text}</p>
-              </div>
-            ))}
-          </div>
-          <div style={{ padding: '1rem', background: 'var(--bg-primary)', borderTop: '1px solid var(--border-color)', display: 'flex', gap: '10px' }}>
-            <input
-              value={draft}
-              onChange={(e) => setDraft(e.target.value)}
-              placeholder='Write a message...'
-              style={{
-                flex: 1,
-                borderRadius: '999px',
-                border: '1px solid var(--border-color)',
-                padding: '12px 16px',
-                background: 'var(--bg-secondary)',
-                color: 'var(--text-primary)',
-                outline: 'none'
-              }}
-              onKeyDown={(e) => e.key === 'Enter' && handleSend()}
-            />
-            <button
-              onClick={handleSend}
-              style={{
-                width: '52px',
-                height: '52px',
-                borderRadius: '50%',
-                border: 'none',
-                background: draft.trim() ? 'var(--orange)' : 'var(--bg-secondary)',
-                color: 'white',
-                cursor: draft.trim() ? 'pointer' : 'not-allowed',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center'
-              }}>
-              <Send size={20} />
-            </button>
-          </div>
-        </div>
-      )}
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };

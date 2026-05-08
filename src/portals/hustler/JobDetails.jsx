@@ -1,324 +1,152 @@
 import React from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ArrowLeft, MapPin, Clock, DollarSign, User, CheckCircle } from 'lucide-react';
+import { ArrowLeft, MapPin, Clock, DollarSign, User, CheckCircle, Shield, Calendar, Tag, ChevronRight } from 'lucide-react';
 import { usePayment } from '../../context/PaymentContext';
+import MapView from '../../components/MapView';
 
 const JobDetails = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { jobs, acceptJob } = usePayment();
+  const { jobs, acceptJob, userLocation } = usePayment();
 
   const job = jobs.find(j => j.id === id);
 
   if (!job) {
     return (
-      <div style={{
-        padding: '2rem',
-        textAlign: 'center',
-        color: 'var(--text-secondary)'
-      }}>
-        Job not found
+      <div className="flex-center" style={{ height: '100vh', flexDirection: 'column', gap: '16px' }}>
+        <p className="text-muted">Job not found</p>
+        <button className="btn-outline" onClick={() => navigate(-1)}>Go Back</button>
       </div>
     );
   }
 
+  const [isApplied, setIsApplied] = React.useState(false);
+
   const handleAccept = async () => {
     await acceptJob(job.id);
-    navigate('/hustler/jobs');
+    setIsApplied(true);
+    setTimeout(() => navigate('/hustler/jobs'), 2500);
   };
 
-  return (
-    <div style={{
-      height: '100%',
-      display: 'flex',
-      flexDirection: 'column',
-      background: 'var(--bg-primary)'
-    }}>
-      {/* Header */}
-      <div style={{
-        padding: '1rem',
-        background: 'var(--bg-primary)',
-        borderBottom: '1px solid var(--border-color)',
-        display: 'flex',
-        alignItems: 'center',
-        gap: '12px'
-      }}>
-        <button
-          onClick={() => navigate(-1)}
-          style={{
-            background: 'var(--bg-secondary)',
-            border: 'none',
-            borderRadius: '8px',
-            padding: '8px',
-            cursor: 'pointer',
-            color: 'var(--text-secondary)'
-          }}
+  if (isApplied) {
+    return (
+      <div className="app-content no-pad flex-center" style={{ height: '100vh', background: 'var(--bg-primary)', flexDirection: 'column', gap: '24px' }}>
+        <motion.div 
+          initial={{ scale: 0, rotate: -45 }}
+          animate={{ scale: 1, rotate: 0 }}
+          transition={{ type: 'spring', damping: 12, stiffness: 200 }}
+          style={{ width: '100px', height: '100px', borderRadius: '50%', background: 'var(--emerald-soft)', color: 'var(--emerald)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
         >
-          <ArrowLeft size={20} />
-        </button>
-        <h1 style={{
-          fontSize: '1.2rem',
-          fontWeight: 700,
-          color: 'var(--text-primary)',
-          flex: 1
-        }}>
-          Job Details
-        </h1>
+          <CheckCircle size={60} strokeWidth={3} />
+        </motion.div>
+        <div style={{ textAlign: 'center' }}>
+          <h2 style={{ fontSize: '1.6rem', fontWeight: 900, marginBottom: '8px' }}>Quest Applied!</h2>
+          <p style={{ color: 'var(--text-muted)', fontWeight: 700 }}>Waiting for poster approval. ⏳</p>
+        </div>
       </div>
+    );
+  }
 
-      {/* Content */}
-      <div style={{
-        flex: 1,
-        overflowY: 'auto',
-        padding: '1rem'
-      }}>
-        {/* Job Title and Price */}
-        <div style={{
-          background: 'var(--bg-card)',
-          borderRadius: '16px',
-          padding: '1.5rem',
-          marginBottom: '1rem',
-          border: '1px solid var(--border-color)'
-        }}>
-          <h2 style={{
-            fontSize: '1.5rem',
-            fontWeight: 900,
-            color: 'var(--text-primary)',
-            marginBottom: '0.5rem'
-          }}>
-            {job.title}
-          </h2>
-          <div style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '8px',
-            marginBottom: '1rem'
-          }}>
-            <DollarSign size={20} color="var(--emerald)" />
-            <span style={{
-              fontSize: '1.8rem',
-              fontWeight: 900,
-              color: 'var(--emerald)'
-            }}>
-              BND {job.reward}
-            </span>
-          </div>
-          <div style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '8px',
-            marginBottom: '8px'
-          }}>
-            <MapPin size={16} color="var(--text-muted)" />
-            <span style={{
-              fontSize: '0.9rem',
-              color: 'var(--text-secondary)'
-            }}>
-              {job.mukim}, {job.district}
-            </span>
-          </div>
-          <div style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '8px'
-          }}>
-            <Clock size={16} color="var(--text-muted)" />
-            <span style={{
-              fontSize: '0.9rem',
-              color: 'var(--text-secondary)'
-            }}>
-              Posted {new Date(job.createdAt).toLocaleDateString()}
-            </span>
-          </div>
+  return (
+    <div className="app-content no-pad">
+      {/* Hero Header */}
+      <div style={{ position: 'relative', height: '240px', background: 'var(--bg-tertiary)' }}>
+        <div style={{ height: '100%', width: '100%', opacity: 0.6 }}>
+          <MapView 
+            jobs={[job]} 
+            userLocation={userLocation} 
+            interactive={false}
+          />
         </div>
-
-        {/* Job Description */}
-        <div style={{
-          background: 'var(--bg-card)',
-          borderRadius: '16px',
-          padding: '1.5rem',
-          marginBottom: '1rem',
-          border: '1px solid var(--border-color)'
-        }}>
-          <h3 style={{
-            fontSize: '1.2rem',
-            fontWeight: 700,
-            color: 'var(--text-primary)',
-            marginBottom: '1rem'
-          }}>
-            Description
-          </h3>
-          <p style={{
-            fontSize: '1rem',
-            color: 'var(--text-secondary)',
-            lineHeight: '1.6'
-          }}>
-            {job.description}
-          </p>
+        <div className="glass-overlay" style={{ position: 'absolute', top: '16px', left: '16px', borderRadius: '12px' }}>
+          <button className="btn-ghost" onClick={() => navigate(-1)} style={{ color: 'white' }}>
+            <ArrowLeft size={20} />
+          </button>
         </div>
-
-        {/* Job Details */}
-        <div style={{
-          background: 'var(--bg-card)',
-          borderRadius: '16px',
-          padding: '1.5rem',
-          marginBottom: '1rem',
-          border: '1px solid var(--border-color)'
+        <div style={{ 
+          position: 'absolute', 
+          bottom: '-24px', 
+          left: '20px', 
+          right: '20px',
+          zIndex: 5
         }}>
-          <h3 style={{
-            fontSize: '1.2rem',
-            fontWeight: 700,
-            color: 'var(--text-primary)',
-            marginBottom: '1rem'
-          }}>
-            Details
-          </h3>
-          <div style={{ display: 'grid', gap: '12px' }}>
-            <div style={{
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'center'
-            }}>
-              <span style={{
-                fontSize: '0.9rem',
-                color: 'var(--text-secondary)'
-              }}>
-                Category
-              </span>
-              <span style={{
-                fontSize: '0.9rem',
-                fontWeight: 600,
-                color: 'var(--text-primary)'
-              }}>
-                {job.category}
-              </span>
-            </div>
-            <div style={{
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'center'
-            }}>
-              <span style={{
-                fontSize: '0.9rem',
-                color: 'var(--text-secondary)'
-              }}>
-                Type
-              </span>
-              <span style={{
-                fontSize: '0.9rem',
-                fontWeight: 600,
-                color: 'var(--text-primary)'
-              }}>
-                {job.indoor ? 'Indoor' : 'Outdoor'}
-              </span>
-            </div>
-            <div style={{
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'center'
-            }}>
-              <span style={{
-                fontSize: '0.9rem',
-                color: 'var(--text-secondary)'
-              }}>
-                Duration
-              </span>
-              <span style={{
-                fontSize: '0.9rem',
-                fontWeight: 600,
-                color: 'var(--text-primary)'
-              }}>
-                {job.duration || 'Flexible'}
-              </span>
-            </div>
-          </div>
-        </div>
-
-        {/* Poster Info */}
-        <div style={{
-          background: 'var(--bg-card)',
-          borderRadius: '16px',
-          padding: '1.5rem',
-          marginBottom: '2rem',
-          border: '1px solid var(--border-color)'
-        }}>
-          <h3 style={{
-            fontSize: '1.2rem',
-            fontWeight: 700,
-            color: 'var(--text-primary)',
-            marginBottom: '1rem'
-          }}>
-            Posted by
-          </h3>
-          <div style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '12px'
-          }}>
-            <div style={{
-              width: '48px',
-              height: '48px',
-              borderRadius: '12px',
-              background: 'var(--emerald-soft)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center'
-            }}>
-              <User size={24} color="var(--emerald)" />
-            </div>
+          <div className="card-elevated" style={{ padding: '20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <div>
-              <div style={{
-                fontSize: '1rem',
-                fontWeight: 700,
-                color: 'var(--text-primary)',
-                marginBottom: '4px'
-              }}>
-                {job.payer}
-              </div>
-              <div style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '4px'
-              }}>
-                <CheckCircle size={14} color="var(--emerald)" />
-                <span style={{
-                  fontSize: '0.8rem',
-                  color: 'var(--text-secondary)'
-                }}>
-                  Verified Poster
-                </span>
-              </div>
+              <span className="badge badge-emerald" style={{ marginBottom: '8px' }}>{job.category}</span>
+              <h1 style={{ fontSize: '1.25rem', fontWeight: 800 }}>{job.title}</h1>
+            </div>
+            <div style={{ textAlign: 'right' }}>
+              <div style={{ fontSize: '1.5rem', fontWeight: 900, color: 'var(--emerald)' }}>BND {job.reward}</div>
+              <div style={{ fontSize: '0.7rem', color: 'var(--text-secondary)' }}>Fixed Budget</div>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Apply Button */}
+      <div style={{ padding: '48px 20px 100px' }}>
+        {/* Quick Info */}
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '24px' }}>
+          <div className="card" style={{ padding: '12px', display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <Calendar size={18} className="text-emerald" />
+            <div>
+              <div style={{ fontSize: '0.65rem', color: 'var(--text-secondary)', textTransform: 'uppercase' }}>Date</div>
+              <div style={{ fontSize: '0.85rem', fontWeight: 600 }}>{new Date(job.createdAt).toLocaleDateString()}</div>
+            </div>
+          </div>
+          <div className="card" style={{ padding: '12px', display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <MapPin size={18} className="text-emerald" />
+            <div>
+              <div style={{ fontSize: '0.65rem', color: 'var(--text-secondary)', textTransform: 'uppercase' }}>Location</div>
+              <div style={{ fontSize: '0.85rem', fontWeight: 600 }}>{job.mukim}</div>
+            </div>
+          </div>
+        </div>
+
+        {/* Escrow Shield */}
+        <div className="card-glass" style={{ marginBottom: '24px', background: 'var(--emerald-soft)', borderColor: 'rgba(16, 185, 129, 0.2)', display: 'flex', alignItems: 'center', gap: '12px' }}>
+          <Shield size={20} className="text-emerald" />
+          <p style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--emerald)' }}>Funds secured in SideQuest Escrow</p>
+        </div>
+
+        {/* Description */}
+        <h3 style={{ fontSize: '1.1rem', fontWeight: 700, marginBottom: '12px' }}>Task Description</h3>
+        <p style={{ fontSize: '0.95rem', color: 'var(--text-secondary)', lineHeight: '1.6', marginBottom: '24px' }}>
+          {job.description}
+        </p>
+
+        {/* Poster Profile */}
+        <h3 style={{ fontSize: '1.1rem', fontWeight: 700, marginBottom: '12px' }}>About the Poster</h3>
+        <div className="card" style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '24px' }}>
+          <div style={{ width: '56px', height: '56px', borderRadius: '16px', background: 'var(--bg-tertiary)', border: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
+            <img src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${job.payer}`} alt="avatar" />
+          </div>
+          <div style={{ flex: 1 }}>
+            <div className="flex-between">
+              <h4 style={{ fontSize: '1rem', fontWeight: 700 }}>{job.payer}</h4>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                <CheckCircle size={14} className="text-emerald" />
+                <span style={{ fontSize: '0.75rem', fontWeight: 600 }}>Verified</span>
+              </div>
+            </div>
+            <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', marginTop: '2px' }}>Joined Jan 2024 • 12 Tasks Posted</p>
+          </div>
+          <ChevronRight size={20} className="text-muted" />
+        </div>
+      </div>
+
+      {/* Floating Apply Button */}
       {job.status === 'open' && (
-        <div style={{
-          padding: '1rem',
-          background: 'var(--bg-primary)',
-          borderTop: '1px solid var(--border-color)'
+        <div style={{ 
+          position: 'fixed', 
+          bottom: '100px', 
+          left: '20px', 
+          right: '20px',
+          zIndex: 100 
         }}>
-          <motion.button
-            whileTap={{ scale: 0.95 }}
-            onClick={handleAccept}
-            style={{
-              width: '100%',
-              background: 'var(--emerald)',
-              color: 'white',
-              border: 'none',
-              padding: '16px',
-              borderRadius: '12px',
-              fontSize: '1.1rem',
-              fontWeight: 700,
-              cursor: 'pointer',
-              boxShadow: 'var(--shadow-glow-emerald)'
-            }}
-          >
-            Apply for Job
-          </motion.button>
+          <button className="btn-cta" onClick={handleAccept} style={{ boxShadow: 'var(--shadow-lg)' }}>
+            Apply for this Quest
+          </button>
         </div>
       )}
     </div>

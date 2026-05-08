@@ -1,310 +1,118 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Users, Briefcase, Shield, AlertTriangle, TrendingUp, CheckCircle } from 'lucide-react';
+import { Users, Briefcase, Shield, AlertTriangle, TrendingUp, CheckCircle, Search, Filter, MoreVertical, Check, X, Bell, Activity, Lock } from 'lucide-react';
 
 const AdminDashboard = () => {
-  // Mock admin data
   const stats = [
-    { label: 'Total Users', value: '1,247', icon: Users, color: '#3b82f6' },
-    { label: 'Active Jobs', value: '89', icon: Briefcase, color: '#10b981' },
-    { label: 'Escrow Total', value: 'BND 12,450', icon: Shield, color: '#f59e0b' },
-    { label: 'Reports', value: '12', icon: AlertTriangle, color: '#ef4444' }
+    { label: 'Total Users', value: '1,247', icon: Users, color: 'var(--blue)' },
+    { label: 'Active Jobs', value: '89', icon: Briefcase, color: 'var(--emerald)' },
+    { label: 'Escrow', value: 'BND 12,450', icon: Shield, color: 'var(--orange)' },
+    { label: 'Reports', value: '12', icon: AlertTriangle, color: 'var(--red)' }
   ];
 
   const pendingVerifications = [
-    { id: 1, name: 'Ahmad Rahman', role: 'Hustler', icColor: 'Blue', submitted: '2 hours ago' },
-    { id: 2, name: 'Siti Aminah', role: 'Poster', icColor: 'Yellow', submitted: '5 hours ago' },
-    { id: 3, name: 'John Smith', role: 'Hustler', icColor: 'Green', submitted: '1 day ago' }
+    { id: 1, name: 'Ahmad Rahman', role: 'Hustler', icColor: 'Blue', submitted: '2h ago' },
+    { id: 2, name: 'Siti Aminah', role: 'Poster', icColor: 'Yellow', submitted: '5h ago' }
   ];
 
   const recentReports = [
-    { id: 1, type: 'Job Dispute', status: 'Pending', reported: '1 hour ago' },
-    { id: 2, type: 'User Complaint', status: 'Resolved', reported: '3 hours ago' },
-    { id: 3, type: 'Payment Issue', status: 'Investigating', reported: '6 hours ago' }
+    { id: 1, type: 'Job Dispute', status: 'Pending', reported: '1h ago', user: 'Zul' },
+    { id: 2, type: 'Payment Issue', status: 'Investigating', reported: '6h ago', user: 'Liyana' }
   ];
 
   return (
-    <div style={{
-      height: '100%',
-      display: 'flex',
-      flexDirection: 'column',
-      background: 'var(--bg-primary)'
-    }}>
-      {/* Header */}
-      <div style={{
-        padding: '1rem',
-        background: 'var(--bg-primary)',
-        borderBottom: '1px solid var(--border-color)'
-      }}>
-        <h1 style={{
-          fontSize: '1.5rem',
-          fontWeight: 900,
-          color: 'var(--text-primary)'
-        }}>
-          Admin Panel
-        </h1>
+    <div className="app-content no-pad" style={{ background: 'var(--bg-primary)', minHeight: '100%' }}>
+      {/* Admin Header */}
+      <div style={{ padding: '32px 24px 24px', background: 'linear-gradient(180deg, var(--bg-tertiary) 0%, var(--bg-primary) 100%)' }}>
+        <div className="flex-between" style={{ marginBottom: '24px' }}>
+          <div>
+            <h1 className="section-title">Control Center</h1>
+            <p className="section-subtitle">Platform health & security</p>
+          </div>
+          <div style={{ display: 'flex', gap: '12px' }}>
+            <button className="card-glass" style={{ width: '48px', height: '48px', borderRadius: '16px', padding: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <Bell size={20} className="text-muted" />
+            </button>
+            <button className="card-glass" style={{ width: '48px', height: '48px', borderRadius: '16px', padding: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <Lock size={20} className="text-blue" />
+            </button>
+          </div>
+        </div>
+
+        {/* Stats Grid */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '16px' }}>
+          {stats.map(stat => (
+            <div key={stat.label} className="card" style={{ padding: '20px', borderColor: 'rgba(255,255,255,0.03)' }}>
+              <div className="flex-between" style={{ marginBottom: '12px' }}>
+                <div style={{ color: stat.color }}>
+                  <stat.icon size={20} />
+                </div>
+                <Activity size={14} className="text-muted" />
+              </div>
+              <div style={{ fontSize: '1.4rem', fontWeight: 900 }}>{stat.value}</div>
+              <div style={{ fontSize: '0.65rem', color: 'var(--text-muted)', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.5px' }}>{stat.label}</div>
+            </div>
+          ))}
+        </div>
       </div>
 
-      {/* Stats */}
-      <div style={{ padding: '1rem' }}>
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: '1fr 1fr',
-          gap: '12px',
-          marginBottom: '2rem'
-        }}>
-          {stats.map(stat => (
-            <div key={stat.label} style={{
-              background: 'var(--bg-card)',
-              borderRadius: '12px',
-              padding: '1rem',
-              border: '1px solid var(--border-color)'
-            }}>
-              <div style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '8px',
-                marginBottom: '8px'
-              }}>
-                <div style={{
-                  width: '32px',
-                  height: '32px',
-                  borderRadius: '8px',
-                  background: `${stat.color}20`,
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center'
-                }}>
-                  <stat.icon size={16} style={{ color: stat.color }} />
+      <div style={{ padding: '0 24px 24px' }}>
+        {/* Verification Section */}
+        <div className="flex-between" style={{ marginBottom: '16px' }}>
+          <h3 style={{ fontSize: '1.1rem', fontWeight: 800 }}>KYC Moderation</h3>
+          <button className="btn-ghost" style={{ fontSize: '0.85rem', color: 'var(--blue)', fontWeight: 700 }}>Review All</button>
+        </div>
+
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginBottom: '32px' }}>
+          {pendingVerifications.map(user => (
+            <div key={user.id} className="card" style={{ padding: '16px' }}>
+              <div className="flex-between" style={{ marginBottom: '16px' }}>
+                <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+                  <div style={{ width: '44px', height: '44px', borderRadius: '14px', background: 'var(--bg-tertiary)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <img src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${user.name}`} alt="avatar" style={{ width: '100%' }} />
+                  </div>
+                  <div>
+                    <h4 style={{ fontSize: '0.95rem', fontWeight: 800 }}>{user.name}</h4>
+                    <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', fontWeight: 600 }}>{user.role} • {user.icColor} IC</p>
+                  </div>
                 </div>
-                <span style={{
-                  fontSize: '0.8rem',
-                  color: 'var(--text-secondary)',
-                  fontWeight: 600
-                }}>
-                  {stat.label}
-                </span>
+                <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)', fontWeight: 700 }}>{user.submitted}</span>
               </div>
-              <p style={{
-                fontSize: '1.5rem',
-                fontWeight: 900,
-                color: 'var(--text-primary)',
-                margin: 0
-              }}>
-                {stat.value}
-              </p>
+              <div style={{ display: 'flex', gap: '12px' }}>
+                <button className="btn-primary" style={{ flex: 1, height: '40px', background: 'var(--emerald)', fontSize: '0.85rem' }}>
+                  Approve
+                </button>
+                <button className="btn-outline" style={{ flex: 1, height: '40px', fontSize: '0.85rem', borderColor: 'var(--red-soft)', color: 'var(--red)' }}>
+                  Reject
+                </button>
+              </div>
             </div>
           ))}
         </div>
 
-        {/* Pending Verifications */}
-        <div style={{
-          background: 'var(--bg-card)',
-          borderRadius: '16px',
-          padding: '1.5rem',
-          marginBottom: '1rem',
-          border: '1px solid var(--border-color)'
-        }}>
-          <div style={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            marginBottom: '1rem'
-          }}>
-            <h3 style={{
-              fontSize: '1.2rem',
-              fontWeight: 700,
-              color: 'var(--text-primary)'
-            }}>
-              Identity Verifications
-            </h3>
-            <span style={{
-              background: 'var(--orange-soft)',
-              color: 'var(--orange)',
-              padding: '4px 8px',
-              borderRadius: '12px',
-              fontSize: '0.8rem',
-              fontWeight: 600
-            }}>
-              {pendingVerifications.length} pending
-            </span>
-          </div>
-
-          <div style={{ display: 'grid', gap: '12px' }}>
-            {pendingVerifications.map(user => (
-              <div key={user.id} style={{
-                background: 'var(--bg-secondary)',
-                borderRadius: '12px',
-                padding: '1rem',
-                border: '1px solid var(--border-color)'
-              }}>
-                <div style={{
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  alignItems: 'flex-start',
-                  marginBottom: '8px'
-                }}>
-                  <div>
-                    <h4 style={{
-                      fontSize: '1rem',
-                      fontWeight: 700,
-                      color: 'var(--text-primary)',
-                      marginBottom: '4px'
-                    }}>
-                      {user.name}
-                    </h4>
-                    <p style={{
-                      fontSize: '0.8rem',
-                      color: 'var(--text-secondary)'
-                    }}>
-                      {user.role} • IC {user.icColor}
-                    </p>
-                  </div>
-                  <span style={{
-                    fontSize: '0.7rem',
-                    color: 'var(--text-muted)',
-                    background: 'var(--bg-tertiary)',
-                    padding: '4px 8px',
-                    borderRadius: '8px'
-                  }}>
-                    {user.submitted}
-                  </span>
-                </div>
-                <div style={{ display: 'flex', gap: '8px' }}>
-                  <motion.button
-                    whileTap={{ scale: 0.95 }}
-                    style={{
-                      flex: 1,
-                      background: 'var(--emerald)',
-                      color: 'white',
-                      border: 'none',
-                      padding: '8px',
-                      borderRadius: '6px',
-                      fontSize: '0.8rem',
-                      fontWeight: 600,
-                      cursor: 'pointer'
-                    }}
-                  >
-                    Approve
-                  </motion.button>
-                  <motion.button
-                    whileTap={{ scale: 0.95 }}
-                    style={{
-                      flex: 1,
-                      background: 'var(--red-soft)',
-                      color: 'var(--red)',
-                      border: '1px solid var(--red)',
-                      padding: '8px',
-                      borderRadius: '6px',
-                      fontSize: '0.8rem',
-                      fontWeight: 600,
-                      cursor: 'pointer'
-                    }}
-                  >
-                    Reject
-                  </motion.button>
-                </div>
-              </div>
-            ))}
-          </div>
+        {/* System Alerts */}
+        <div className="flex-between" style={{ marginBottom: '16px' }}>
+          <h3 style={{ fontSize: '1.1rem', fontWeight: 800 }}>System Alerts</h3>
+          <span className="badge badge-orange" style={{ fontSize: '0.65rem' }}>12 Critical</span>
         </div>
 
-        {/* Reports */}
-        <div style={{
-          background: 'var(--bg-card)',
-          borderRadius: '16px',
-          padding: '1.5rem',
-          border: '1px solid var(--border-color)'
-        }}>
-          <div style={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            marginBottom: '1rem'
-          }}>
-            <h3 style={{
-              fontSize: '1.2rem',
-              fontWeight: 700,
-              color: 'var(--text-primary)'
-            }}>
-              Recent Reports
-            </h3>
-            <span style={{
-              background: 'var(--red-soft)',
-              color: 'var(--red)',
-              padding: '4px 8px',
-              borderRadius: '12px',
-              fontSize: '0.8rem',
-              fontWeight: 600
-            }}>
-              {recentReports.filter(r => r.status === 'Pending').length} pending
-            </span>
-          </div>
-
-          <div style={{ display: 'grid', gap: '12px' }}>
-            {recentReports.map(report => (
-              <div key={report.id} style={{
-                background: 'var(--bg-secondary)',
-                borderRadius: '12px',
-                padding: '1rem',
-                border: '1px solid var(--border-color)'
-              }}>
-                <div style={{
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  alignItems: 'flex-start',
-                  marginBottom: '8px'
-                }}>
-                  <div>
-                    <h4 style={{
-                      fontSize: '1rem',
-                      fontWeight: 700,
-                      color: 'var(--text-primary)',
-                      marginBottom: '4px'
-                    }}>
-                      {report.type}
-                    </h4>
-                    <p style={{
-                      fontSize: '0.8rem',
-                      color: 'var(--text-secondary)'
-                    }}>
-                      Reported {report.reported}
-                    </p>
-                  </div>
-                  <span style={{
-                    fontSize: '0.7rem',
-                    fontWeight: 600,
-                    color: report.status === 'Resolved' ? 'var(--emerald)' :
-                           report.status === 'Investigating' ? 'var(--orange)' : 'var(--red)',
-                    background: report.status === 'Resolved' ? 'var(--emerald-soft)' :
-                               report.status === 'Investigating' ? 'var(--orange-soft)' : 'var(--red-soft)',
-                    padding: '4px 8px',
-                    borderRadius: '8px'
-                  }}>
-                    {report.status}
-                  </span>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+          {recentReports.map(report => (
+            <div key={report.id} className="card" style={{ padding: '16px', borderLeft: '4px solid var(--red)' }}>
+              <div className="flex-between" style={{ marginBottom: '8px' }}>
+                <div>
+                  <h4 style={{ fontSize: '1rem', fontWeight: 800 }}>{report.type}</h4>
+                  <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', fontWeight: 600 }}>Reported by {report.user} • {report.reported}</p>
                 </div>
-                {report.status !== 'Resolved' && (
-                  <motion.button
-                    whileTap={{ scale: 0.95 }}
-                    style={{
-                      width: '100%',
-                      background: 'var(--blue)',
-                      color: 'white',
-                      border: 'none',
-                      padding: '8px',
-                      borderRadius: '6px',
-                      fontSize: '0.8rem',
-                      fontWeight: 600,
-                      cursor: 'pointer'
-                    }}
-                  >
-                    Review Report
-                  </motion.button>
-                )}
+                <div style={{ padding: '4px 8px', borderRadius: '6px', background: 'var(--bg-primary)', fontSize: '0.7rem', fontWeight: 800, color: 'var(--red)' }}>
+                  {report.status}
+                </div>
               </div>
-            ))}
-          </div>
+              <button className="btn-ghost" style={{ width: '100%', padding: '10px', fontSize: '0.85rem', fontWeight: 700, color: 'var(--blue)', border: '1px solid var(--blue-soft)', borderRadius: '12px', marginTop: '8px' }}>
+                Investigate Dispute
+              </button>
+            </div>
+          ))}
         </div>
       </div>
     </div>
