@@ -8,7 +8,7 @@ import Wallet from './Wallet';
 import Messages from './Messages';
 import Profile from './Profile';
 
-const HustlerPortal = () => {
+const HustlerPortal = ({ onAnimation }) => {
   return (
     <div className="theme-seeker" style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
       <div className="app-content">
@@ -17,10 +17,11 @@ const HustlerPortal = () => {
           <Route path="/job/:id" element={<JobDetails />} />
           <Route path="/jobs" element={<MyJobs />} />
           <Route path="/messages" element={<Messages />} />
-          <Route path="/wallet" element={<Wallet />} />
+          <Route path="/wallet" element={<Wallet onAnimation={onAnimation} />} />
           <Route path="/profile" element={<Profile />} />
         </Routes>
       </div>
+
       <BottomNav portal="hustler" />
     </div>
   );
