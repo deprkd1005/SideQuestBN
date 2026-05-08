@@ -4,9 +4,10 @@ import { Wallet as WalletIcon, ArrowUpCircle, ArrowDownCircle, History, Shield, 
 import { usePayment } from '../../context/PaymentContext';
 
 const Wallet = () => {
-  const { balance, transactions, escrow } = usePayment();
+  const { balance, transactions, escrow, updateBalance } = usePayment();
   const [showWithdraw, setShowWithdraw] = useState(false);
   const [stage, setStage] = useState('idle'); // idle, transferring, success
+  const [withdrawAmount, setWithdrawAmount] = useState('');
 
   const escrowAmount = escrow?.pending || 0;
   const availableBalance = balance - escrowAmount;
@@ -193,7 +194,9 @@ const Wallet = () => {
                   <input 
                     type="number" 
                     placeholder="0.00" 
-                    style={{ width: '100%', background: 'var(--bg-primary)', border: '1px solid var(--border-color)', borderRadius: '16px', padding: '16px 20px', color: 'white', fontSize: '1.5rem', fontWeight: 900, textAlign: 'center' }}
+                    value={withdrawAmount}
+                    onChange={(e) => setWithdrawAmount(e.target.value)}
+                    style={{ width: '100%', background: 'var(--bg-primary)', border: '1px solid var(--border-color)', borderRadius: '16px', padding: '16px 20px', color: 'var(--text-primary)', fontSize: '1.5rem', fontWeight: 900, textAlign: 'center' }}
                   />
                 </div>
                 <div className="flex-between" style={{ marginTop: '12px' }}>
@@ -205,40 +208,47 @@ const Wallet = () => {
               <button 
                 className="btn-primary" 
                 style={{ width: '100%', height: '60px', fontSize: '1.1rem', position: 'relative', overflow: 'hidden' }}
-                onClick={() => {
+                onClick={async () => {
+                  if (!withdrawAmount || parseFloat(withdrawAmount) <= 0) return;
                   setStage('transferring');
+                  
+                  // Simulate Network Delay
                   setTimeout(() => {
                     setStage('success');
+                    updateBalance(balance - parseFloat(withdrawAmount));
                     setTimeout(() => {
                       setShowWithdraw(false);
                       setStage('idle');
+                      setWithdrawAmount('');
                     }, 2000);
                   }, 2500);
                 }}
                 disabled={stage !== 'idle'}
               >
                 {stage === 'idle' && 'Confirm Withdrawal'}
-                {stage === 'transferring' && (
-                  <motion.div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    <div className="spinner-small" /> Transferring...
-                  </motion.div>
-                )}
-                {stage === 'success' && 'Transfer Successful! ✅'}
+                {stage === 'transferring' && 'Processing...'}
+                {stage === 'success' && 'Transfer Complete! ✅'}
 
                 {/* Money Animation Overlay */}
                 <AnimatePresence>
                   {stage === 'transferring' && (
-                    <motion.div
-                      initial={{ x: -100, opacity: 0 }}
-                      animate={{ x: 300, opacity: [0, 1, 0] }}
-                      transition={{ duration: 1.5, repeat: Infinity, ease: 'linear' }}
-                      style={{ position: 'absolute', top: '50%', left: 0, color: 'white' }}
-                    >
-                      <Zap size={20} fill="currentColor" />
-                    </motion.div>
+                    <div style={{ position: 'absolute', inset: 0, overflow: 'hidden', pointerEvents: 'none' }}>
+                      {[1, 2, 3].map(i => (
+                        <motion.div
+                          key={i}
+                          initial={{ y: 60, x: -20, opacity: 0 }}
+                          animate={{ y: -60, x: 100, opacity: [0, 1, 0] }}
+                          transition={{ duration: 1, repeat: Infinity, delay: i * 0.3 }}
+                          style={{ position: 'absolute', left: '20%', color: '#fbbf24' }}
+                        >
+                          <Zap size={24} fill="currentColor" />
+                        </motion.div>
+                      ))}
+                    </div>
                   )}
                 </AnimatePresence>
               </button>
+
 
             </motion.div>
           </>

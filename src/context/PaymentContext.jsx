@@ -173,10 +173,11 @@ export const PaymentProvider = ({ children }) => {
 
   return (
     <PaymentContext.Provider value={{
-      user, balance, walletInfo, jobs, transactions, escrow, chatSessions, loading, impactStats, userLocation, setUserLocation,
+      user, balance, setBalance, walletInfo, jobs, transactions, escrow, chatSessions, loading, impactStats, userLocation, setUserLocation,
       topUp, postJob, acceptJob, completeJob, releaseFunds, withdraw, sendMessage, fetchMessages, signup, login, refresh: fetchState, 
-      fetchImpactStats, setRole, getAdminUsers, getSystemHealth, verifyUser
+      fetchImpactStats, setRole, getAdminUsers, getSystemHealth, verifyUser, updateBalance: setBalance
     }}>
+
       {children}
     </PaymentContext.Provider>
   );
