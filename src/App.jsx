@@ -7,7 +7,15 @@ import AdminPortal from './portals/admin/AdminPortal';
 import { PaymentProvider } from './context/PaymentContext';
 import './index.css';
 
+import SplashScreen from './shared/SplashScreen';
+
 function App() {
+  const [showSplash, setShowSplash] = React.useState(true);
+
+  if (showSplash) {
+    return <SplashScreen onComplete={() => setShowSplash(false)} />;
+  }
+
   return (
     <PaymentProvider>
       <Router>
