@@ -9,7 +9,7 @@ import AdminProfile from './AdminProfile';
 
 const AdminPortal = () => {
   return (
-    <div className={`app-container theme-admin`}>
+    <div className="theme-admin" style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
       <div className="app-content">
         <Routes>
           <Route path="/" element={<AdminDashboard />} />

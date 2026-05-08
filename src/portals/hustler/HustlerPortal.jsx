@@ -10,7 +10,7 @@ import Profile from './Profile';
 
 const HustlerPortal = () => {
   return (
-    <div className={`app-container theme-seeker`}>
+    <div className="theme-seeker" style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
       <div className="app-content">
         <Routes>
           <Route path="/" element={<HustlerHome />} />

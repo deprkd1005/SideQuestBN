@@ -233,29 +233,104 @@ const Wallet = () => {
                 {stage === 'success' && 'Transfer Complete! ✅'}
               </button>
 
-              {/* Money Animation Overlay - Moved outside button to prevent clipping */}
+              {/* Mega Money Animation - Full Screen Gold Rain */}
               <AnimatePresence>
                 {stage === 'transferring' && (
-                  <div style={{ position: 'fixed', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', pointerEvents: 'none', zIndex: 2000 }}>
-                    {[1, 2, 3, 4, 5].map(i => (
+                  <div style={{ 
+                    position: 'fixed', 
+                    inset: 0, 
+                    zIndex: 9999, 
+                    pointerEvents: 'none',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center'
+                  }}>
+                    {/* Coin Rain */}
+                    {[...Array(12)].map((_, i) => (
                       <motion.div
                         key={i}
-                        initial={{ y: 100, x: 0, opacity: 0, scale: 0.5 }}
+                        initial={{ y: -100, x: (Math.random() - 0.5) * 400, opacity: 0, rotate: 0 }}
                         animate={{ 
-                          y: -200, 
-                          x: (i - 3) * 40, 
-                          opacity: [0, 1, 0],
-                          scale: [0.5, 1.2, 0.8],
-                          rotate: [0, 45, -45]
+                          y: 800, 
+                          opacity: [0, 1, 1, 0],
+                          rotate: 360 
                         }}
-                        transition={{ duration: 1.5, repeat: Infinity, delay: i * 0.2 }}
-                        style={{ position: 'absolute', color: '#fbbf24' }}
+                        transition={{ 
+                          duration: 2 + Math.random(), 
+                          repeat: Infinity, 
+                          delay: Math.random() * 0.5,
+                          ease: 'linear'
+                        }}
+                        style={{ position: 'absolute', top: 0 }}
                       >
-                        <div style={{ background: '#fbbf24', width: '30px', height: '30px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 0 15px rgba(251, 191, 36, 0.5)', border: '2px solid white' }}>
-                          <Zap size={16} fill="white" stroke="none" />
+                        <div style={{ 
+                          background: '#fbbf24', 
+                          width: '40px', 
+                          height: '40px', 
+                          borderRadius: '50%', 
+                          display: 'flex', 
+                          alignItems: 'center', 
+                          justifyContent: 'center', 
+                          boxShadow: '0 4px 15px rgba(251, 191, 36, 0.6)', 
+                          border: '3px solid white',
+                          color: 'white'
+                        }}>
+                          <Zap size={20} fill="white" stroke="none" />
                         </div>
                       </motion.div>
                     ))}
+
+                    {/* Processing Message */}
+                    <motion.div
+                      initial={{ scale: 0.8, opacity: 0 }}
+                      animate={{ scale: 1, opacity: 1 }}
+                      style={{
+                        padding: '32px',
+                        background: 'white',
+                        borderRadius: '32px',
+                        boxShadow: '0 20px 60px rgba(0,0,0,0.2)',
+                        textAlign: 'center',
+                        border: '1px solid var(--border-color)',
+                        pointerEvents: 'auto'
+                      }}
+                    >
+                      <div className="spinner-small" style={{ margin: '0 auto 20px', width: '40px', height: '40px', borderColor: 'var(--emerald) transparent' }} />
+                      <h2 style={{ fontSize: '1.5rem', fontWeight: 900, marginBottom: '8px' }}>Processing Transfer</h2>
+                      <p style={{ color: 'var(--text-muted)', fontWeight: 600 }}>Securing funds with BDCB Compliance...</p>
+                    </motion.div>
+                  </div>
+                )}
+
+                {stage === 'success' && (
+                  <div style={{ 
+                    position: 'fixed', 
+                    inset: 0, 
+                    zIndex: 9999, 
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    background: 'rgba(255,255,255,0.9)',
+                    backdropFilter: 'blur(10px)'
+                  }}>
+                    <motion.div
+                      initial={{ scale: 0.5, opacity: 0 }}
+                      animate={{ scale: 1, opacity: 1 }}
+                      style={{
+                        padding: '40px',
+                        background: 'white',
+                        borderRadius: '40px',
+                        boxShadow: '0 30px 80px rgba(16, 185, 129, 0.2)',
+                        textAlign: 'center',
+                        border: '1px solid var(--emerald-soft)',
+                        maxWidth: '320px'
+                      }}
+                    >
+                      <div style={{ width: '80px', height: '80px', background: 'var(--emerald)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', margin: '0 auto 24px', boxShadow: '0 10px 30px var(--emerald-glow)' }}>
+                        <Zap size={40} fill="white" stroke="none" />
+                      </div>
+                      <h2 style={{ fontSize: '1.8rem', fontWeight: 900, marginBottom: '12px' }}>Success!</h2>
+                      <p style={{ color: 'var(--text-secondary)', fontWeight: 600, lineHeight: 1.5 }}>Your BND {withdrawAmount} has been transferred successfully.</p>
+                    </motion.div>
                   </div>
                 )}
               </AnimatePresence>
