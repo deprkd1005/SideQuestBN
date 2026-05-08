@@ -1,0 +1,10 @@
+services:
+  - type: web
+    name: sidequest-bn-prototype
+    runtime: node
+    buildCommand: npm run build
+    publishPath: dist
+    startCommand: npm start
+    envVars:
+      - key: NODE_VERSION
+        value: 18
