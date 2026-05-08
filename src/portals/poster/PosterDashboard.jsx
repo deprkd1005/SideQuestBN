@@ -1,7 +1,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Plus, Briefcase, Users, CheckCircle, TrendingUp, ArrowRight, Bell, Shield, MapPin, Clock } from 'lucide-react';
+import { Plus, Briefcase, Users, CheckCircle, TrendingUp, ArrowRight, Bell, Shield, MapPin, Clock, ChevronRight } from 'lucide-react';
 import { usePayment } from '../../context/PaymentContext';
 
 const PosterDashboard = () => {
