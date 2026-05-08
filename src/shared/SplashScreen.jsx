@@ -134,7 +134,7 @@ const SplashScreen = ({ onComplete }) => {
         letterSpacing: '2px',
         opacity: 0.5
       }}>
-        BICTA 2026 PROTOTYPE
+        SIDEQUEST.BN V3 PROTOTYPE
       </p>
     </div>
   );

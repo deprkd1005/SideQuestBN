@@ -207,15 +207,18 @@ const Wallet = () => {
 
               <button 
                 className="btn-primary" 
-                style={{ width: '100%', height: '60px', fontSize: '1.1rem', position: 'relative', overflow: 'hidden' }}
-                onClick={async () => {
-                  if (!withdrawAmount || parseFloat(withdrawAmount) <= 0) return;
+                style={{ width: '100%', height: '60px', fontSize: '1.1rem', position: 'relative' }}
+                onClick={() => {
+                  const amt = parseFloat(withdrawAmount);
+                  if (isNaN(amt) || amt <= 0 || amt > balance) return;
+                  
                   setStage('transferring');
                   
                   // Simulate Network Delay
                   setTimeout(() => {
                     setStage('success');
-                    updateBalance(balance - parseFloat(withdrawAmount));
+                    updateBalance(balance - amt);
+                    
                     setTimeout(() => {
                       setShowWithdraw(false);
                       setStage('idle');
@@ -228,26 +231,34 @@ const Wallet = () => {
                 {stage === 'idle' && 'Confirm Withdrawal'}
                 {stage === 'transferring' && 'Processing...'}
                 {stage === 'success' && 'Transfer Complete! ✅'}
-
-                {/* Money Animation Overlay */}
-                <AnimatePresence>
-                  {stage === 'transferring' && (
-                    <div style={{ position: 'absolute', inset: 0, overflow: 'hidden', pointerEvents: 'none' }}>
-                      {[1, 2, 3].map(i => (
-                        <motion.div
-                          key={i}
-                          initial={{ y: 60, x: -20, opacity: 0 }}
-                          animate={{ y: -60, x: 100, opacity: [0, 1, 0] }}
-                          transition={{ duration: 1, repeat: Infinity, delay: i * 0.3 }}
-                          style={{ position: 'absolute', left: '20%', color: '#fbbf24' }}
-                        >
-                          <Zap size={24} fill="currentColor" />
-                        </motion.div>
-                      ))}
-                    </div>
-                  )}
-                </AnimatePresence>
               </button>
+
+              {/* Money Animation Overlay - Moved outside button to prevent clipping */}
+              <AnimatePresence>
+                {stage === 'transferring' && (
+                  <div style={{ position: 'fixed', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', pointerEvents: 'none', zIndex: 2000 }}>
+                    {[1, 2, 3, 4, 5].map(i => (
+                      <motion.div
+                        key={i}
+                        initial={{ y: 100, x: 0, opacity: 0, scale: 0.5 }}
+                        animate={{ 
+                          y: -200, 
+                          x: (i - 3) * 40, 
+                          opacity: [0, 1, 0],
+                          scale: [0.5, 1.2, 0.8],
+                          rotate: [0, 45, -45]
+                        }}
+                        transition={{ duration: 1.5, repeat: Infinity, delay: i * 0.2 }}
+                        style={{ position: 'absolute', color: '#fbbf24' }}
+                      >
+                        <div style={{ background: '#fbbf24', width: '30px', height: '30px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 0 15px rgba(251, 191, 36, 0.5)', border: '2px solid white' }}>
+                          <Zap size={16} fill="white" stroke="none" />
+                        </div>
+                      </motion.div>
+                    ))}
+                  </div>
+                )}
+              </AnimatePresence>
 
 
             </motion.div>
