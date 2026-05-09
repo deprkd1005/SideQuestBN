@@ -46,6 +46,10 @@
   /* Portal Specifics */
   --portal-color: var(--emerald);
   --portal-soft: var(--emerald-soft);
+
+  /* Nav System */
+  --nav-height: 72px;
+  --nav-bottom: env(safe-area-inset-bottom, 0px);
 }
 
 

@@ -27,7 +27,7 @@ const PosterProfile = () => {
   ];
 
   return (
-    <div className="app-content no-pad">
+    <div className="app-content">
       {/* Profile Header with Cover */}
       <div style={{ position: 'relative', height: '180px', background: 'linear-gradient(135deg, var(--orange-soft) 0%, var(--orange) 100%)', marginBottom: '60px' }}>
         <div style={{ position: 'absolute', bottom: '-40px', left: '20px', display: 'flex', alignItems: 'flex-end', gap: '16px' }}>

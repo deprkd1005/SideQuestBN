@@ -28,7 +28,8 @@ const AdminProfile = () => {
       <div style={{
         flex: 1,
         overflowY: 'auto',
-        padding: '1rem'
+        padding: '1rem',
+        paddingBottom: 'calc(var(--nav-height) + var(--nav-bottom) + 20px)'
       }}>
         <div style={{
           display: 'grid',
