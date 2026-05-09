@@ -10,6 +10,8 @@ const Auth = () => {
   const [mode, setMode] = useState('login'); // login or register
   const [phone, setPhone] = useState('');
   const [pin, setPin] = useState('');
+  const [name, setName] = useState('');
+  const [icNumber, setIcNumber] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
   const handleSubmit = async (e) => {
@@ -86,10 +88,52 @@ const Auth = () => {
             </div>
 
             {mode === 'register' && (
-              <div style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px', background: 'var(--bg-tertiary)', borderRadius: '12px', marginBottom: '10px' }}>
-                <ShieldCheck size={20} className="text-emerald" />
-                <p style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', fontWeight: 600 }}>Automatic Bru-Verified KYC with IC Submission</p>
-              </div>
+              <>
+                <div className="input-group">
+                  <label style={{ fontSize: '0.75rem', fontWeight: 800, color: 'var(--text-muted)', textTransform: 'uppercase', marginBottom: '8px', display: 'block' }}>Full Name (As per IC)</label>
+                  <div style={{ position: 'relative' }}>
+                    <UserPlus size={18} className="text-muted" style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)' }} />
+                    <input 
+                      type="text" 
+                      placeholder="e.g. Awang Abu Bakar" 
+                      value={name}
+                      onChange={(e) => setName(e.target.value)}
+                      style={{ paddingLeft: '48px', height: '56px' }}
+                      required
+                    />
+                  </div>
+                </div>
+
+                <div className="input-group">
+                  <label style={{ fontSize: '0.75rem', fontWeight: 800, color: 'var(--text-muted)', textTransform: 'uppercase', marginBottom: '8px', display: 'block' }}>IC Number (Yellow/Purple)</label>
+                  <div style={{ position: 'relative' }}>
+                    <ShieldCheck size={18} className="text-muted" style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)' }} />
+                    <input 
+                      type="text" 
+                      placeholder="01-XXXXXX" 
+                      value={icNumber}
+                      onChange={(e) => setIcNumber(e.target.value)}
+                      style={{ paddingLeft: '48px', height: '56px' }}
+                      required
+                    />
+                  </div>
+                </div>
+
+                <div className="input-group">
+                  <label style={{ fontSize: '0.75rem', fontWeight: 800, color: 'var(--text-muted)', textTransform: 'uppercase', marginBottom: '8px', display: 'block' }}>Upload IC Photo (Front)</label>
+                  <input 
+                    type="file" 
+                    accept="image/*"
+                    style={{ padding: '14px', height: '56px', background: 'var(--bg-tertiary)', borderRadius: '12px', border: '1px dashed var(--border-color)', width: '100%' }}
+                    required
+                  />
+                </div>
+
+                <div style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px', background: 'var(--bg-tertiary)', borderRadius: '12px', marginBottom: '10px' }}>
+                  <ShieldCheck size={20} className="text-emerald" />
+                  <p style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', fontWeight: 600 }}>Automatic Bru-Verified KYC with IC Submission</p>
+                </div>
+              </>
             )}
 
             <button 

@@ -1,12 +1,14 @@
-import React from 'react';
-import { motion } from 'framer-motion';
-import { Users, Briefcase, Shield, AlertTriangle, TrendingUp, CheckCircle, Search, Filter, MoreVertical, Check, X, Bell, Activity, Lock } from 'lucide-react';
+import React, { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Users, Briefcase, Shield, AlertTriangle, TrendingUp, CheckCircle, Search, Filter, MoreVertical, Check, X, Bell, Activity, Lock, FileText } from 'lucide-react';
 import { usePayment } from '../../context/PaymentContext';
 import { useNavigate } from 'react-router-dom';
 
 const AdminDashboard = () => {
   const navigate = useNavigate();
   const { refresh } = usePayment();
+  const [selectedUser, setSelectedUser] = useState(null);
+  const [selectedReport, setSelectedReport] = useState(null);
   const stats = [
     { label: 'Total Users', value: '1,247', icon: Users, color: 'var(--blue)' },
     { label: 'Active Jobs', value: '89', icon: Briefcase, color: 'var(--emerald)' },
@@ -83,10 +85,10 @@ const AdminDashboard = () => {
                 <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)', fontWeight: 700 }}>{user.submitted}</span>
               </div>
               <div style={{ display: 'flex', gap: '12px' }}>
-                <button className="btn-primary" onClick={() => { alert(`Success! ${user.name} is now Bru-Verified and can start using the platform.`); refresh(); }} style={{ flex: 1, height: '40px', background: 'var(--emerald)', fontSize: '0.85rem' }}>
-                  Approve
+                <button className="btn-primary" onClick={() => setSelectedUser(user)} style={{ flex: 1, height: '40px', background: 'var(--emerald)', fontSize: '0.85rem' }}>
+                  Review
                 </button>
-                <button className="btn-outline" onClick={() => alert(`Rejected! Notification sent to ${user.name} requesting clear IC photo.`)} style={{ flex: 1, height: '40px', fontSize: '0.85rem', color: 'var(--red)' }}>
+                <button className="btn-outline" onClick={() => setSelectedUser({...user, rejectMode: true})} style={{ flex: 1, height: '40px', fontSize: '0.85rem', color: 'var(--red)' }}>
                   Reject
                 </button>
               </div>
@@ -112,13 +114,110 @@ const AdminDashboard = () => {
                   {report.status}
                 </div>
               </div>
-              <button className="btn-ghost" onClick={() => alert(`Investigating case ${report.id}`)} style={{ width: '100%', padding: '10px', fontSize: '0.85rem', fontWeight: 700, color: 'var(--blue)', border: '1px solid var(--blue-soft)', borderRadius: '12px', marginTop: '8px' }}>
+              <button className="btn-ghost" onClick={() => setSelectedReport(report)} style={{ width: '100%', padding: '10px', fontSize: '0.85rem', fontWeight: 700, color: 'var(--blue)', border: '1px solid var(--blue-soft)', borderRadius: '12px', marginTop: '8px' }}>
                 Investigate Dispute
               </button>
             </div>
           ))}
         </div>
       </div>
+
+      {/* KYC Modal */}
+      <AnimatePresence>
+        {selectedUser && (
+          <div className="modal-overlay" onClick={() => setSelectedUser(null)}>
+            <motion.div 
+              initial={{ y: '100%' }} animate={{ y: 0 }} exit={{ y: '100%' }}
+              className="bottom-sheet" onClick={e => e.stopPropagation()}
+            >
+              <div className="bottom-sheet-handle" />
+              <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '24px' }}>
+                <div style={{ width: '60px', height: '60px', borderRadius: '16px', background: 'var(--bg-tertiary)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <img src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${selectedUser.name}`} alt="avatar" style={{ width: '100%' }} />
+                </div>
+                <div>
+                  <h3 style={{ fontSize: '1.25rem', fontWeight: 900 }}>{selectedUser.name}</h3>
+                  <p style={{ color: 'var(--text-muted)', fontWeight: 600 }}>{selectedUser.role} • Submitted: {selectedUser.submitted}</p>
+                </div>
+              </div>
+              
+              <div className="card" style={{ padding: '16px', marginBottom: '24px', background: 'var(--bg-primary)' }}>
+                <div className="flex-between" style={{ marginBottom: '12px' }}>
+                  <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', fontWeight: 700 }}>IC Number</span>
+                  <span style={{ fontSize: '0.9rem', fontWeight: 800 }}>01-123456</span>
+                </div>
+                <div className="flex-between" style={{ marginBottom: '12px' }}>
+                  <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', fontWeight: 700 }}>IC Color</span>
+                  <span className="badge badge-emerald">{selectedUser.icColor}</span>
+                </div>
+                <div style={{ marginTop: '16px' }}>
+                  <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', fontWeight: 700, display: 'block', marginBottom: '8px' }}>IC Photo Document</span>
+                  <div style={{ width: '100%', height: '120px', background: 'var(--bg-tertiary)', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-muted)' }}>
+                    <FileText size={32} />
+                  </div>
+                </div>
+              </div>
+
+              {!selectedUser.rejectMode ? (
+                <button className="btn-primary" onClick={() => { alert(`Success! ${selectedUser.name} approved.`); setSelectedUser(null); refresh(); }} style={{ width: '100%', background: 'var(--emerald)' }}>
+                  Approve Bru-Verified Status
+                </button>
+              ) : (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                  <input type="text" placeholder="Reason for rejection (e.g. Blurry photo)" style={{ width: '100%', padding: '16px', borderRadius: '12px', border: '1px solid var(--border-color)', background: 'var(--bg-tertiary)' }} />
+                  <button className="btn-primary" onClick={() => { alert(`Rejected! Notification sent to ${selectedUser.name}.`); setSelectedUser(null); }} style={{ width: '100%', background: 'var(--red)' }}>
+                    Confirm Rejection
+                  </button>
+                </div>
+              )}
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* Dispute Modal */}
+      <AnimatePresence>
+        {selectedReport && (
+          <div className="modal-overlay" onClick={() => setSelectedReport(null)}>
+            <motion.div 
+              initial={{ y: '100%' }} animate={{ y: 0 }} exit={{ y: '100%' }}
+              className="bottom-sheet" onClick={e => e.stopPropagation()}
+            >
+              <div className="bottom-sheet-handle" />
+              <div style={{ marginBottom: '24px' }}>
+                <span className="badge badge-red" style={{ marginBottom: '12px' }}>{selectedReport.status}</span>
+                <h3 style={{ fontSize: '1.4rem', fontWeight: 900 }}>{selectedReport.type}</h3>
+                <p style={{ color: 'var(--text-muted)', fontWeight: 600, marginTop: '4px' }}>Reported {selectedReport.reported}</p>
+              </div>
+
+              <div className="card" style={{ padding: '16px', marginBottom: '24px', background: 'var(--bg-primary)' }}>
+                <div className="flex-between" style={{ marginBottom: '16px' }}>
+                  <div>
+                    <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', fontWeight: 700, textTransform: 'uppercase' }}>Reporter (Poster)</div>
+                    <div style={{ fontSize: '1rem', fontWeight: 800 }}>{selectedReport.user}</div>
+                  </div>
+                  <div style={{ textAlign: 'right' }}>
+                    <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', fontWeight: 700, textTransform: 'uppercase' }}>Reported (Hustler)</div>
+                    <div style={{ fontSize: '1rem', fontWeight: 800 }}>Haziq_M</div>
+                  </div>
+                </div>
+                <div style={{ padding: '12px', background: 'var(--bg-tertiary)', borderRadius: '8px', fontSize: '0.85rem', color: 'var(--text-primary)', lineHeight: '1.5' }}>
+                  "Hustler arrived 2 hours late and did not finish the job properly. Requesting full refund from escrow."
+                </div>
+              </div>
+
+              <div style={{ display: 'flex', gap: '12px' }}>
+                <button className="btn-primary" onClick={() => { alert('Refunding poster...'); setSelectedReport(null); }} style={{ flex: 1, background: 'var(--orange)' }}>
+                  Refund Poster
+                </button>
+                <button className="btn-outline" onClick={() => { alert('Releasing to hustler...'); setSelectedReport(null); }} style={{ flex: 1 }}>
+                  Release to Hustler
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
 
     </div>
   );

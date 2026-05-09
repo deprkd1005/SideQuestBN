@@ -87,7 +87,7 @@ const Wallet = ({ onAnimation }) => {
           </div>
           <div className="card" style={{ padding: '20px', borderColor: escrowAmount > 0 ? 'var(--orange-soft)' : 'var(--border-color)' }}>
             <div style={{ fontSize: '0.65rem', color: 'var(--text-muted)', fontWeight: 800, textTransform: 'uppercase', marginBottom: '4px' }}>Escrow</div>
-            <div style={{ fontSize: '1.2rem', fontWeight: 900, color: escrowAmount > 0 ? 'var(--orange)' : '#ffffff' }}>{escrowAmount.toFixed(2)}</div>
+            <div style={{ fontSize: '1.2rem', fontWeight: 900, color: escrowAmount > 0 ? 'var(--orange)' : 'var(--text-primary)' }}>{escrowAmount.toFixed(2)}</div>
           </div>
         </div>
 
@@ -106,7 +106,7 @@ const Wallet = ({ onAnimation }) => {
               </div>
             </div>
             <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', lineHeight: '1.5', marginBottom: '16px' }}>
-              Funds from <span style={{ color: 'white', fontWeight: 700 }}>"Express Grocery Delivery"</span> are being held securely. They will release automatically upon completion.
+              Funds from <span style={{ color: 'var(--text-primary)', fontWeight: 700 }}>"Express Grocery Delivery"</span> are being held securely. They will release automatically upon completion.
             </p>
             <div style={{ width: '100%', height: '6px', background: 'var(--bg-tertiary)', borderRadius: '3px', overflow: 'hidden' }}>
               <motion.div 
@@ -171,7 +171,7 @@ const Wallet = ({ onAnimation }) => {
               exit={{ y: '100%' }}
               transition={{ type: 'spring', damping: 25, stiffness: 200 }}
               className="bottom-sheet"
-              style={{ zIndex: 1300, paddingBottom: '40px' }}
+              style={{ position: 'fixed', bottom: 0, left: 0, right: 0, zIndex: 1300, paddingBottom: '40px' }}
             >
               <div className="sheet-handle" />
               <h3 style={{ fontSize: '1.25rem', fontWeight: 900, marginBottom: '24px' }}>Withdraw to Bank</h3>

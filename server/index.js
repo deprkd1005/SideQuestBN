@@ -35,11 +35,12 @@ let state = {
     { id: 'u3', name: 'Admin One', phone: '+6739991234', role: 'ADMIN', bruVerified: true, isAdmin: true }
   ],
   jobs: [
-    { id: 'q1', title: 'Aircon Servicing', category: 'Home Maintenance', district: 'Brunei-Muara', mukim: 'Gadong A', reward: 45, status: 'open', payer: 'SME_TechFix', duration: '2 Hours', coords: [4.9003, 114.9301] },
-    { id: 'q2', title: 'Legal Document Translation', category: 'Professional Services', district: 'Brunei-Muara', mukim: 'Kianggeh', reward: 85, status: 'open', payer: 'LawFirmBN', duration: '1 Day', coords: [4.8950, 114.9450] },
-    { id: 'q3', title: 'Groceries Runner', category: 'Daily Errands', district: 'Belait', mukim: 'Kuala Belait', reward: 15, status: 'open', payer: 'Haji Ali', duration: '1 Hour', coords: [4.5833, 114.1833] },
-    { id: 'p1', title: 'Grass Cutting (Home)', category: 'Home Maintenance', district: 'Brunei-Muara', mukim: 'Gadong B', reward: 30, status: 'assigned', payer: 'TEST USER', duration: '3 Hours', coords: [4.9103, 114.9201] },
-    { id: 'p2', title: 'Website Debugging', category: 'Digital Services', district: 'Brunei-Muara', mukim: 'Berakas A', reward: 120, status: 'open', payer: 'TEST USER', duration: '5 Hours', coords: [4.9303, 114.9401] }
+    { id: 'q1', title: 'Aircon Servicing & Cleaning', category: 'Home Maintenance', district: 'Brunei-Muara', mukim: 'Gadong A', reward: 45, status: 'open', payer: 'SME_TechFix', description: 'Need 2 aircon units serviced in my office. Must bring own ladder and tools.', duration: '2 Hours', coords: [4.9003, 114.9301] },
+    { id: 'q2', title: 'Legal Document Translation', category: 'Professional Services', district: 'Brunei-Muara', mukim: 'Kianggeh', reward: 85, status: 'open', payer: 'LawFirmBN', description: 'Translate a 5-page standard legal contract from Malay to English. Must be accurate.', duration: '1 Day', coords: [4.8950, 114.9450] },
+    { id: 'q3', title: 'Groceries Runner', category: 'Daily Errands', district: 'Belait', mukim: 'Kuala Belait', reward: 15, status: 'open', payer: 'Haji Ali', description: 'Buy groceries at Supa Save and deliver them to my house. List will be provided in chat.', duration: '1 Hour', coords: [4.5833, 114.1833] },
+    { id: 'q4', title: 'Car Wash & Polish', category: 'Auto Care', district: 'Tutong', mukim: 'Pekan Tutong', reward: 25, status: 'open', payer: 'Tutong Auto', description: 'Full wash and polish for a sedan car. Equipment provided at the shop.', duration: '1.5 Hours', coords: [4.8000, 114.6500] },
+    { id: 'p1', title: 'Grass Cutting (Home)', category: 'Home Maintenance', district: 'Brunei-Muara', mukim: 'Gadong B', reward: 30, status: 'in_progress', payer: 'TEST USER', description: 'Cut grass for front and back yard. Grass is slightly tall due to rain.', duration: '3 Hours', coords: [4.9103, 114.9201] },
+    { id: 'p2', title: 'Website Debugging', category: 'Digital Services', district: 'Brunei-Muara', mukim: 'Berakas A', reward: 120, status: 'completed', payer: 'TEST USER', description: 'Fix an issue with React frontend not loading data from the backend correctly.', duration: '5 Hours', coords: [4.9303, 114.9401] }
   ],
   escrow: {},
   transactions: [
@@ -47,8 +48,26 @@ let state = {
     { id: 'TX-002', type: 'Top-up (Test Wallet)', amount: 100.00, status: 'VERIFIED', date: new Date().toISOString() }
   ],
   chat: {
-    sessions: [],
-    messages: {}
+    sessions: [
+      { id: 'c1', participant: 'SME_TechFix', lastMessage: 'Please bring a tall ladder for the living room unit.', timestamp: new Date().toISOString(), unread: 2 },
+      { id: 'c2', participant: 'Haji Ali', lastMessage: 'Did you get the milk? I need the low-fat one.', timestamp: new Date(Date.now() - 3600000).toISOString(), unread: 0 },
+      { id: 'c3', participant: 'LawFirmBN', lastMessage: 'The translation looks good, just revising the final page now.', timestamp: new Date(Date.now() - 86400000).toISOString(), unread: 0 }
+    ],
+    messages: {
+      'c1': [
+        { id: 'm1', sender: 'SME_TechFix', text: 'Hi! Are you available to service the aircon today?', timestamp: new Date(Date.now() - 50000).toISOString() },
+        { id: 'm2', sender: 'Me', text: 'Yes, I can be there by 2 PM.', timestamp: new Date(Date.now() - 40000).toISOString() },
+        { id: 'm3', sender: 'SME_TechFix', text: 'Great. Please bring a tall ladder for the living room unit.', timestamp: new Date().toISOString() }
+      ],
+      'c2': [
+        { id: 'm4', sender: 'Me', text: 'I am at the store now, getting the items on your list.', timestamp: new Date(Date.now() - 4000000).toISOString() },
+        { id: 'm5', sender: 'Haji Ali', text: 'Did you get the milk? I need the low-fat one.', timestamp: new Date(Date.now() - 3600000).toISOString() }
+      ],
+      'c3': [
+        { id: 'm6', sender: 'Me', text: 'I have attached the first draft of the translation.', timestamp: new Date(Date.now() - 90000000).toISOString() },
+        { id: 'm7', sender: 'LawFirmBN', text: 'The translation looks good, just revising the final page now.', timestamp: new Date(Date.now() - 86400000).toISOString() }
+      ]
+    }
   }
 };
 

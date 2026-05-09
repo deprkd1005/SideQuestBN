@@ -271,7 +271,7 @@ const PostJob = ({ onAnimation }) => {
       </div>
 
       {/* Footer Actions */}
-      <div style={{ padding: '20px 24px 40px', background: 'var(--bg-glass-strong)', borderTop: '1px solid var(--border-glass)' }}>
+      <div style={{ padding: '20px 24px calc(var(--nav-height) + 20px)', background: 'var(--bg-glass-strong)', borderTop: '1px solid var(--border-glass)' }}>
         {step < 3 ? (
           <button 
             className="btn-primary" 

@@ -35,7 +35,7 @@ const JobDetails = () => {
 
   if (isApplied) {
     return (
-      <div className="app-content no-pad flex-center" style={{ height: '100vh', background: 'var(--bg-primary)', flexDirection: 'column', gap: '24px' }}>
+      <div className="app-content flex-center" style={{ background: 'var(--bg-primary)', flexDirection: 'column', gap: '24px' }}>
         <motion.div 
           initial={{ scale: 0, rotate: -45 }}
           animate={{ scale: 1, rotate: 0 }}
