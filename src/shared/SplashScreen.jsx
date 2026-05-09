@@ -18,7 +18,7 @@ const SplashScreen = ({ onComplete }) => {
     <div style={{
       position: 'fixed',
       inset: 0,
-      background: '#0a0b0d',
+      background: '#f8fafc',
       display: 'flex',
       flexDirection: 'column',
       alignItems: 'center',
@@ -76,7 +76,7 @@ const SplashScreen = ({ onComplete }) => {
                 fontSize: '2.5rem',
                 fontWeight: 900,
                 letterSpacing: '-1.5px',
-                color: 'white',
+                color: 'var(--text-primary)',
                 marginBottom: '8px'
               }}>
                 SideQuest<span style={{ color: 'var(--emerald)' }}>.BN</span>

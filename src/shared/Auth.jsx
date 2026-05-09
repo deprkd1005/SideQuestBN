@@ -24,7 +24,7 @@ const Auth = () => {
   };
 
   return (
-    <div className="app-container" style={{ background: 'var(--bg-primary)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+    <div className="app-container" style={{ background: 'var(--bg-secondary)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
       <div className="app-content flex-center" style={{ padding: '40px 24px', width: '100%', maxWidth: '400px' }}>
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
@@ -34,21 +34,21 @@ const Auth = () => {
           <div style={{ width: '80px', height: '80px', background: 'var(--orange-soft)', borderRadius: '24px', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 24px' }}>
             <ShieldCheck size={48} className="text-orange" />
           </div>
-          <h1 style={{ fontSize: '2rem', fontWeight: 900, marginBottom: '8px', color: 'white' }}>SideQuest.BN</h1>
-          <p style={{ color: 'var(--text-muted)', fontWeight: 600 }}>Secure Gig Marketplace for Brunei</p>
+          <h1 style={{ fontSize: '2rem', fontWeight: 900, marginBottom: '8px', color: 'var(--text-primary)' }}>SideQuest.BN</h1>
+          <p style={{ color: 'var(--text-secondary)', fontWeight: 600 }}>Secure Gig Marketplace for Brunei</p>
         </motion.div>
 
         <div className="card" style={{ width: '100%', padding: '32px 24px' }}>
           <div style={{ display: 'flex', gap: '24px', marginBottom: '32px', borderBottom: '1px solid var(--border-color)' }}>
             <button 
               onClick={() => setMode('login')}
-              style={{ paddingBottom: '12px', borderBottom: mode === 'login' ? '2px solid var(--orange)' : 'none', background: 'none', border: 'none', color: mode === 'login' ? 'white' : 'var(--text-muted)', fontWeight: 800, fontSize: '1rem', cursor: 'pointer' }}
+              style={{ paddingBottom: '12px', borderBottom: mode === 'login' ? '2px solid var(--orange)' : 'none', background: 'none', border: 'none', color: mode === 'login' ? 'var(--text-primary)' : 'var(--text-muted)', fontWeight: 800, fontSize: '1rem', cursor: 'pointer' }}
             >
               Login
             </button>
             <button 
               onClick={() => setMode('register')}
-              style={{ paddingBottom: '12px', borderBottom: mode === 'register' ? '2px solid var(--orange)' : 'none', background: 'none', border: 'none', color: mode === 'register' ? 'white' : 'var(--text-muted)', fontWeight: 800, fontSize: '1rem', cursor: 'pointer' }}
+              style={{ paddingBottom: '12px', borderBottom: mode === 'register' ? '2px solid var(--orange)' : 'none', background: 'none', border: 'none', color: mode === 'register' ? 'var(--text-primary)' : 'var(--text-muted)', fontWeight: 800, fontSize: '1rem', cursor: 'pointer' }}
             >
               Register
             </button>
