@@ -27,9 +27,9 @@ const Profile = () => {
   ];
 
   return (
-    <div className="app-content">
+    <div className="app-content no-pad" style={{ paddingBottom: '100px' }}>
       {/* Profile Header with Cover */}
-      <div style={{ position: 'relative', height: '180px', background: 'linear-gradient(135deg, var(--emerald-soft) 0%, var(--emerald) 100%)', marginBottom: '60px' }}>
+      <div style={{ position: 'relative', height: '220px', background: 'linear-gradient(135deg, var(--emerald-soft) 0%, var(--emerald) 100%)', marginBottom: '60px' }}>
         <div style={{ position: 'absolute', bottom: '-40px', left: '20px', display: 'flex', alignItems: 'flex-end', gap: '16px' }}>
           <div style={{ 
             width: '100px', 
@@ -58,7 +58,7 @@ const Profile = () => {
         </div>
       </div>
 
-      <div style={{ padding: '0 20px 100px' }}>
+      <div style={{ padding: '0 20px 0px' }}>
         {/* Verification Status */}
         <div className="card-glass" style={{ marginBottom: '24px', display: 'flex', alignItems: 'center', gap: '12px', borderColor: 'var(--emerald-soft)' }}>
           <div style={{ width: '40px', height: '40px', borderRadius: '12px', background: 'var(--emerald-soft)', color: 'var(--emerald)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>

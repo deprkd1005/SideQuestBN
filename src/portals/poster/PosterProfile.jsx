@@ -27,9 +27,9 @@ const PosterProfile = () => {
   ];
 
   return (
-    <div className="app-content">
+    <div className="app-content no-pad" style={{ paddingBottom: '100px' }}>
       {/* Profile Header with Cover */}
-      <div style={{ position: 'relative', height: '180px', background: 'linear-gradient(135deg, var(--orange-soft) 0%, var(--orange) 100%)', marginBottom: '60px' }}>
+      <div style={{ position: 'relative', height: '220px', background: 'linear-gradient(135deg, var(--orange-soft) 0%, var(--orange) 100%)', marginBottom: '60px' }}>
         <div style={{ position: 'absolute', bottom: '-40px', left: '20px', display: 'flex', alignItems: 'flex-end', gap: '16px' }}>
           <div style={{ 
             width: '100px', 
@@ -58,7 +58,7 @@ const PosterProfile = () => {
         </div>
       </div>
 
-      <div style={{ padding: '0 20px 100px' }}>
+      <div style={{ padding: '0 20px 0px' }}>
         {/* Verification Status */}
         <div className="card-glass" style={{ marginBottom: '24px', display: 'flex', alignItems: 'center', gap: '12px', borderColor: 'var(--orange-soft)' }}>
           <div style={{ width: '40px', height: '40px', borderRadius: '12px', background: 'var(--orange-soft)', color: 'var(--orange)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
