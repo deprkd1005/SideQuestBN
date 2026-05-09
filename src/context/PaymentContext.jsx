@@ -21,21 +21,23 @@ export const PaymentProvider = ({ children }) => {
       const res = await fetch('/api/state');
       if (!res.ok) throw new Error('Backend unreachable');
       const data = await res.json();
-      setUser(data.user);
-      setBalance(data.user.balance);
-      setWalletInfo({
-        cardNumber: data.user.cardNumber,
-        holder: data.user.name,
-        role: data.user.role,
-        bruVerified: data.user.bruVerified,
-        icColor: data.user.icColor,
-        icNumber: data.user.icNumber,
-        isAdmin: data.user.isAdmin
-      });
-      setJobs(data.jobs);
-      setTransactions(data.transactions);
-      setEscrow(data.escrow);
-      setChatSessions(data.chat.sessions);
+      if (data && data.user) {
+        setUser(data.user);
+        setBalance(typeof data.user.balance === 'number' ? data.user.balance : 0);
+        setWalletInfo({
+          cardNumber: data.user.cardNumber || "•••• •••• •••• 0000",
+          holder: data.user.name || "User",
+          role: data.user.role,
+          bruVerified: !!data.user.bruVerified,
+          icColor: data.user.icColor,
+          icNumber: data.user.icNumber,
+          isAdmin: !!data.user.isAdmin
+        });
+      }
+      if (data && data.jobs) setJobs(data.jobs);
+      if (data && data.transactions) setTransactions(data.transactions);
+      if (data && data.escrow) setEscrow(data.escrow);
+      if (data && data.chat && data.chat.sessions) setChatSessions(data.chat.sessions);
     } catch (err) {
       console.error("Failed to fetch state", err);
     } finally {

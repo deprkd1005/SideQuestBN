@@ -79,6 +79,7 @@ const MapView = ({ jobs, onAccept, mapInstanceRef, searchRadius, userLocation })
     markersLayerRef.current.clearLayers();
 
     jobs.forEach(job => {
+      if (!job.coords || !Array.isArray(job.coords)) return;
       const isOwned = job.payer === 'Me' || job.payer === 'TEST USER';
       const color = isOwned ? 'var(--orange)' : 'var(--emerald)';
       

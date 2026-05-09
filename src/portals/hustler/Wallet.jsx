@@ -56,7 +56,7 @@ const Wallet = ({ onAnimation }) => {
             <div style={{ fontSize: '0.75rem', opacity: 0.8, marginBottom: '4px', textTransform: 'uppercase', letterSpacing: '1px' }}>Current Balance</div>
             <div style={{ fontSize: '2.4rem', fontWeight: 900, display: 'flex', alignItems: 'baseline', gap: '8px' }}>
               <span style={{ fontSize: '1.2rem', opacity: 0.7 }}>BND</span>
-              {balance.toFixed(2)}
+              {(balance || 0).toFixed(2)}
             </div>
           </div>
 
@@ -83,11 +83,11 @@ const Wallet = ({ onAnimation }) => {
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '24px' }}>
           <div className="card" style={{ padding: '20px' }}>
             <div style={{ fontSize: '0.65rem', color: 'var(--text-muted)', fontWeight: 800, textTransform: 'uppercase', marginBottom: '4px' }}>Available</div>
-            <div style={{ fontSize: '1.2rem', fontWeight: 900 }}>{availableBalance.toFixed(2)}</div>
+            <div style={{ fontSize: '1.2rem', fontWeight: 900 }}>{(availableBalance || 0).toFixed(2)}</div>
           </div>
           <div className="card" style={{ padding: '20px', borderColor: escrowAmount > 0 ? 'var(--orange-soft)' : 'var(--border-color)' }}>
             <div style={{ fontSize: '0.65rem', color: 'var(--text-muted)', fontWeight: 800, textTransform: 'uppercase', marginBottom: '4px' }}>Escrow</div>
-            <div style={{ fontSize: '1.2rem', fontWeight: 900, color: escrowAmount > 0 ? 'var(--orange)' : 'var(--text-primary)' }}>{escrowAmount.toFixed(2)}</div>
+            <div style={{ fontSize: '1.2rem', fontWeight: 900, color: escrowAmount > 0 ? 'var(--orange)' : 'var(--text-primary)' }}>{(escrowAmount || 0).toFixed(2)}</div>
           </div>
         </div>
 
@@ -145,7 +145,7 @@ const Wallet = ({ onAnimation }) => {
               </div>
               <div style={{ textAlign: 'right' }}>
                 <div style={{ fontSize: '1rem', fontWeight: 900, color: tx.type === 'credit' ? 'var(--emerald)' : 'white' }}>
-                  {tx.type === 'credit' ? '+' : '-'} {tx.amount.toFixed(2)}
+                  {tx.type === 'credit' ? '+' : '-'} {(tx.amount || 0).toFixed(2)}
                 </div>
                 <div style={{ fontSize: '0.65rem', color: 'var(--text-muted)', fontWeight: 700 }}>BND</div>
               </div>
@@ -223,7 +223,7 @@ const Wallet = ({ onAnimation }) => {
                   // Simulate Network Delay
                   setTimeout(() => {
                     setStage('success');
-                    updateBalance(balance - amt);
+                    updateBalance((balance || 0) - amt);
                     onAnimation(null);
                     
                     setTimeout(() => {

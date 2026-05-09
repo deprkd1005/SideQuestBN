@@ -14,7 +14,7 @@ const HustlerHome = () => {
   const [selectedJob, setSelectedJob] = useState(null);
   const mapInstanceRef = useRef(null);
 
-  const openJobs = jobs.filter(job => job.status === 'open' && job.title.toLowerCase().includes(searchTerm.toLowerCase()));
+  const openJobs = (jobs || []).filter(job => job.status === 'open' && job && job.title && job.title.toLowerCase().includes(searchTerm.toLowerCase()));
   const nearbyJobs = openJobs.slice(0, 8);
 
   const handleJobSelect = (job) => {
