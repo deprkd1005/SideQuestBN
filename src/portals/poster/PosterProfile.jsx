@@ -58,7 +58,7 @@ const PosterProfile = () => {
         </div>
       </div>
 
-      <div style={{ padding: '0 20px 24px' }}>
+      <div style={{ padding: '0 20px 100px' }}>
         {/* Verification Status */}
         <div className="card-glass" style={{ marginBottom: '24px', display: 'flex', alignItems: 'center', gap: '12px', borderColor: 'var(--orange-soft)' }}>
           <div style={{ width: '40px', height: '40px', borderRadius: '12px', background: 'var(--orange-soft)', color: 'var(--orange)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>

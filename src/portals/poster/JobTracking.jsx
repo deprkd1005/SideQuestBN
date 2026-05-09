@@ -50,10 +50,10 @@ const JobTracking = () => {
           </div>
           
           <div style={{ display: 'flex', gap: '12px' }}>
-            <button className="btn-primary" style={{ flex: 1, height: '48px', background: 'var(--bg-primary)', border: '1px solid var(--border-color)', color: 'white' }}>
+            <button className="btn-primary" onClick={() => alert('Opening chat...')} style={{ flex: 1, height: '48px', background: 'var(--bg-tertiary)', border: '1px solid var(--border-color)', color: 'var(--text-primary)' }}>
               <MessageCircle size={18} /> Chat
             </button>
-            <button className="btn-primary" style={{ flex: 1, height: '48px', background: 'var(--bg-primary)', border: '1px solid var(--border-color)', color: 'white' }}>
+            <button className="btn-primary" onClick={() => alert('Calling...')} style={{ flex: 1, height: '48px', background: 'var(--bg-tertiary)', border: '1px solid var(--border-color)', color: 'var(--text-primary)' }}>
               <Phone size={18} /> Call
             </button>
           </div>
@@ -74,12 +74,12 @@ const JobTracking = () => {
           <div style={{ marginBottom: '20px' }}>
             <div className="flex-between" style={{ marginBottom: '8px' }}>
               <span style={{ fontSize: '0.85rem', fontWeight: 700, color: 'var(--text-secondary)' }}>Task Progress</span>
-              <span style={{ fontSize: '0.85rem', fontWeight: 800, color: 'var(--emerald)' }}>75%</span>
+              <span style={{ fontSize: '0.85rem', fontWeight: 800, color: 'var(--emerald)' }}>100%</span>
             </div>
             <div style={{ width: '100%', height: '8px', background: 'var(--bg-tertiary)', borderRadius: '4px', overflow: 'hidden' }}>
               <motion.div 
                 initial={{ width: 0 }}
-                animate={{ width: '75%' }}
+                animate={{ width: '100%' }}
                 style={{ height: '100%', background: 'var(--emerald)', boxShadow: '0 0 10px var(--emerald-glow)' }}
               />
             </div>
@@ -88,7 +88,7 @@ const JobTracking = () => {
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '12px', background: 'var(--bg-primary)', borderRadius: '12px' }}>
             <Clock size={16} className="text-muted" />
             <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', fontWeight: 600 }}>
-              Auto-releases in <span style={{ color: 'white', fontWeight: 800 }}>24:00:00</span> if no action taken
+              Auto-releases in <span style={{ color: 'var(--text-primary)', fontWeight: 800 }}>24:00:00</span> if no action taken
             </span>
           </div>
         </div>
