@@ -155,15 +155,10 @@ const PosterWallet = ({ onAnimation }) => {
             className="modal-overlay"
             onClick={() => setShowAddFunds(false)}
           >
-            <motion.div
-              initial={{ y: '100%' }}
-              animate={{ y: 0 }}
-              exit={{ y: '100%' }}
-              className="modal-content"
+              className="bottom-sheet"
               onClick={e => e.stopPropagation()}
-              style={{ padding: '24px 20px 40px', background: 'var(--bg-secondary)', borderRadius: '24px 24px 0 0', width: '100%', position: 'absolute', bottom: 0 }}
             >
-              <div style={{ width: '40px', height: '4px', background: 'var(--border-color)', borderRadius: '2px', margin: '0 auto 24px' }} />
+              <div className="sheet-handle" />
               <h3 style={{ fontSize: '1.25rem', fontWeight: 800, marginBottom: '8px' }}>Add Funds</h3>
               <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginBottom: '24px' }}>Top up your wallet to post more tasks.</p>
               

@@ -162,7 +162,7 @@ const Wallet = ({ onAnimation }) => {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.8)', zIndex: 1200 }}
+              className="modal-overlay"
               onClick={() => setShowWithdraw(false)}
             />
             <motion.div 
@@ -171,7 +171,7 @@ const Wallet = ({ onAnimation }) => {
               exit={{ y: '100%' }}
               transition={{ type: 'spring', damping: 25, stiffness: 200 }}
               className="bottom-sheet"
-              style={{ position: 'fixed', bottom: 0, left: 0, right: 0, zIndex: 1300, paddingBottom: '40px' }}
+              onClick={e => e.stopPropagation()}
             >
               <div className="sheet-handle" />
               <h3 style={{ fontSize: '1.25rem', fontWeight: 900, marginBottom: '24px' }}>Withdraw to Bank</h3>
