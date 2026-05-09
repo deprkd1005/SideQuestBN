@@ -10,17 +10,17 @@ import PosterMessages from './PosterMessages';
 import PosterProfile from './PosterProfile';
 import JobTracking from './JobTracking';
 
-const PosterPortal = () => {
+const PosterPortal = ({ onAnimation }) => {
   return (
     <div className="theme-poster" style={{ display: 'flex', flexDirection: 'column', height: '100%', overflow: 'hidden' }}>
       <div style={{ flex: 1, overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
         <Routes>
           <Route path="/" element={<PosterDashboard />} />
-          <Route path="/post" element={<PostJob />} />
+          <Route path="/post" element={<PostJob onAnimation={onAnimation} />} />
           <Route path="/applicants/:jobId" element={<Applicants />} />
           <Route path="/tracking/:jobId" element={<JobTracking />} />
           <Route path="/active" element={<ActiveJobs />} />
-          <Route path="/wallet" element={<PosterWallet />} />
+          <Route path="/wallet" element={<PosterWallet onAnimation={onAnimation} />} />
           <Route path="/messages" element={<PosterMessages />} />
           <Route path="/profile" element={<PosterProfile />} />
         </Routes>

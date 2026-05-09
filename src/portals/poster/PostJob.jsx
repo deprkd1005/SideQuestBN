@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowLeft, MapPin, Calendar, Clock, DollarSign, ChevronRight, Check, Info, Home, Sun } from 'lucide-react';
+import { ArrowLeft, MapPin, Calendar, Clock, DollarSign, ChevronRight, Check, Info, Home, Sun, Navigation } from 'lucide-react';
 import { usePayment } from '../../context/PaymentContext';
 import MapView from '../../components/MapView';
 
-const PostJob = () => {
+const PostJob = ({ onAnimation }) => {
   const navigate = useNavigate();
   const { postJob, userLocation } = usePayment();
   const [step, setStep] = useState(1);
@@ -36,9 +36,13 @@ const PostJob = () => {
   const [isSuccess, setIsSuccess] = useState(false);
 
   const handleSubmit = async () => {
-    await postJob(jobData);
-    setIsSuccess(true);
-    setTimeout(() => navigate('/poster'), 2500);
+    if (onAnimation) onAnimation('transferring');
+    setTimeout(async () => {
+      await postJob(jobData);
+      if (onAnimation) onAnimation(null);
+      setIsSuccess(true);
+      setTimeout(() => navigate('/poster'), 2500);
+    }, 2000);
   };
 
   if (isSuccess) {
@@ -123,7 +127,7 @@ const PostJob = () => {
                   placeholder="e.g. Grass cutting for back garden" 
                   value={jobData.title}
                   onChange={(e) => setJobData({...jobData, title: e.target.value})}
-                  style={{ width: '100%', background: 'var(--bg-secondary)', border: '1px solid var(--border-color)', borderRadius: '16px', padding: '16px', color: 'white', fontWeight: 600 }}
+                  style={{ width: '100%', background: 'var(--bg-secondary)', border: '1px solid var(--border-color)', borderRadius: '16px', padding: '16px', color: 'var(--text-primary)', fontWeight: 600 }}
                 />
               </div>
 
@@ -134,7 +138,7 @@ const PostJob = () => {
                   value={jobData.description}
                   onChange={(e) => setJobData({...jobData, description: e.target.value})}
                   rows={4}
-                  style={{ width: '100%', background: 'var(--bg-secondary)', border: '1px solid var(--border-color)', borderRadius: '16px', padding: '16px', color: 'white', fontWeight: 600, resize: 'none' }}
+                  style={{ width: '100%', background: 'var(--bg-secondary)', border: '1px solid var(--border-color)', borderRadius: '16px', padding: '16px', color: 'var(--text-primary)', fontWeight: 600, resize: 'none' }}
                 />
               </div>
             </motion.div>
@@ -209,7 +213,7 @@ const PostJob = () => {
                     type="date" 
                     value={jobData.date}
                     onChange={(e) => setJobData({...jobData, date: e.target.value})}
-                    style={{ width: '100%', background: 'var(--bg-secondary)', border: '1px solid var(--border-color)', borderRadius: '16px', padding: '16px', color: 'white', fontWeight: 600 }}
+                    style={{ width: '100%', background: 'var(--bg-secondary)', border: '1px solid var(--border-color)', borderRadius: '16px', padding: '16px', color: 'var(--text-primary)', fontWeight: 600 }}
                   />
                 </div>
                 <div>
@@ -218,7 +222,7 @@ const PostJob = () => {
                     type="time" 
                     value={jobData.time}
                     onChange={(e) => setJobData({...jobData, time: e.target.value})}
-                    style={{ width: '100%', background: 'var(--bg-secondary)', border: '1px solid var(--border-color)', borderRadius: '16px', padding: '16px', color: 'white', fontWeight: 600 }}
+                    style={{ width: '100%', background: 'var(--bg-secondary)', border: '1px solid var(--border-color)', borderRadius: '16px', padding: '16px', color: 'var(--text-primary)', fontWeight: 600 }}
                   />
                 </div>
               </div>

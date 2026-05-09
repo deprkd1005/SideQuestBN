@@ -3,13 +3,35 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Wallet as WalletIcon, ArrowUpCircle, ArrowDownCircle, History, Shield, Clock, ChevronRight, Plus, Info, CreditCard } from 'lucide-react';
 import { usePayment } from '../../context/PaymentContext';
 
-const PosterWallet = () => {
-  const { balance, transactions, escrow } = usePayment();
+const PosterWallet = ({ onAnimation }) => {
+  const { balance, transactions, escrow, updateBalance } = usePayment();
   const [showAddFunds, setShowAddFunds] = useState(false);
+  const [addAmount, setAddAmount] = useState('');
+  const [stage, setStage] = useState('idle');
 
   const escrowAmount = escrow?.pending || 0;
   const availableBalance = balance - escrowAmount;
   const recentTransactions = transactions.slice(0, 10);
+
+  const handleAddFunds = () => {
+    const amt = parseFloat(addAmount);
+    if (isNaN(amt) || amt <= 0) return;
+    
+    setStage('transferring');
+    if (onAnimation) onAnimation('transferring');
+    
+    setTimeout(() => {
+      setStage('success');
+      updateBalance(balance + amt);
+      if (onAnimation) onAnimation(null);
+      
+      setTimeout(() => {
+        setShowAddFunds(false);
+        setStage('idle');
+        setAddAmount('');
+      }, 2000);
+    }, 2500);
+  };
 
   return (
     <div className="app-content">
@@ -139,7 +161,7 @@ const PosterWallet = () => {
               exit={{ y: '100%' }}
               className="modal-content"
               onClick={e => e.stopPropagation()}
-              style={{ padding: '24px 20px 40px' }}
+              style={{ padding: '24px 20px 40px', background: 'var(--bg-secondary)', borderRadius: '24px 24px 0 0', width: '100%', position: 'absolute', bottom: 0 }}
             >
               <div style={{ width: '40px', height: '4px', background: 'var(--border-color)', borderRadius: '2px', margin: '0 auto 24px' }} />
               <h3 style={{ fontSize: '1.25rem', fontWeight: 800, marginBottom: '8px' }}>Add Funds</h3>
@@ -149,13 +171,17 @@ const PosterWallet = () => {
                 <label>Amount (BND)</label>
                 <div style={{ position: 'relative' }}>
                   <span style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', fontWeight: 700 }}>$</span>
-                  <input type="number" placeholder="0.00" style={{ paddingLeft: '32px', fontSize: '1.2rem', fontWeight: 700 }} />
+                  <input type="number" placeholder="0.00" value={addAmount} onChange={(e) => setAddAmount(e.target.value)} style={{ paddingLeft: '32px', fontSize: '1.2rem', fontWeight: 700, background: 'var(--bg-primary)' }} />
                 </div>
               </div>
 
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
                 <button className="btn-outline" onClick={() => setShowAddFunds(false)}>Cancel</button>
-                <button className="btn-primary" style={{ background: 'var(--orange)' }}>Continue</button>
+                <button className="btn-primary" onClick={handleAddFunds} disabled={stage !== 'idle'} style={{ background: 'var(--orange)' }}>
+                  {stage === 'idle' && 'Continue'}
+                  {stage === 'transferring' && 'Processing...'}
+                  {stage === 'success' && 'Success! ✅'}
+                </button>
               </div>
             </motion.div>
           </motion.div>

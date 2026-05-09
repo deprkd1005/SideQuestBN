@@ -26,7 +26,7 @@ function App() {
           <Routes>
             <Route path="/" element={<div className="app-content no-pad"><PortalSelector /></div>} />
             <Route path="/hustler/*" element={<HustlerPortal onAnimation={setGlobalAnimation} />} />
-            <Route path="/poster/*" element={<PosterPortal />} />
+            <Route path="/poster/*" element={<PosterPortal onAnimation={setGlobalAnimation} />} />
             <Route path="/admin/*" element={<AdminPortal />} />
           </Routes>
         </div>
