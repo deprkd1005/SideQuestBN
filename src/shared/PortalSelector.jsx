@@ -100,7 +100,7 @@ const PortalSelector = () => {
             color: 'var(--emerald)',
             letterSpacing: '1px'
           }}>
-            REDESIGNED V3.0
+            GIG MARKETPLACE
           </div>
         </motion.div>
       </div>

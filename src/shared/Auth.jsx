@@ -37,7 +37,7 @@ const Auth = () => {
             <ShieldCheck size={48} className="text-orange" />
           </div>
           <h1 style={{ fontSize: '2rem', fontWeight: 900, marginBottom: '8px', color: 'var(--text-primary)' }}>SideQuest.BN</h1>
-          <p style={{ color: 'var(--text-secondary)', fontWeight: 600 }}>Secure Gig Marketplace for Brunei</p>
+          <p style={{ color: 'var(--text-secondary)', fontWeight: 600 }}>Brunei's Premier Escrow-Backed Gig Economy</p>
         </motion.div>
 
         <div className="card" style={{ width: '100%', padding: '32px 24px' }}>

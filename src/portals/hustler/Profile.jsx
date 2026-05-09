@@ -107,7 +107,7 @@ const Profile = () => {
         </button>
 
         <div style={{ textAlign: 'center', marginTop: '32px', opacity: 0.3 }}>
-          <p style={{ fontSize: '0.7rem', fontWeight: 700 }}>SIDEQUEST.BN V3.0.4 PROTOTYPE</p>
+          <p style={{ fontSize: '0.7rem', fontWeight: 700 }}>SIDEQUEST.BN PROTOTYPE</p>
           <p style={{ fontSize: '0.6rem' }}>© 2026 TechBrunei Solutions</p>
         </div>
       </div>

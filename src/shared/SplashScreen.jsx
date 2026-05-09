@@ -134,7 +134,7 @@ const SplashScreen = ({ onComplete }) => {
         letterSpacing: '2px',
         opacity: 0.5
       }}>
-        SIDEQUEST.BN V3 PROTOTYPE
+        SIDEQUEST.BN PROTOTYPE
       </p>
     </div>
   );

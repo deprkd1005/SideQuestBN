@@ -10,14 +10,19 @@ const JobTracking = () => {
   const { jobs } = usePayment();
   const job = jobs.find(j => j.id === jobId) || jobs[0]; // Fallback for demo
 
-  const [timeLeft, setTimeLeft] = React.useState(24 * 3600);
+  const [timeLeft, setTimeLeft] = React.useState(30);
 
   React.useEffect(() => {
+    if (timeLeft <= 0) {
+      alert('Time expired! Funds automatically released from Escrow.');
+      navigate('/poster');
+      return;
+    }
     const timer = setInterval(() => {
-      setTimeLeft(prev => prev > 0 ? prev - 1 : 0);
+      setTimeLeft(prev => prev - 1);
     }, 1000);
     return () => clearInterval(timer);
-  }, []);
+  }, [timeLeft, navigate]);
 
   const formatTime = (seconds) => {
     const h = Math.floor(seconds / 3600);
