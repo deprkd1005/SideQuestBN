@@ -35,7 +35,7 @@ const JobDetails = () => {
 
   if (isApplied) {
     return (
-      <div className="app-content flex-center" style={{ height: '100%', background: 'var(--bg-primary)', flexDirection: 'column', gap: '24px' }}>
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', background: 'var(--bg-primary)', gap: '24px' }}>
         <motion.div 
           initial={{ scale: 0, rotate: -45 }}
           animate={{ scale: 1, rotate: 0 }}
@@ -142,13 +142,13 @@ const JobDetails = () => {
       {/* Floating Apply Button */}
       {job.status === 'open' && (
         <div style={{ 
-          position: 'fixed', 
+          position: 'absolute', 
           bottom: '100px', 
           left: '20px', 
           right: '20px',
           zIndex: 100 
         }}>
-          <button className="btn-cta" onClick={handleAccept} style={{ boxShadow: 'var(--shadow-lg)' }}>
+          <button className="btn-primary" onClick={handleAccept} style={{ width: '100%', height: '56px', fontSize: '1.1rem', boxShadow: 'var(--shadow-lg)' }}>
             Apply for this Quest
           </button>
         </div>

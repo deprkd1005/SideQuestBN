@@ -253,7 +253,7 @@ body {
 .btn-primary:active { transform: scale(0.97); }
 
 .btn-cta {
-  background: linear-gradient(135deg, var(--orange) 0%, #d97706 100%);
+  background: var(--portal-color);
   color: white;
   border: none;
   padding: 16px 28px;
@@ -265,7 +265,7 @@ body {
   align-items: center;
   justify-content: center;
   gap: 10px;
-  box-shadow: var(--shadow-glow-orange);
+  box-shadow: 0 8px 30px var(--portal-glow);
   transition: all 0.2s ease;
   font-family: inherit;
   width: 100%;

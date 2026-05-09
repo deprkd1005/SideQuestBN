@@ -7,11 +7,15 @@
     <meta name="description" content="SideQuest.BN - Your Daily Hustle App">
     <title>SideQuest.BN</title>
     <!-- SPLASH SCREEN OVERLAY -->
-    <div id="app-splash" style="position:fixed; top:0; left:0; width:100%; height:100%; background:var(--primary); z-index:9999; display:flex; flex-direction:column; align-items:center; justify-content:center; transition: opacity 0.8s ease; color:white;">
+    <div id="app-splash"
+        style="position:fixed; top:0; left:0; width:100%; height:100%; background:var(--primary); z-index:9999; display:flex; flex-direction:column; align-items:center; justify-content:center; transition: opacity 0.8s ease; color:white;">
         <div class="app-logo-large" style="animation: bounceIn 1s ease;"><i class="fa-solid fa-location-dot"></i></div>
         <h1 style="margin-top:1rem; font-weight:800; font-size:2rem; letter-spacing:-1px;">SideQuest.BN</h1>
-        <div class="loading-bar" style="width:150px; height:4px; background:rgba(255,255,255,0.2); border-radius:10px; margin-top:2rem; overflow:hidden;">
-            <div style="width:100%; height:100%; background:white; transform-origin:left; animation: loadingLine 2s infinite ease-in-out;"></div>
+        <div class="loading-bar"
+            style="width:150px; height:4px; background:rgba(255,255,255,0.2); border-radius:10px; margin-top:2rem; overflow:hidden;">
+            <div
+                style="width:100%; height:100%; background:white; transform-origin:left; animation: loadingLine 2s infinite ease-in-out;">
+            </div>
         </div>
     </div>
     <!-- Leaflet CSS for Map -->
@@ -69,25 +73,36 @@
                 <!-- Floating Top Bar -->
                 <div class="floating-header">
                     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.8rem;">
-                        <span id="current-mode-label" class="status-badge" style="background:var(--primary); color:white; font-weight:700; font-size:0.75rem; letter-spacing:1px; border-radius:20px; padding:0.4rem 0.8rem; box-shadow: var(--shadow-sm);">SEEKER PORTAL</span>
+                        <span id="current-mode-label" class="status-badge"
+                            style="background:var(--primary); color:white; font-weight:700; font-size:0.75rem; letter-spacing:1px; border-radius:20px; padding:0.4rem 0.8rem; box-shadow: var(--shadow-sm);">SEEKER
+                            PORTAL</span>
                         <div class="portal-switcher shadow-btn" style="background: white; padding: 4px;">
-                            <button onclick="app.setMode('seeker')" class="mode-toggle-btn seeker-btn"><i class="fa-solid fa-search"></i></button>
-                            <button onclick="app.setMode('poster')" class="mode-toggle-btn poster-btn"><i class="fa-solid fa-plus"></i></button>
+                            <button onclick="app.setMode('seeker')" class="mode-toggle-btn seeker-btn"><i
+                                    class="fa-solid fa-search"></i></button>
+                            <button onclick="app.setMode('poster')" class="mode-toggle-btn poster-btn"><i
+                                    class="fa-solid fa-plus"></i></button>
                         </div>
                     </div>
                     <div style="display:flex; gap:0.5rem; pointer-events:auto;">
                         <div class="search-bar shadow-btn" style="flex:1;">
                             <i class="fa-solid fa-magnifying-glass text-gray"></i>
-                            <input type="text" placeholder="Where do you want to hustle?" onkeyup="app.handleSearch(event)">
+                            <input type="text" placeholder="Where do you want to hustle?"
+                                onkeyup="app.handleSearch(event)">
                         </div>
-                        <button class="nav-btn shadow-btn" onclick="app.toggleMapFilters()" style="background:white; color:var(--text-primary);"><i class="fa-solid fa-sliders"></i></button>
+                        <button class="nav-btn shadow-btn" onclick="app.toggleMapFilters()"
+                            style="background:white; color:var(--text-primary);"><i
+                                class="fa-solid fa-sliders"></i></button>
                     </div>
                     <!-- Quick Filters Row -->
-                    <div id="map-filters" class="hidden" style="display:flex; gap:0.5rem; margin-top:0.8rem; pointer-events:auto; overflow-x:auto; padding-bottom:5px;">
+                    <div id="map-filters" class="hidden"
+                        style="display:flex; gap:0.5rem; margin-top:0.8rem; pointer-events:auto; overflow-x:auto; padding-bottom:5px;">
                         <button class="filter-chip active" onclick="app.filterMap('all', event)">All Quests</button>
-                        <button class="filter-chip" onclick="app.filterMap('Indoor', event)"><i class="fa-solid fa-house"></i> Indoor</button>
-                        <button class="filter-chip" onclick="app.filterMap('Outdoor', event)"><i class="fa-solid fa-tree"></i> Outdoor</button>
-                        <button class="filter-chip" onclick="app.clearRadius()"><i class="fa-solid fa-times"></i> Clear Radius</button>
+                        <button class="filter-chip" onclick="app.filterMap('Indoor', event)"><i
+                                class="fa-solid fa-house"></i> Indoor</button>
+                        <button class="filter-chip" onclick="app.filterMap('Outdoor', event)"><i
+                                class="fa-solid fa-tree"></i> Outdoor</button>
+                        <button class="filter-chip" onclick="app.clearRadius()"><i class="fa-solid fa-times"></i> Clear
+                            Radius</button>
                     </div>
                 </div>
 
@@ -206,7 +221,8 @@
                         <div class="form-group" style="display:flex; gap:10px;">
                             <div style="flex:1;">
                                 <label for="job-category">Category</label>
-                                <select id="job-category" class="form-select" required style="width:100%; border:1px solid var(--border-color); border-radius:8px; padding:0.8rem; background:white; font-family:inherit;">
+                                <select id="job-category" class="form-select" required
+                                    style="width:100%; border:1px solid var(--border-color); border-radius:8px; padding:0.8rem; background:white; font-family:inherit;">
                                     <option value="" disabled selected>Select...</option>
                                     <option value="Indoor">Indoor</option>
                                     <option value="Outdoor">Outdoor</option>
@@ -215,8 +231,10 @@
                             <div style="flex:1;">
                                 <label for="job-duration">Duration</label>
                                 <div style="display:flex; gap:5px;">
-                                    <input type="number" id="job-duration-value" placeholder="2" min="1" required style="flex:1;">
-                                    <select id="job-duration-unit" class="form-select" style="flex:1; border:1px solid var(--border-color); border-radius:8px; padding:0.8rem; background:white; font-family:inherit;">
+                                    <input type="number" id="job-duration-value" placeholder="2" min="1" required
+                                        style="flex:1;">
+                                    <select id="job-duration-unit" class="form-select"
+                                        style="flex:1; border:1px solid var(--border-color); border-radius:8px; padding:0.8rem; background:white; font-family:inherit;">
                                         <option value="minutes">Minutes</option>
                                         <option value="hours" selected>Hours</option>
                                         <option value="days">Days</option>
@@ -231,7 +249,8 @@
                         <div class="form-group" style="display:flex; gap:10px;">
                             <div style="flex:1;">
                                 <label for="job-radius">Work Radius</label>
-                                <select id="job-radius" class="form-select" style="width:100%; border:1px solid var(--border-color); border-radius:8px; padding:0.8rem; background:white; font-family:inherit;">
+                                <select id="job-radius" class="form-select"
+                                    style="width:100%; border:1px solid var(--border-color); border-radius:8px; padding:0.8rem; background:white; font-family:inherit;">
                                     <option value="Within 5km">Within 5km</option>
                                     <option value="Within 10km">Within 10km</option>
                                     <option value="Within 20km">Within 20km</option>
@@ -240,14 +259,18 @@
                             </div>
                             <div style="flex:1;">
                                 <label for="job-payment">Payment</label>
-                                <select id="job-payment" class="form-select" required onchange="app.handlePaymentChange(event)" style="width:100%; border:1px solid var(--border-color); border-radius:8px; padding:0.8rem; background:white; font-family:inherit;">
+                                <select id="job-payment" class="form-select" required
+                                    onchange="app.handlePaymentChange(event)"
+                                    style="width:100%; border:1px solid var(--border-color); border-radius:8px; padding:0.8rem; background:white; font-family:inherit;">
                                     <option value="Cash">Cash</option>
                                     <option value="Transfer">Transfer</option>
                                 </select>
                             </div>
                         </div>
-                        <div id="payment-proof-note" class="hidden" style="margin-bottom:1rem; font-size:0.85rem; color:var(--danger); background:rgba(255,0,0,0.1); padding:0.5rem; border-radius:6px;">
-                            <i class="fa-solid fa-circle-info"></i> Bank transfer requires receipt verification/proof upon completion.
+                        <div id="payment-proof-note" class="hidden"
+                            style="margin-bottom:1rem; font-size:0.85rem; color:var(--danger); background:rgba(255,0,0,0.1); padding:0.5rem; border-radius:6px;">
+                            <i class="fa-solid fa-circle-info"></i> Bank transfer requires receipt verification/proof
+                            upon completion.
                         </div>
                         <div class="form-group">
                             <label for="job-description">Details</label>
@@ -324,25 +347,37 @@
                         <p style="opacity:0.8; font-size:0.8rem; font-weight:600;">ACTIVE BALANCE</p>
                         <h2 id="wallet-balance-full" style="font-size:2rem;">$0.00</h2>
                     </div>
-                    <button class="btn-primary" style="background:white; color:var(--text-primary); padding:0.6rem 1rem; border-radius:12px; font-size:0.85rem;" onclick="app.withdrawAlert()">Cash Out</button>
+                    <button class="btn-primary"
+                        style="background:white; color:var(--text-primary); padding:0.6rem 1rem; border-radius:12px; font-size:0.85rem;"
+                        onclick="app.withdrawAlert()">Cash Out</button>
                 </div>
 
                 <div class="p-4" style="padding-top:0;">
-                    <div id="wallet-history" class="vertical-feed" style="background:white; border-radius:16px; border:1px solid var(--border-color); padding:1rem; margin-bottom:1.5rem;">
-                        <h4 style="margin-bottom:1rem; font-size:0.9rem; color:var(--text-secondary);"><i class="fa-solid fa-clock-rotate-left"></i> Earning History</h4>
+                    <div id="wallet-history" class="vertical-feed"
+                        style="background:white; border-radius:16px; border:1px solid var(--border-color); padding:1rem; margin-bottom:1.5rem;">
+                        <h4 style="margin-bottom:1rem; font-size:0.9rem; color:var(--text-secondary);"><i
+                                class="fa-solid fa-clock-rotate-left"></i> Earning History</h4>
                         <div id="history-list"><!-- Populated by JS --></div>
                     </div>
                 </div>
 
                 <div class="account-menu shadow-btn" style="box-shadow:var(--shadow-sm);">
-                    <div class="menu-item" onclick="app.setMode('seeker')" style="border-bottom: 2px solid #f1f5f9; background: #f8fafc;">
-                        <div class="action-icon icon-green" style="width:36px; height:36px;"><i class="fa-solid fa-search"></i></div>
-                        <div style="flex:1;"><strong>Seeker Portal</strong><div class="text-sm text-gray">I want to find quests</div></div>
+                    <div class="menu-item" onclick="app.setMode('seeker')"
+                        style="border-bottom: 2px solid #f1f5f9; background: #f8fafc;">
+                        <div class="action-icon icon-green" style="width:36px; height:36px;"><i
+                                class="fa-solid fa-search"></i></div>
+                        <div style="flex:1;"><strong>Seeker Portal</strong>
+                            <div class="text-sm text-gray">I want to find quests</div>
+                        </div>
                         <i class="fa-solid fa-chevron-right text-gray" style="font-size:0.8rem;"></i>
                     </div>
-                    <div class="menu-item" onclick="app.setMode('poster')" style="border-bottom: 4px solid var(--bg-color); background: #fffcf0;">
-                        <div class="action-icon icon-orange" style="width:36px; height:36px;"><i class="fa-solid fa-bullhorn"></i></div>
-                        <div style="flex:1;"><strong>Poster Portal</strong><div class="text-sm text-gray">I want to post quests</div></div>
+                    <div class="menu-item" onclick="app.setMode('poster')"
+                        style="border-bottom: 4px solid var(--bg-color); background: #fffcf0;">
+                        <div class="action-icon icon-orange" style="width:36px; height:36px;"><i
+                                class="fa-solid fa-bullhorn"></i></div>
+                        <div style="flex:1;"><strong>Poster Portal</strong>
+                            <div class="text-sm text-gray">I want to post quests</div>
+                        </div>
                         <i class="fa-solid fa-chevron-right text-gray" style="font-size:0.8rem;"></i>
                     </div>
                     <div class="menu-item mt-3"><i class="fa-solid fa-star"></i> My Rating</div>
