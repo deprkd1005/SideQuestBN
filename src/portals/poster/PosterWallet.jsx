@@ -155,6 +155,10 @@ const PosterWallet = ({ onAnimation }) => {
             className="modal-overlay"
             onClick={() => setShowAddFunds(false)}
           >
+            <motion.div
+              initial={{ y: '100%' }}
+              animate={{ y: 0 }}
+              exit={{ y: '100%' }}
               className="bottom-sheet"
               onClick={e => e.stopPropagation()}
             >
