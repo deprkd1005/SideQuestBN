@@ -12,8 +12,8 @@ import JobTracking from './JobTracking';
 
 const PosterPortal = () => {
   return (
-    <div className="theme-poster" style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
-      <div className="app-content no-pad">
+    <div className="theme-poster" style={{ display: 'flex', flexDirection: 'column', height: '100%', overflow: 'hidden' }}>
+      <div style={{ flex: 1, overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
         <Routes>
           <Route path="/" element={<PosterDashboard />} />
           <Route path="/post" element={<PostJob />} />

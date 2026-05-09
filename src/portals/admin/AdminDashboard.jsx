@@ -30,10 +30,10 @@ const AdminDashboard = () => {
             <p className="section-subtitle">Platform health & security</p>
           </div>
           <div style={{ display: 'flex', gap: '12px' }}>
-            <button className="card-glass" style={{ width: '48px', height: '48px', borderRadius: '16px', padding: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <button className="card-glass" onClick={() => alert('Notifications coming soon!')} style={{ width: '48px', height: '48px', borderRadius: '16px', padding: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               <Bell size={20} className="text-muted" />
             </button>
-            <button className="card-glass" style={{ width: '48px', height: '48px', borderRadius: '16px', padding: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <button className="card-glass" onClick={() => alert('Security settings opened')} style={{ width: '48px', height: '48px', borderRadius: '16px', padding: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               <Lock size={20} className="text-blue" />
             </button>
           </div>
@@ -60,7 +60,7 @@ const AdminDashboard = () => {
         {/* Verification Section */}
         <div className="flex-between" style={{ marginBottom: '16px' }}>
           <h3 style={{ fontSize: '1.1rem', fontWeight: 800, color: 'var(--text-primary)' }}>KYC Moderation</h3>
-          <button className="btn-ghost" style={{ fontSize: '0.85rem', color: 'var(--blue)', fontWeight: 700 }}>Review All</button>
+          <button className="btn-ghost" onClick={() => alert('Opening review queue')} style={{ fontSize: '0.85rem', color: 'var(--blue)', fontWeight: 700 }}>Review All</button>
         </div>
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginBottom: '32px' }}>
@@ -79,10 +79,10 @@ const AdminDashboard = () => {
                 <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)', fontWeight: 700 }}>{user.submitted}</span>
               </div>
               <div style={{ display: 'flex', gap: '12px' }}>
-                <button className="btn-primary" style={{ flex: 1, height: '40px', background: 'var(--emerald)', fontSize: '0.85rem' }}>
+                <button className="btn-primary" onClick={() => alert(`Approved ${user.name}`)} style={{ flex: 1, height: '40px', background: 'var(--emerald)', fontSize: '0.85rem' }}>
                   Approve
                 </button>
-                <button className="btn-outline" style={{ flex: 1, height: '40px', fontSize: '0.85rem', color: 'var(--red)' }}>
+                <button className="btn-outline" onClick={() => alert(`Rejected ${user.name}`)} style={{ flex: 1, height: '40px', fontSize: '0.85rem', color: 'var(--red)' }}>
                   Reject
                 </button>
               </div>
@@ -108,7 +108,7 @@ const AdminDashboard = () => {
                   {report.status}
                 </div>
               </div>
-              <button className="btn-ghost" style={{ width: '100%', padding: '10px', fontSize: '0.85rem', fontWeight: 700, color: 'var(--blue)', border: '1px solid var(--blue-soft)', borderRadius: '12px', marginTop: '8px' }}>
+              <button className="btn-ghost" onClick={() => alert(`Investigating case ${report.id}`)} style={{ width: '100%', padding: '10px', fontSize: '0.85rem', fontWeight: 700, color: 'var(--blue)', border: '1px solid var(--blue-soft)', borderRadius: '12px', marginTop: '8px' }}>
                 Investigate Dispute
               </button>
             </div>

@@ -10,8 +10,8 @@ import Profile from './Profile';
 
 const HustlerPortal = ({ onAnimation }) => {
   return (
-    <div className="theme-seeker" style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
-      <div className="app-content">
+    <div className="theme-seeker" style={{ display: 'flex', flexDirection: 'column', height: '100%', overflow: 'hidden' }}>
+      <div style={{ flex: 1, overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
         <Routes>
           <Route path="/" element={<HustlerHome />} />
           <Route path="/job/:id" element={<JobDetails />} />

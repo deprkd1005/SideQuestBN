@@ -9,8 +9,8 @@ import AdminProfile from './AdminProfile';
 
 const AdminPortal = () => {
   return (
-    <div className="theme-admin" style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
-      <div className="app-content">
+    <div className="theme-admin" style={{ display: 'flex', flexDirection: 'column', height: '100%', overflow: 'hidden' }}>
+      <div style={{ flex: 1, overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
         <Routes>
           <Route path="/" element={<AdminDashboard />} />
           <Route path="/escrow" element={<AdminEscrow />} />

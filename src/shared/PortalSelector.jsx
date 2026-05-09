@@ -34,7 +34,7 @@ const PortalSelector = () => {
   ];
 
   return (
-    <div className="login-view" style={{ 
+    <div style={{ 
       flexDirection: 'column', 
       overflowY: 'auto', 
       background: 'var(--bg-primary)',

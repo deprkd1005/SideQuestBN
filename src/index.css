@@ -69,6 +69,8 @@ body {
   height: 100dvh;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  font-weight: 500;
+  letter-spacing: -0.01em;
 }
 
 /* ═══════════════════ APP SHELL ═══════════════════ */

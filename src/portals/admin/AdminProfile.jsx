@@ -1,7 +1,9 @@
 import React from 'react';
-import { UserCog, Shield, BarChart3, Star } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { UserCog, Shield, BarChart3, Star, LogOut } from 'lucide-react';
 
 const AdminProfile = () => {
+  const navigate = useNavigate();
   return (
     <div style={{
       height: '100%',
@@ -126,7 +128,7 @@ const AdminProfile = () => {
             Quick Actions
           </h3>
           <div style={{ display: 'grid', gap: '10px' }}>
-            <button style={{
+            <button onClick={() => alert('Review Escrow Cases')} style={{
               width: '100%',
               padding: '14px',
               borderRadius: '14px',
@@ -138,7 +140,7 @@ const AdminProfile = () => {
             }}>
               Review Escrow Cases
             </button>
-            <button style={{
+            <button onClick={() => alert('Verify New Users')} style={{
               width: '100%',
               padding: '14px',
               borderRadius: '14px',
@@ -149,6 +151,22 @@ const AdminProfile = () => {
               cursor: 'pointer'
             }}>
               Verify New Users
+            </button>
+            <button onClick={() => navigate('/')} style={{
+              width: '100%',
+              padding: '14px',
+              borderRadius: '14px',
+              border: '1px solid var(--red)',
+              background: 'var(--red-soft)',
+              color: 'var(--red)',
+              fontWeight: 700,
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '8px'
+            }}>
+              <LogOut size={18} /> Sign Out
             </button>
           </div>
         </div>

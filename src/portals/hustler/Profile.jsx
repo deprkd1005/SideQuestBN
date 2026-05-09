@@ -1,10 +1,12 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { User, Star, MapPin, Briefcase, Award, Settings, LogOut, ChevronRight, Shield, Bell, HelpCircle, FileText } from 'lucide-react';
 import { usePayment } from '../../context/PaymentContext';
 
 const Profile = () => {
   const { user } = usePayment();
+  const navigate = useNavigate();
 
   const profileData = {
     name: user?.name || 'John Doe',
@@ -89,7 +91,7 @@ const Profile = () => {
         <h3 style={{ fontSize: '1rem', fontWeight: 800, marginBottom: '16px', color: 'var(--text-primary)' }}>Account Settings</h3>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: '24px' }}>
           {menuItems.map((item, idx) => (
-            <div key={idx} className="card" style={{ padding: '12px 16px', display: 'flex', alignItems: 'center', gap: '16px', cursor: 'pointer' }}>
+            <div key={idx} className="card" onClick={() => alert(`${item.label} functionality coming soon in prototype.`)} style={{ padding: '12px 16px', display: 'flex', alignItems: 'center', gap: '16px', cursor: 'pointer' }}>
               <div style={{ color: item.color }}>
                 <item.icon size={20} />
               </div>
@@ -100,7 +102,7 @@ const Profile = () => {
         </div>
 
         {/* Log Out */}
-        <button className="btn-outline" style={{ width: '100%', borderColor: 'var(--red)', color: 'var(--red)', background: 'var(--red-soft)', display: 'flex', gap: '10px', height: '56px' }}>
+        <button className="btn-outline" onClick={() => navigate('/')} style={{ width: '100%', borderColor: 'var(--red)', color: 'var(--red)', background: 'var(--red-soft)', display: 'flex', gap: '10px', height: '56px' }}>
           <LogOut size={20} /> Sign Out
         </button>
 

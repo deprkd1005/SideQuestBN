@@ -86,13 +86,13 @@ const Applicants = () => {
               </div>
 
               <div style={{ display: 'flex', gap: '12px' }}>
-                <button className="btn-primary" style={{ flex: 2, height: '48px', background: 'var(--emerald)', boxShadow: '0 4px 15px var(--emerald-glow)' }}>
+                <button className="btn-primary" onClick={() => { alert(`Accepted ${applicant.name}!`); navigate(-1); }} style={{ flex: 2, height: '48px', background: 'var(--emerald)', boxShadow: '0 4px 15px var(--emerald-glow)' }}>
                   <Check size={18} /> Accept
                 </button>
-                <button className="btn-outline" style={{ flex: 1, height: '48px', padding: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <button className="btn-outline" onClick={() => alert(`Opening chat with ${applicant.name}...`)} style={{ flex: 1, height: '48px', padding: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                   <MessageCircle size={20} />
                 </button>
-                <button className="btn-ghost" style={{ width: '48px', height: '48px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--bg-secondary)', borderRadius: '14px' }}>
+                <button className="btn-ghost" onClick={() => alert(`Rejected ${applicant.name}`)} style={{ width: '48px', height: '48px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--bg-secondary)', borderRadius: '14px' }}>
                   <X size={20} className="text-red" />
                 </button>
               </div>

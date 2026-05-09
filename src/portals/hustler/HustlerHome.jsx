@@ -9,11 +9,12 @@ const HustlerHome = () => {
   const navigate = useNavigate();
   const { jobs, userLocation } = usePayment();
   const [searchRadius, setSearchRadius] = useState(20);
+  const [searchTerm, setSearchTerm] = useState('');
   const [viewMode, setViewMode] = useState('map'); // map or list
   const [selectedJob, setSelectedJob] = useState(null);
   const mapInstanceRef = useRef(null);
 
-  const openJobs = jobs.filter(job => job.status === 'open');
+  const openJobs = jobs.filter(job => job.status === 'open' && job.title.toLowerCase().includes(searchTerm.toLowerCase()));
   const nearbyJobs = openJobs.slice(0, 8);
 
   const handleJobSelect = (job) => {
@@ -53,6 +54,8 @@ const HustlerHome = () => {
             <input 
               type="text" 
               placeholder="Search tasks nearby..." 
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
               style={{ 
                 flex: 1,
                 padding: '12px', 
@@ -66,7 +69,7 @@ const HustlerHome = () => {
             />
           </div>
         </div>
-        <button className="card-glass" style={{ width: '48px', height: '48px', borderRadius: '16px', padding: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--bg-glass-strong)', boxShadow: 'var(--shadow-md)', border: '1px solid var(--border-color)' }}>
+        <button className="card-glass" onClick={() => alert('Filter options coming soon!')} style={{ width: '48px', height: '48px', borderRadius: '16px', padding: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--bg-glass-strong)', boxShadow: 'var(--shadow-md)', border: '1px solid var(--border-color)' }}>
           <Sliders size={20} className="text-primary" />
         </button>
       </div>
@@ -94,7 +97,11 @@ const HustlerHome = () => {
         >
           {viewMode === 'map' ? <List size={22} /> : <MapIcon size={22} />}
         </button>
-        <button className="card-glass" style={{ width: '48px', height: '48px', borderRadius: '16px', padding: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--bg-glass-strong)', boxShadow: 'var(--shadow-md)', border: '1px solid var(--border-color)' }}>
+        <button className="card-glass" onClick={() => {
+          if (mapInstanceRef.current && userLocation) {
+            mapInstanceRef.current.setView(userLocation, 15);
+          }
+        }} style={{ width: '48px', height: '48px', borderRadius: '16px', padding: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--bg-glass-strong)', boxShadow: 'var(--shadow-md)', border: '1px solid var(--border-color)' }}>
           <Navigation size={22} className="text-primary" />
         </button>
       </div>

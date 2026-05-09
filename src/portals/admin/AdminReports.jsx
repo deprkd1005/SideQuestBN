@@ -51,8 +51,8 @@ const AdminReports = () => {
               Flagged Content: <span style={{ fontWeight: 800, color: 'var(--text-primary)' }}>"{report.target}"</span>
             </div>
             <div style={{ display: 'flex', gap: '10px' }}>
-              <button className="btn-primary" style={{ flex: 1, height: '44px', background: 'var(--red)', fontSize: '0.85rem' }}>Take Action</button>
-              <button className="btn-outline" style={{ flex: 1, height: '44px', fontSize: '0.85rem' }}>Dismiss</button>
+              <button className="btn-primary" onClick={() => alert(`Taking action on report ${report.id}`)} style={{ flex: 1, height: '44px', background: 'var(--red)', fontSize: '0.85rem' }}>Take Action</button>
+              <button className="btn-outline" onClick={() => alert(`Dismissing report ${report.id}`)} style={{ flex: 1, height: '44px', fontSize: '0.85rem' }}>Dismiss</button>
             </div>
           </div>
         ))}

@@ -49,7 +49,7 @@ const AdminEscrow = () => {
                 <div style={{ fontSize: '0.65rem', fontWeight: 800, color: 'var(--emerald)' }}>{item.status}</div>
               </div>
             </div>
-            <button className="btn-outline" style={{ width: '100%', height: '40px', fontSize: '0.8rem', fontWeight: 700 }}>View Contract</button>
+            <button className="btn-outline" onClick={() => alert(`Opening contract for ${item.job}`)} style={{ width: '100%', height: '40px', fontSize: '0.8rem', fontWeight: 700 }}>View Contract</button>
           </div>
         ))}
       </div>
