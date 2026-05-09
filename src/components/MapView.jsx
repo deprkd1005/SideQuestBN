@@ -48,7 +48,9 @@ const MapView = ({ jobs, onAccept, mapInstanceRef, searchRadius, userLocation })
       window.removeEventListener('accept-job', handleAccept);
       map.remove();
       mapObjRef.current = null;
-      mapInstanceRef.current = null;
+      if (mapInstanceRef) {
+        mapInstanceRef.current = null;
+      }
     };
   }, []); // Only once
 
