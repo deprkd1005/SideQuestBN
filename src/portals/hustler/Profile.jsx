@@ -27,9 +27,9 @@ const Profile = () => {
   ];
 
   return (
-    <div className="app-content no-pad" style={{ paddingBottom: '100px' }}>
+    <div className="app-content no-pad" style={{ paddingBottom: '100px', paddingTop: 'env(safe-area-inset-top, 40px)' }}>
       {/* Profile Header with Cover */}
-      <div style={{ position: 'relative', height: '220px', background: 'linear-gradient(135deg, var(--emerald-soft) 0%, var(--emerald) 100%)', marginBottom: '60px' }}>
+      <div style={{ position: 'relative', height: '220px', background: 'linear-gradient(135deg, var(--emerald-soft) 0%, var(--emerald) 100%)', marginBottom: '60px', marginTop: '-40px' }}>
         <div style={{ position: 'absolute', bottom: '-40px', left: '20px', display: 'flex', alignItems: 'flex-end', gap: '16px' }}>
           <div style={{ 
             width: '100px', 

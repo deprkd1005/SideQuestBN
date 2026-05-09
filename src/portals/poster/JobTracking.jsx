@@ -10,6 +10,22 @@ const JobTracking = () => {
   const { jobs } = usePayment();
   const job = jobs.find(j => j.id === jobId) || jobs[0]; // Fallback for demo
 
+  const [timeLeft, setTimeLeft] = React.useState(24 * 3600);
+
+  React.useEffect(() => {
+    const timer = setInterval(() => {
+      setTimeLeft(prev => prev > 0 ? prev - 1 : 0);
+    }, 1000);
+    return () => clearInterval(timer);
+  }, []);
+
+  const formatTime = (seconds) => {
+    const h = Math.floor(seconds / 3600);
+    const m = Math.floor((seconds % 3600) / 60);
+    const s = seconds % 60;
+    return `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+  };
+
   // Mock worker data
   const worker = {
     name: 'Hafizah',
@@ -88,7 +104,7 @@ const JobTracking = () => {
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '12px', background: 'var(--bg-primary)', borderRadius: '12px' }}>
             <Clock size={16} className="text-muted" />
             <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', fontWeight: 600 }}>
-              Auto-releases in <span style={{ color: 'var(--text-primary)', fontWeight: 800 }}>24:00:00</span> if no action taken
+              Auto-releases in <span style={{ color: 'var(--text-primary)', fontWeight: 800 }}>{formatTime(timeLeft)}</span> if no action taken
             </span>
           </div>
         </div>

@@ -198,6 +198,11 @@ const Wallet = ({ onAnimation }) => {
                     onChange={(e) => setWithdrawAmount(e.target.value)}
                     style={{ width: '100%', background: 'var(--bg-primary)', border: '1px solid var(--border-color)', borderRadius: '16px', padding: '16px 20px', color: 'var(--text-primary)', fontSize: '1.5rem', fontWeight: 900, textAlign: 'center' }}
                   />
+                  {parseFloat(withdrawAmount) > 150 && (
+                    <div style={{ color: 'var(--red)', fontSize: '0.75rem', fontWeight: 700, marginTop: '8px', textAlign: 'center' }}>
+                      Maximum instant withdrawal per day is BND 150.00.
+                    </div>
+                  )}
                 </div>
                 <div className="flex-between" style={{ marginTop: '12px' }}>
                   <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Min: BND 10.00</span>
@@ -207,10 +212,10 @@ const Wallet = ({ onAnimation }) => {
 
               <button 
                 className="btn-primary" 
-                style={{ width: '100%', height: '60px', fontSize: '1.1rem', position: 'relative' }}
+                style={{ width: '100%', height: '60px', fontSize: '1.1rem', position: 'relative', opacity: (!withdrawAmount || parseFloat(withdrawAmount) <= 0 || parseFloat(withdrawAmount) > 150) ? 0.5 : 1 }}
                 onClick={() => {
                   const amt = parseFloat(withdrawAmount);
-                  if (isNaN(amt) || amt <= 0 || amt > balance) return;
+                  if (isNaN(amt) || amt <= 0 || amt > balance || amt > 150) return;
                   
                   setStage('transferring');
                   onAnimation('transferring');

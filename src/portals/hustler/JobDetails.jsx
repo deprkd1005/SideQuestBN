@@ -3,7 +3,6 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { ArrowLeft, MapPin, Clock, DollarSign, User, CheckCircle, Shield, Calendar, Tag, ChevronRight } from 'lucide-react';
 import { usePayment } from '../../context/PaymentContext';
-import MapView from '../../components/MapView';
 
 const JobDetails = () => {
   const { id } = useParams();
@@ -30,41 +29,17 @@ const JobDetails = () => {
       console.warn("Backend accept failed, proceeding for prototype");
     }
     setIsApplied(true);
-    setTimeout(() => navigate('/hustler/jobs'), 2500);
+    setTimeout(() => navigate('/hustler'), 2500);
   };
-
-  if (isApplied) {
-    return (
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', background: 'var(--bg-primary)', gap: '24px' }}>
-        <motion.div 
-          initial={{ scale: 0, rotate: -45 }}
-          animate={{ scale: 1, rotate: 0 }}
-          transition={{ type: 'spring', damping: 12, stiffness: 200 }}
-          style={{ width: '100px', height: '100px', borderRadius: '50%', background: 'var(--emerald-soft)', color: 'var(--emerald)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
-        >
-          <CheckCircle size={60} strokeWidth={3} />
-        </motion.div>
-        <div style={{ textAlign: 'center' }}>
-          <h2 style={{ fontSize: '1.6rem', fontWeight: 900, marginBottom: '8px' }}>Quest Applied!</h2>
-          <p style={{ color: 'var(--text-muted)', fontWeight: 700 }}>Waiting for poster approval. ⏳</p>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="app-content">
       {/* Hero Header */}
-      <div style={{ position: 'relative', height: '240px', background: 'var(--bg-tertiary)' }}>
-        <div style={{ height: '100%', width: '100%', opacity: 0.6 }}>
-          <MapView 
-            jobs={[job]} 
-            userLocation={userLocation} 
-            interactive={false}
-          />
-        </div>
+      <div style={{ position: 'relative', height: '240px', background: 'linear-gradient(135deg, var(--emerald-soft) 0%, var(--emerald) 100%)' }}>
+        <div style={{ height: '100%', width: '100%', opacity: 0.2, backgroundImage: 'url("https://www.transparenttextures.com/patterns/cubes.png")' }} />
+        
         <div className="glass-overlay" style={{ position: 'absolute', top: '16px', left: '16px', borderRadius: '12px' }}>
-          <button className="btn-ghost" onClick={() => navigate(-1)} style={{ color: 'white' }}>
+          <button className="btn-ghost" onClick={() => navigate('/hustler')} style={{ color: 'white' }}>
             <ArrowLeft size={20} />
           </button>
         </div>
@@ -151,6 +126,24 @@ const JobDetails = () => {
           <button className="btn-primary" onClick={handleAccept} style={{ width: '100%', height: '56px', fontSize: '1.1rem', boxShadow: 'var(--shadow-lg)' }}>
             Apply for this Quest
           </button>
+        </div>
+      )}
+
+      {/* Success Overlay Modal */}
+      {isApplied && (
+        <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, background: 'var(--bg-primary)', zIndex: 1000, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '24px' }}>
+          <motion.div 
+            initial={{ scale: 0, rotate: -45 }}
+            animate={{ scale: 1, rotate: 0 }}
+            transition={{ type: 'spring', damping: 12, stiffness: 200 }}
+            style={{ width: '100px', height: '100px', borderRadius: '50%', background: 'var(--emerald-soft)', color: 'var(--emerald)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+          >
+            <CheckCircle size={60} strokeWidth={3} />
+          </motion.div>
+          <div style={{ textAlign: 'center', padding: '0 20px' }}>
+            <h2 style={{ fontSize: '1.6rem', fontWeight: 900, marginBottom: '8px' }}>Successfully applied for this quest!</h2>
+            <p style={{ color: 'var(--text-muted)', fontWeight: 700 }}>Waiting for poster approval. ⏳</p>
+          </div>
         </div>
       )}
     </div>
