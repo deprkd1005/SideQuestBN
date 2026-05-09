@@ -61,7 +61,7 @@ const PosterWallet = ({ onAnimation }) => {
             </div>
           </div>
 
-          <button className="btn-primary" onClick={() => setShowAddFunds(true)} style={{ width: '100%', background: 'white', color: 'var(--orange)' }}>
+          <button className="btn-primary" onClick={() => setShowAddFunds(true)} style={{ width: '100%', background: 'var(--bg-tertiary)', color: 'var(--orange)' }}>
             <Plus size={18} /> Add Funds
           </button>
         </div>

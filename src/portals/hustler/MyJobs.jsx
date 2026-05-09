@@ -15,9 +15,9 @@ const MyJobs = () => {
   const completedJobs = jobs.filter(job => job.status === 'completed' || job.id === 'j3');
 
   const tabs = [
-    { id: 'applied', label: 'Applied', count: appliedJobs.length },
-    { id: 'active', label: 'Active', count: activeJobs.length },
-    { id: 'completed', label: 'Done', count: completedJobs.length }
+    { id: 'applied', label: 'APPLIED', count: appliedJobs.length },
+    { id: 'active', label: 'ACTIVE', count: activeJobs.length },
+    { id: 'completed', label: 'DONE', count: completedJobs.length }
   ];
 
   const getCurrentJobs = () => {
@@ -30,7 +30,7 @@ const MyJobs = () => {
   };
 
   return (
-    <div style={{ background: 'var(--bg-primary)', height: '100%', display: 'flex', flexDirection: 'column' }}>
+    <div className="app-content" style={{ background: 'var(--bg-primary)', height: '100%', display: 'flex', flexDirection: 'column' }}>
       {/* Header */}
       <div style={{ padding: '32px 24px 24px' }}>
         <h1 className="section-title" style={{ fontSize: '1.6rem' }}>My Quests</h1>
@@ -49,7 +49,8 @@ const MyJobs = () => {
                 padding: '12px 0',
                 border: 'none',
                 background: 'transparent',
-                color: activeTab === tab.id ? 'white' : 'var(--text-muted)',
+                color: activeTab === tab.id ? '#ffffff' : '#94a3b8',
+                textShadow: activeTab === tab.id ? '0 0 10px rgba(255,255,255,0.3)' : 'none',
                 fontSize: '0.85rem',
                 fontWeight: 800,
                 zIndex: 2,

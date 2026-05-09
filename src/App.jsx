@@ -10,6 +10,7 @@ import { PaymentProvider } from './context/PaymentContext';
 import './index.css';
 
 import SplashScreen from './shared/SplashScreen';
+import Auth from './shared/Auth';
 
 function App() {
   const [showSplash, setShowSplash] = useState(true);
@@ -24,7 +25,8 @@ function App() {
       <Router>
         <div className="app-container">
           <Routes>
-            <Route path="/" element={<div className="app-content no-pad"><PortalSelector /></div>} />
+            <Route path="/" element={<Auth />} />
+            <Route path="/select" element={<div className="app-content no-pad"><PortalSelector /></div>} />
             <Route path="/hustler/*" element={<HustlerPortal onAnimation={setGlobalAnimation} />} />
             <Route path="/poster/*" element={<PosterPortal onAnimation={setGlobalAnimation} />} />
             <Route path="/admin/*" element={<AdminPortal />} />

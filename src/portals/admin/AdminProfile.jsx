@@ -5,12 +5,7 @@ import { UserCog, Shield, BarChart3, Star, LogOut } from 'lucide-react';
 const AdminProfile = () => {
   const navigate = useNavigate();
   return (
-    <div style={{
-      height: '100%',
-      display: 'flex',
-      flexDirection: 'column',
-      background: 'var(--bg-primary)'
-    }}>
+    <div className="app-content no-pad" style={{ background: 'var(--bg-primary)', height: '100%', display: 'flex', flexDirection: 'column' }}>
       <div style={{
         padding: '1rem',
         background: 'var(--bg-primary)',
@@ -80,11 +75,12 @@ const AdminProfile = () => {
               { icon: Shield, title: 'Security mode', detail: 'Manage trust and verification' },
               { icon: Star, title: 'Support rating', detail: 'Monitor system reliability' }
             ].map(item => (
-              <div key={item.title} style={{
+              <div key={item.title} onClick={() => alert(`${item.title} dashboard will be available in the full version.`)} style={{
                 background: 'var(--bg-card)',
                 borderRadius: '16px',
                 padding: '1.2rem',
-                border: '1px solid var(--border-color)'
+                border: '1px solid var(--border-color)',
+                cursor: 'pointer'
               }}>
                 <div style={{
                   display: 'flex',
@@ -129,7 +125,7 @@ const AdminProfile = () => {
             Quick Actions
           </h3>
           <div style={{ display: 'grid', gap: '10px' }}>
-            <button onClick={() => alert('Review Escrow Cases')} style={{
+            <button onClick={() => navigate('/admin/escrow')} style={{
               width: '100%',
               padding: '14px',
               borderRadius: '14px',
@@ -141,7 +137,7 @@ const AdminProfile = () => {
             }}>
               Review Escrow Cases
             </button>
-            <button onClick={() => alert('Verify New Users')} style={{
+            <button onClick={() => navigate('/admin')} style={{
               width: '100%',
               padding: '14px',
               borderRadius: '14px',

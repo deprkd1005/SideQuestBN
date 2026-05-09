@@ -53,7 +53,7 @@ const JobDetails = () => {
   }
 
   return (
-    <div className="app-content no-pad">
+    <div className="app-content">
       {/* Hero Header */}
       <div style={{ position: 'relative', height: '240px', background: 'var(--bg-tertiary)' }}>
         <div style={{ height: '100%', width: '100%', opacity: 0.6 }}>

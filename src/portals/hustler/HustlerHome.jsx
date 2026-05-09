@@ -53,7 +53,7 @@ const HustlerHome = () => {
             <Search size={18} className="text-muted" />
             <input 
               type="text" 
-              placeholder="Search tasks nearby..." 
+              placeholder="Search: 'Aircon', 'Delivery'..." 
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               style={{ 
@@ -225,7 +225,7 @@ const HustlerHome = () => {
             initial={{ y: 20, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             exit={{ y: 20, opacity: 0 }}
-            style={{ padding: '100px 20px 24px', overflowY: 'auto', background: 'var(--bg-primary)', height: '100%' }}
+            style={{ padding: '100px 20px 100px', overflowY: 'auto', background: 'var(--bg-primary)', height: '100%' }}
           >
             <div style={{ marginBottom: '24px' }}>
               <h2 className="section-title">Nearby Quests</h2>

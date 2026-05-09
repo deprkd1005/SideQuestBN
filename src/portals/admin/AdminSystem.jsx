@@ -10,10 +10,10 @@ const AdminSystem = () => {
   ];
 
   return (
-    <div style={{ padding: '24px', background: 'var(--bg-primary)', minHeight: '100%' }}>
+    <div className="app-content" style={{ background: 'var(--bg-primary)', minHeight: '100%' }}>
       <div style={{ marginBottom: '32px' }}>
         <h1 className="section-title">System Health</h1>
-        <p className="section-subtitle">Real-time infrastructure monitoring</p>
+        <p className="section-subtitle">Real-time infrastructure & transaction integrity logs</p>
       </div>
 
       <div style={{ display: 'grid', gap: '16px', marginBottom: '32px' }}>

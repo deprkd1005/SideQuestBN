@@ -9,9 +9,9 @@ const AdminEscrow = () => {
   ];
 
   return (
-    <div style={{ padding: '24px', background: 'var(--bg-primary)', minHeight: '100%' }}>
+    <div className="app-content" style={{ background: 'var(--bg-primary)', minHeight: '100%' }}>
       <div style={{ marginBottom: '32px' }}>
-        <h1 className="section-title">Escrow Management</h1>
+        <h1 className="section-title">Payment Security</h1>
         <p className="section-subtitle">Financial custody & trust control</p>
       </div>
 
@@ -49,7 +49,7 @@ const AdminEscrow = () => {
                 <div style={{ fontSize: '0.65rem', fontWeight: 800, color: 'var(--emerald)' }}>{item.status}</div>
               </div>
             </div>
-            <button className="btn-outline" onClick={() => alert(`Opening contract for ${item.job}`)} style={{ width: '100%', height: '40px', fontSize: '0.8rem', fontWeight: 700 }}>View Contract</button>
+            <button className="btn-outline" onClick={() => alert(`Detailed contract view for ${item.job} will be available in the full release. Funds are currently locked securely in Escrow.`)} style={{ width: '100%', height: '40px', fontSize: '0.8rem', fontWeight: 700 }}>View Contract</button>
           </div>
         ))}
       </div>

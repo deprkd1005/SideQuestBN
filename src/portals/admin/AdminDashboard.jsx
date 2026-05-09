@@ -1,8 +1,12 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Users, Briefcase, Shield, AlertTriangle, TrendingUp, CheckCircle, Search, Filter, MoreVertical, Check, X, Bell, Activity, Lock } from 'lucide-react';
+import { usePayment } from '../../context/PaymentContext';
+import { useNavigate } from 'react-router-dom';
 
 const AdminDashboard = () => {
+  const navigate = useNavigate();
+  const { refresh } = usePayment();
   const stats = [
     { label: 'Total Users', value: '1,247', icon: Users, color: 'var(--blue)' },
     { label: 'Active Jobs', value: '89', icon: Briefcase, color: 'var(--emerald)' },
@@ -21,7 +25,7 @@ const AdminDashboard = () => {
   ];
 
   return (
-    <div className="app-content no-pad" style={{ background: 'var(--bg-primary)', minHeight: '100%' }}>
+    <div className="app-content" style={{ background: 'var(--bg-primary)', minHeight: '100%' }}>
       {/* Admin Header */}
       <div style={{ padding: '32px 24px 24px', background: 'linear-gradient(180deg, var(--bg-tertiary) 0%, var(--bg-primary) 100%)' }}>
         <div className="flex-between" style={{ marginBottom: '24px' }}>
@@ -42,7 +46,7 @@ const AdminDashboard = () => {
         {/* Stats Grid */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '16px' }}>
           {stats.map(stat => (
-            <div key={stat.label} className="card" style={{ padding: '20px', background: 'white', borderColor: 'var(--border-color)', boxShadow: 'var(--shadow-sm)' }}>
+            <div key={stat.label} className="card" style={{ padding: '20px', background: 'var(--bg-card)', borderColor: 'var(--border-color)', boxShadow: 'var(--shadow-sm)' }}>
               <div className="flex-between" style={{ marginBottom: '12px' }}>
                 <div style={{ color: stat.color }}>
                   <stat.icon size={20} />
@@ -60,12 +64,12 @@ const AdminDashboard = () => {
         {/* Verification Section */}
         <div className="flex-between" style={{ marginBottom: '16px' }}>
           <h3 style={{ fontSize: '1.1rem', fontWeight: 800, color: 'var(--text-primary)' }}>KYC Moderation</h3>
-          <button className="btn-ghost" onClick={() => alert('Opening review queue')} style={{ fontSize: '0.85rem', color: 'var(--blue)', fontWeight: 700 }}>Review All</button>
+          <button className="btn-ghost" onClick={() => navigate('/admin/reports')} style={{ fontSize: '0.85rem', color: 'var(--blue)', fontWeight: 700 }}>Review All</button>
         </div>
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginBottom: '32px' }}>
           {pendingVerifications.map(user => (
-            <div key={user.id} className="card" style={{ padding: '16px', background: 'white' }}>
+            <div key={user.id} className="card" style={{ padding: '16px', background: 'var(--bg-card)' }}>
               <div className="flex-between" style={{ marginBottom: '16px' }}>
                 <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
                   <div style={{ width: '44px', height: '44px', borderRadius: '14px', background: 'var(--bg-tertiary)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -79,10 +83,10 @@ const AdminDashboard = () => {
                 <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)', fontWeight: 700 }}>{user.submitted}</span>
               </div>
               <div style={{ display: 'flex', gap: '12px' }}>
-                <button className="btn-primary" onClick={() => alert(`Approved ${user.name}`)} style={{ flex: 1, height: '40px', background: 'var(--emerald)', fontSize: '0.85rem' }}>
+                <button className="btn-primary" onClick={() => { alert(`Success! ${user.name} is now Bru-Verified and can start using the platform.`); refresh(); }} style={{ flex: 1, height: '40px', background: 'var(--emerald)', fontSize: '0.85rem' }}>
                   Approve
                 </button>
-                <button className="btn-outline" onClick={() => alert(`Rejected ${user.name}`)} style={{ flex: 1, height: '40px', fontSize: '0.85rem', color: 'var(--red)' }}>
+                <button className="btn-outline" onClick={() => alert(`Rejected! Notification sent to ${user.name} requesting clear IC photo.`)} style={{ flex: 1, height: '40px', fontSize: '0.85rem', color: 'var(--red)' }}>
                   Reject
                 </button>
               </div>
@@ -98,7 +102,7 @@ const AdminDashboard = () => {
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
           {recentReports.map(report => (
-            <div key={report.id} className="card" style={{ padding: '16px', borderLeft: '4px solid var(--red)', background: 'white' }}>
+            <div key={report.id} className="card" style={{ padding: '16px', borderLeft: '4px solid var(--red)', background: 'var(--bg-card)' }}>
               <div className="flex-between" style={{ marginBottom: '8px' }}>
                 <div>
                   <h4 style={{ fontSize: '1rem', fontWeight: 800, color: 'var(--text-primary)' }}>{report.type}</h4>

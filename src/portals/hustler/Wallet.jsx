@@ -14,7 +14,7 @@ const Wallet = ({ onAnimation }) => {
   const recentTransactions = transactions.slice(0, 10);
 
   return (
-    <div style={{ flex: 1 }}>
+    <div className="app-content">
       {/* Balance Section */}
       <div style={{ padding: '32px 24px 24px', background: 'var(--bg-secondary)' }}>
         <div className="flex-between" style={{ marginBottom: '24px' }}>
@@ -22,7 +22,7 @@ const Wallet = ({ onAnimation }) => {
             <h1 className="section-title">My Wallet</h1>
             <p className="section-subtitle">Secure Digital Payments</p>
           </div>
-          <div style={{ width: '40px', height: '40px', borderRadius: '12px', background: 'white', border: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: 'var(--shadow-sm)' }}>
+          <div style={{ width: '40px', height: '40px', borderRadius: '12px', background: 'var(--bg-tertiary)', border: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: 'var(--shadow-sm)' }}>
             <Info size={18} className="text-muted" />
           </div>
         </div>
@@ -71,7 +71,7 @@ const Wallet = ({ onAnimation }) => {
           <button className="btn-primary" style={{ flex: 1, height: '52px', borderRadius: '16px', boxShadow: '0 10px 20px rgba(16, 185, 129, 0.2)' }} onClick={() => setShowWithdraw(true)}>
             <Download size={18} /> Withdraw
           </button>
-          <button className="btn-outline" style={{ width: '52px', height: '52px', padding: 0, borderRadius: '16px', background: 'white' }}>
+          <button className="btn-outline" style={{ width: '52px', height: '52px', padding: 0, borderRadius: '16px', background: 'var(--bg-tertiary)' }}>
             <Plus size={20} />
           </button>
         </div>
@@ -87,7 +87,7 @@ const Wallet = ({ onAnimation }) => {
           </div>
           <div className="card" style={{ padding: '20px', borderColor: escrowAmount > 0 ? 'var(--orange-soft)' : 'var(--border-color)' }}>
             <div style={{ fontSize: '0.65rem', color: 'var(--text-muted)', fontWeight: 800, textTransform: 'uppercase', marginBottom: '4px' }}>Escrow</div>
-            <div style={{ fontSize: '1.2rem', fontWeight: 900, color: escrowAmount > 0 ? 'var(--orange)' : 'white' }}>{escrowAmount.toFixed(2)}</div>
+            <div style={{ fontSize: '1.2rem', fontWeight: 900, color: escrowAmount > 0 ? 'var(--orange)' : '#ffffff' }}>{escrowAmount.toFixed(2)}</div>
           </div>
         </div>
 
@@ -121,7 +121,7 @@ const Wallet = ({ onAnimation }) => {
         {/* Transaction History */}
         <div className="flex-between" style={{ marginBottom: '16px' }}>
           <h3 style={{ fontSize: '1.1rem', fontWeight: 800 }}>Recent History</h3>
-          <button className="btn-ghost" style={{ fontSize: '0.85rem', color: 'var(--emerald)', fontWeight: 700 }}>View Statements</button>
+          <button className="btn-ghost" onClick={() => alert('Opening monthly financial statement...')} style={{ fontSize: '0.85rem', color: 'var(--emerald)', fontWeight: 700 }}>View Statements</button>
         </div>
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
@@ -213,7 +213,7 @@ const Wallet = ({ onAnimation }) => {
                   if (isNaN(amt) || amt <= 0 || amt > balance) return;
                   
                   setStage('transferring');
-                  onAnimation('transferring');
+                  onAnimation('money');
                   
                   // Simulate Network Delay
                   setTimeout(() => {

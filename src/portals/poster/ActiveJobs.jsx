@@ -17,7 +17,7 @@ const ActiveJobs = () => {
   };
 
   return (
-    <div className="app-content no-pad" style={{ background: 'var(--bg-primary)', height: '100%' }}>
+    <div className="app-content" style={{ background: 'var(--bg-primary)', height: '100%' }}>
       <div style={{ padding: '32px 24px 12px' }}>
         <h1 className="section-title">Your Tasks</h1>
         <p className="section-subtitle">Track progress and manage candidates</p>
