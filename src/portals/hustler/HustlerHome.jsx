@@ -56,6 +56,14 @@ const HustlerHome = () => {
               placeholder="Search: 'Aircon', 'Delivery'..." 
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' && openJobs.length > 0 && mapInstanceRef.current) {
+                  const firstJob = openJobs[0];
+                  if (firstJob.coords) {
+                    mapInstanceRef.current.setView(firstJob.coords, 14);
+                  }
+                }
+              }}
               style={{ 
                 flex: 1,
                 padding: '12px', 

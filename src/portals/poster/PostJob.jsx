@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowLeft, MapPin, Calendar, Clock, DollarSign, ChevronRight, Check, Info, Home, Sun, Navigation } from 'lucide-react';
+import { ArrowLeft, MapPin, Calendar, Clock, DollarSign, ChevronRight, Check, Info, Home, Sun, Navigation, Shield } from 'lucide-react';
 import { usePayment } from '../../context/PaymentContext';
 import MapView from '../../components/MapView';
 

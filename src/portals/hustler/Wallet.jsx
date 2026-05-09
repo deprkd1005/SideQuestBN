@@ -213,7 +213,7 @@ const Wallet = ({ onAnimation }) => {
                   if (isNaN(amt) || amt <= 0 || amt > balance) return;
                   
                   setStage('transferring');
-                  onAnimation('money');
+                  onAnimation('transferring');
                   
                   // Simulate Network Delay
                   setTimeout(() => {

@@ -1,7 +1,9 @@
-import React from 'react';
-import { AlertTriangle, MessageSquare, Flag, Trash2, CheckCircle } from 'lucide-react';
+import React, { useState } from 'react';
+import { AlertTriangle, MessageSquare, Flag, Trash2, CheckCircle, X, ShieldAlert } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 
 const AdminReports = () => {
+  const [selectedReport, setSelectedReport] = useState(null);
   const reports = [
     { id: 1, type: 'Spam', user: 'Zul_99', target: 'Fast Money Job', status: 'Pending', priority: 'High' },
     { id: 2, type: 'Harassment', user: 'Liyana_X', target: 'Chat with Ahmad', status: 'Investigating', priority: 'Critical' },
@@ -51,12 +53,60 @@ const AdminReports = () => {
               Flagged Content: <span style={{ fontWeight: 800, color: 'var(--text-primary)' }}>"{report.target}"</span>
             </div>
             <div style={{ display: 'flex', gap: '10px' }}>
-              <button className="btn-primary" onClick={() => alert(`Taking action on report ${report.id}`)} style={{ flex: 1, height: '44px', background: 'var(--red)', fontSize: '0.85rem' }}>Take Action</button>
+              <button className="btn-primary" onClick={() => setSelectedReport(report)} style={{ flex: 1, height: '44px', background: 'var(--red)', fontSize: '0.85rem' }}>Take Action</button>
               <button className="btn-outline" onClick={() => alert(`Dismissing report ${report.id}`)} style={{ flex: 1, height: '44px', fontSize: '0.85rem' }}>Dismiss</button>
             </div>
           </div>
         ))}
       </div>
+
+      <AnimatePresence>
+        {selectedReport && (
+          <div className="modal-overlay" onClick={() => setSelectedReport(null)}>
+            <motion.div 
+              initial={{ y: '100%' }} animate={{ y: 0 }} exit={{ y: '100%' }}
+              className="bottom-sheet" onClick={e => e.stopPropagation()}
+            >
+              <div className="bottom-sheet-handle" />
+              <div className="flex-between" style={{ marginBottom: '16px' }}>
+                <h3 style={{ fontSize: '1.2rem', fontWeight: 900 }}>Report Details</h3>
+                <button className="btn-ghost" onClick={() => setSelectedReport(null)}><X size={20} /></button>
+              </div>
+
+              <div className="card" style={{ padding: '16px', background: 'var(--bg-tertiary)', marginBottom: '24px', border: '1px solid var(--border-color)' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px' }}>
+                  <ShieldAlert size={24} className="text-red" />
+                  <div>
+                    <h4 style={{ fontSize: '1rem', fontWeight: 800 }}>{selectedReport.type}</h4>
+                    <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', fontWeight: 600 }}>Reported by: {selectedReport.user}</p>
+                  </div>
+                </div>
+
+                <div style={{ padding: '12px', background: 'var(--bg-primary)', borderRadius: '8px', fontSize: '0.85rem', color: 'var(--text-primary)', lineHeight: '1.5', marginBottom: '16px' }}>
+                  <div style={{ fontWeight: 800, color: 'var(--text-muted)', fontSize: '0.7rem', textTransform: 'uppercase', marginBottom: '4px' }}>Target</div>
+                  <span style={{ fontWeight: 800 }}>{selectedReport.target}</span>
+                </div>
+
+                <div style={{ padding: '12px', background: 'var(--bg-primary)', borderRadius: '8px', fontSize: '0.75rem', color: 'var(--text-secondary)', lineHeight: '1.5' }}>
+                  User {selectedReport.user} has reported {selectedReport.target} for violating community guidelines. Our systems indicate this is a {selectedReport.priority} priority issue.
+                </div>
+              </div>
+
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                <button className="btn-primary" onClick={() => { alert('User warned/banned successfully.'); setSelectedReport(null); }} style={{ width: '100%', height: '50px', background: 'var(--red)' }}>
+                  Ban / Warn User
+                </button>
+                <button className="btn-outline" onClick={() => { alert('Content removed.'); setSelectedReport(null); }} style={{ width: '100%', height: '50px', color: 'var(--orange)', borderColor: 'var(--orange-soft)' }}>
+                  Remove Content
+                </button>
+                <button className="btn-ghost" onClick={() => setSelectedReport(null)} style={{ width: '100%', height: '50px', color: 'var(--text-muted)' }}>
+                  Cancel
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };
