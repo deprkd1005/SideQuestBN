@@ -19,7 +19,9 @@ const MapView = ({ jobs, onAccept, mapInstanceRef, searchRadius, userLocation })
     }).setView(center, 13);
     
     mapObjRef.current = map;
-    mapInstanceRef.current = map;
+    if (mapInstanceRef) {
+      mapInstanceRef.current = map;
+    }
 
     L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
       maxZoom: 19,
