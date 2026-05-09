@@ -54,7 +54,7 @@ const MapView = ({ jobs, onAccept, mapInstanceRef, searchRadius, userLocation })
 
   // 2. Update Search Radius Circle
   useEffect(() => {
-    if (!mapObjRef.current) return;
+    if (!mapObjRef.current || !searchRadius) return;
     const center = userLocation || [4.8903, 114.9401];
 
     if (circleRef.current) {
