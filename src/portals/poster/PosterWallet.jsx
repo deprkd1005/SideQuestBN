@@ -36,8 +36,8 @@ const PosterWallet = ({ onAnimation }) => {
       alert('Network error. Please try again.');
       setStage('idle');
     } finally {
-      if (onAnimation) onAnimation(null);
       setTimeout(() => {
+        if (onAnimation) onAnimation(null);
         if (isSuccess) {
           setShowAddFunds(false);
           setStage('idle');

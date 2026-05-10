@@ -284,8 +284,8 @@ const Wallet = ({ onAnimation }) => {
                   alert('Network error. Please try again.');
                   setStage('idle');
                 } finally {
-                  onAnimation(null);
                   setTimeout(() => {
+                    onAnimation(null);
                     if (isSuccess) {
                       setShowWithdraw(false);
                       setStage('idle');
