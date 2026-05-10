@@ -163,27 +163,42 @@ const Wallet = ({ onAnimation }) => {
       {/* Withdraw Sheet */}
       <AnimatePresence>
         {showWithdraw && (
-          <motion.div 
-            key="withdraw-overlay"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="modal-overlay"
-            style={{ zIndex: 9999 }}
-            onClick={() => setShowWithdraw(false)}
-          />
-        )}
-        {showWithdraw && (
-          <motion.div 
-            key="withdraw-sheet"
-            initial={{ y: '100%' }}
-            animate={{ y: 0 }}
-            exit={{ y: '100%' }}
-            transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-            className="bottom-sheet"
-            style={{ zIndex: 10000, position: 'fixed', bottom: 0, left: '50%', transform: 'translateX(-50%)', width: '100%', maxWidth: '480px' }}
-            onClick={e => e.stopPropagation()}
+          <div 
+            style={{ 
+              position: 'fixed', 
+              inset: 0, 
+              zIndex: 9999, 
+              display: 'flex', 
+              alignItems: 'flex-end', 
+              justifyContent: 'center',
+              pointerEvents: 'none'
+            }}
           >
+            <motion.div 
+              key="withdraw-overlay"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="modal-overlay"
+              style={{ position: 'absolute', inset: 0, pointerEvents: 'auto' }}
+              onClick={() => setShowWithdraw(false)}
+            />
+            <motion.div 
+              key="withdraw-sheet"
+              initial={{ y: '100%' }}
+              animate={{ y: 0 }}
+              exit={{ y: '100%' }}
+              transition={{ type: 'spring', damping: 25, stiffness: 200 }}
+              className="bottom-sheet"
+              style={{ 
+                zIndex: 10000, 
+                width: '100%', 
+                maxWidth: '480px', 
+                position: 'relative',
+                pointerEvents: 'auto'
+              }}
+              onClick={e => e.stopPropagation()}
+            >
             <div className="sheet-handle" />
             <h3 style={{ fontSize: '1.25rem', fontWeight: 900, marginBottom: '24px', color: 'var(--text-primary)' }}>Withdraw to Bank</h3>
             
@@ -287,6 +302,7 @@ const Wallet = ({ onAnimation }) => {
               {stage === 'success' && 'Transfer Complete! ✅'}
             </button>
           </motion.div>
+          </div>
         )}
       </AnimatePresence>
 
