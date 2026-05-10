@@ -38,7 +38,7 @@ function App() {
                 initial={{ opacity: 0 }} 
                 animate={{ opacity: 1 }} 
                 exit={{ opacity: 0 }}
-                style={{ position: 'absolute', inset: 0, zIndex: 999999, pointerEvents: 'auto', background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(10px)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                style={{ position: 'fixed', inset: 0, zIndex: 999999, pointerEvents: 'auto', background: 'rgba(0,0,0,0.85)', backdropFilter: 'blur(15px)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
               >
                 {/* Coins falling using basic CSS animation */}
                 <div style={{ position: 'absolute', inset: 0, overflow: 'hidden', pointerEvents: 'none' }}>
@@ -57,10 +57,17 @@ function App() {
                   ))}
                 </div>
                 
-                <motion.div initial={{ scale: 0.5, y: 50 }} animate={{ scale: 1, y: 0 }} style={{ padding: '32px', background: 'white', borderRadius: '32px', boxShadow: '0 20px 60px rgba(0,0,0,0.3)', textAlign: 'center', zIndex: 2, position: 'relative', width: '85%' }}>
-                    <div className="spinner-small" style={{ margin: '0 auto 16px', borderColor: 'var(--emerald)', borderRightColor: 'transparent' }} />
-                    <h2 style={{ fontWeight: 900, fontSize: '1.5rem', color: 'black' }}>Processing...</h2>
-                    <p style={{ color: 'var(--text-muted)', fontWeight: 600, marginTop: '8px' }}>Securing BND Transfer</p>
+                <motion.div initial={{ scale: 0.5, y: 50 }} animate={{ scale: 1, y: 0 }} style={{ padding: '32px', background: 'white', borderRadius: '32px', boxShadow: '0 20px 60px rgba(0,0,0,0.5)', textAlign: 'center', zIndex: 2, position: 'relative', width: '85%' }}>
+                    <div className="spinner-small" style={{ margin: '0 auto 16px', borderColor: 'var(--emerald)', borderRightColor: 'transparent', borderWidth: '4px' }} />
+                    <h2 style={{ fontWeight: 900, fontSize: '1.5rem', color: 'black', marginBottom: '8px' }}>Processing...</h2>
+                    <p style={{ color: 'var(--text-muted)', fontWeight: 600 }}>Securing BND Transfer</p>
+                    
+                    <button 
+                      onClick={() => setGlobalAnimation(null)}
+                      style={{ marginTop: '24px', background: 'var(--bg-tertiary)', border: 'none', padding: '8px 16px', borderRadius: '12px', fontSize: '0.75rem', fontWeight: 800, color: 'var(--text-muted)', cursor: 'pointer' }}
+                    >
+                      Stuck? Click to Cancel
+                    </button>
                 </motion.div>
               </motion.div>
             )}

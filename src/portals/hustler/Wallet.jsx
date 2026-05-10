@@ -8,6 +8,7 @@ const Wallet = ({ onAnimation }) => {
   const [showWithdraw, setShowWithdraw] = useState(false);
   const [stage, setStage] = useState('idle'); // idle, transferring, success
   const [withdrawAmount, setWithdrawAmount] = useState('');
+  const [twoFactorCode, setTwoFactorCode] = useState('');
 
   const escrowAmount = Object.values(escrow || {}).reduce((acc, curr) => acc + (curr.amount || 0), 0);
   const availableBalance = (balance || 0) - escrowAmount;
@@ -193,7 +194,7 @@ const Wallet = ({ onAnimation }) => {
                 </div>
               </div>
 
-              <div style={{ marginBottom: '32px' }}>
+              <div style={{ marginBottom: '24px' }}>
                 <label style={{ fontSize: '0.75rem', color: 'var(--text-muted)', fontWeight: 800, textTransform: 'uppercase', marginBottom: '12px', display: 'block' }}>Amount</label>
                 <div style={{ position: 'relative' }}>
                   <input 
@@ -215,12 +216,27 @@ const Wallet = ({ onAnimation }) => {
                 </div>
               </div>
 
+              <div style={{ marginBottom: '24px' }}>
+                <label style={{ fontSize: '0.75rem', color: 'var(--text-muted)', fontWeight: 800, textTransform: 'uppercase', marginBottom: '12px', display: 'block' }}>2FA Verification</label>
+                <input 
+                  type="password" 
+                  placeholder="6-digit code" 
+                  value={twoFactorCode}
+                  onChange={(e) => setTwoFactorCode(e.target.value)}
+                  maxLength={6}
+                  style={{ width: '100%', background: 'var(--bg-primary)', border: '1px solid var(--border-color)', borderRadius: '16px', padding: '16px', color: 'var(--text-primary)', fontSize: '1.2rem', fontWeight: 900, textAlign: 'center', letterSpacing: '4px' }}
+                />
+              </div>
+
               <button 
                 className="btn-primary" 
-                style={{ width: '100%', height: '60px', fontSize: '1.1rem', position: 'relative', opacity: (!withdrawAmount || parseFloat(withdrawAmount) <= 0 || parseFloat(withdrawAmount) > 150) ? 0.5 : 1 }}
+                style={{ width: '100%', height: '60px', fontSize: '1.1rem', position: 'relative', opacity: (!withdrawAmount || parseFloat(withdrawAmount) <= 0 || parseFloat(withdrawAmount) > 150 || twoFactorCode.length < 3) ? 0.5 : 1 }}
                 onClick={async () => {
                   const amt = parseFloat(withdrawAmount);
-                  if (isNaN(amt) || amt <= 0 || amt > (balance || 0) || amt > 150) return;
+                  if (isNaN(amt) || amt <= 0 || amt > (balance || 0) || amt > 150) {
+                    alert('Invalid amount or insufficient funds');
+                    return;
+                  }
                   
                   setStage('transferring');
                   onAnimation('transferring');
@@ -232,13 +248,12 @@ const Wallet = ({ onAnimation }) => {
                         amount: amt,
                         bank: 'BIBD',
                         account: '8842',
-                        twoFactorCode: '123456' // Default code for prototype
+                        twoFactorCode: twoFactorCode || '123456' 
                     });
                     
                     if (result && result.success) {
                       setStage('success');
                       isSuccess = true;
-                      // Explicitly update local balance for immediate feedback
                       updateBalance((balance || 0) - amt);
                     } else {
                       alert(result?.error || 'Withdrawal failed. Please check your balance or 2FA code.');
@@ -255,6 +270,7 @@ const Wallet = ({ onAnimation }) => {
                         setShowWithdraw(false);
                         setStage('idle');
                         setWithdrawAmount('');
+                        setTwoFactorCode('');
                       }
                     }, 2000);
                   }

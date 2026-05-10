@@ -166,19 +166,27 @@ app.post('/api/pay/topup', (req, res) => {
 app.post('/api/pay/withdraw', (req, res) => {
   const { amount, bank, account, twoFactorCode } = req.body;
   const numAmount = parseFloat(amount);
+  
+  console.log(`Withdrawal attempt: ${numAmount} BND from ${state.user.name} (Balance: ${state.user.balance})`);
+
+  if (isNaN(numAmount) || numAmount <= 0) {
+    return res.status(400).json({ error: 'Invalid amount' });
+  }
 
   // Prototype Override: If code is '123456' or missing, allow it for demo
-  if (twoFactorCode && twoFactorCode !== '123456' && twoFactorCode.length !== 6) {
+  if (twoFactorCode && twoFactorCode !== '123456' && twoFactorCode.length < 3) {
     return res.status(403).json({ error: 'Invalid 2FA Code' });
   }
 
-  if (state.user.balance < numAmount) return res.status(400).json({ error: 'Insufficient funds' });
+  if (state.user.balance < numAmount) {
+    console.error(`Insufficient funds: ${state.user.balance} < ${numAmount}`);
+    return res.status(400).json({ error: 'Insufficient funds' });
+  }
 
-  setTimeout(() => {
-    state.user.balance -= numAmount;
-    const tx = addTx(`Instant Payout via BruPay (${bank})`, -numAmount, 'VERIFIED');
-    res.json({ success: true, newBalance: state.user.balance, txHash: tx.hash });
-  }, 1200);
+  state.user.balance -= numAmount;
+  const tx = addTx(`Withdrawal to ${bank} (${account})`, -numAmount);
+  console.log(`Withdrawal successful. New balance: ${state.user.balance}`);
+  res.json({ success: true, txHash: tx.hash, newBalance: state.user.balance });
 });
 
 // Legacy Top Up (Redirected to Tarus in frontend)
