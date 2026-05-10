@@ -4,14 +4,14 @@ import { Wallet as WalletIcon, ArrowUpCircle, ArrowDownCircle, History, Shield, 
 import { usePayment } from '../../context/PaymentContext';
 
 const Wallet = ({ onAnimation }) => {
-  const { balance, transactions, escrow, updateBalance } = usePayment();
+  const { balance, transactions, escrow, updateBalance, withdraw } = usePayment();
   const [showWithdraw, setShowWithdraw] = useState(false);
   const [stage, setStage] = useState('idle'); // idle, transferring, success
   const [withdrawAmount, setWithdrawAmount] = useState('');
 
-  const escrowAmount = escrow?.pending || 0;
-  const availableBalance = balance - escrowAmount;
-  const recentTransactions = transactions.slice(0, 10);
+  const escrowAmount = Object.values(escrow || {}).reduce((acc, curr) => acc + (curr.amount || 0), 0);
+  const availableBalance = (balance || 0) - escrowAmount;
+  const recentTransactions = Array.isArray(transactions) ? transactions.slice(0, 10) : [];
 
   return (
     <div className="app-content">
@@ -56,7 +56,7 @@ const Wallet = ({ onAnimation }) => {
             <div style={{ fontSize: '0.75rem', opacity: 0.8, marginBottom: '4px', textTransform: 'uppercase', letterSpacing: '1px' }}>Current Balance</div>
             <div style={{ fontSize: '2.4rem', fontWeight: 900, display: 'flex', alignItems: 'baseline', gap: '8px' }}>
               <span style={{ fontSize: '1.2rem', opacity: 0.7 }}>BND</span>
-              {(balance || 0).toFixed(2)}
+              {Number(balance || 0).toFixed(2)}
             </div>
           </div>
 
@@ -83,11 +83,11 @@ const Wallet = ({ onAnimation }) => {
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '24px' }}>
           <div className="card" style={{ padding: '20px' }}>
             <div style={{ fontSize: '0.65rem', color: 'var(--text-muted)', fontWeight: 800, textTransform: 'uppercase', marginBottom: '4px' }}>Available</div>
-            <div style={{ fontSize: '1.2rem', fontWeight: 900 }}>{(availableBalance || 0).toFixed(2)}</div>
+            <div style={{ fontSize: '1.2rem', fontWeight: 900 }}>{Number(availableBalance || 0).toFixed(2)}</div>
           </div>
           <div className="card" style={{ padding: '20px', borderColor: escrowAmount > 0 ? 'var(--orange-soft)' : 'var(--border-color)' }}>
             <div style={{ fontSize: '0.65rem', color: 'var(--text-muted)', fontWeight: 800, textTransform: 'uppercase', marginBottom: '4px' }}>Escrow</div>
-            <div style={{ fontSize: '1.2rem', fontWeight: 900, color: escrowAmount > 0 ? 'var(--orange)' : 'var(--text-primary)' }}>{(escrowAmount || 0).toFixed(2)}</div>
+            <div style={{ fontSize: '1.2rem', fontWeight: 900, color: escrowAmount > 0 ? 'var(--orange)' : 'var(--text-primary)' }}>{Number(escrowAmount || 0).toFixed(2)}</div>
           </div>
         </div>
 
@@ -106,7 +106,7 @@ const Wallet = ({ onAnimation }) => {
               </div>
             </div>
             <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', lineHeight: '1.5', marginBottom: '16px' }}>
-              Funds from <span style={{ color: 'var(--text-primary)', fontWeight: 700 }}>"Express Grocery Delivery"</span> are being held securely. They will release automatically upon completion.
+              Funds from active quests are being held securely. They will release automatically upon completion.
             </p>
             <div style={{ width: '100%', height: '6px', background: 'var(--bg-tertiary)', borderRadius: '3px', overflow: 'hidden' }}>
               <motion.div 
@@ -141,16 +141,21 @@ const Wallet = ({ onAnimation }) => {
               </div>
               <div style={{ flex: 1 }}>
                 <div style={{ fontSize: '0.95rem', fontWeight: 700 }}>{tx.description}</div>
-                <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{new Date(tx.date).toLocaleDateString('en-BN', { day: 'numeric', month: 'short' })} • {tx.type === 'credit' ? 'Payment' : 'Transfer'}</div>
+                <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{tx.date ? new Date(tx.date).toLocaleDateString('en-BN', { day: 'numeric', month: 'short' }) : 'Recent'} • {tx.type === 'credit' ? 'Credit' : 'Debit'}</div>
               </div>
               <div style={{ textAlign: 'right' }}>
                 <div style={{ fontSize: '1rem', fontWeight: 900, color: tx.type === 'credit' ? 'var(--emerald)' : 'white' }}>
-                  {tx.type === 'credit' ? '+' : '-'} {(tx.amount || 0).toFixed(2)}
+                  {tx.type === 'credit' ? '+' : '-'} {Number(tx.amount || 0).toFixed(2)}
                 </div>
                 <div style={{ fontSize: '0.65rem', color: 'var(--text-muted)', fontWeight: 700 }}>BND</div>
               </div>
             </div>
           ))}
+          {recentTransactions.length === 0 && (
+            <div style={{ textAlign: 'center', padding: '32px', color: 'var(--text-muted)' }}>
+              No transactions yet.
+            </div>
+          )}
         </div>
       </div>
 
@@ -213,25 +218,34 @@ const Wallet = ({ onAnimation }) => {
               <button 
                 className="btn-primary" 
                 style={{ width: '100%', height: '60px', fontSize: '1.1rem', position: 'relative', opacity: (!withdrawAmount || parseFloat(withdrawAmount) <= 0 || parseFloat(withdrawAmount) > 150) ? 0.5 : 1 }}
-                onClick={() => {
+                onClick={async () => {
                   const amt = parseFloat(withdrawAmount);
-                  if (isNaN(amt) || amt <= 0 || amt > balance || amt > 150) return;
+                  if (isNaN(amt) || amt <= 0 || amt > (balance || 0) || amt > 150) return;
                   
                   setStage('transferring');
                   onAnimation('transferring');
                   
-                  // Simulate Network Delay
-                  setTimeout(() => {
-                    setStage('success');
-                    updateBalance((balance || 0) - amt);
-                    onAnimation(null);
+                  // Actual Backend Call
+                  try {
+                    await withdraw({
+                        amount: amt,
+                        bank: 'BIBD',
+                        account: '8842',
+                        twoFactorCode: '123456' // Default code for prototype
+                    });
                     
+                    setStage('success');
+                  } catch (err) {
+                    console.error("Withdrawal failed", err);
+                    setStage('idle');
+                  } finally {
+                    onAnimation(null);
                     setTimeout(() => {
                       setShowWithdraw(false);
                       setStage('idle');
                       setWithdrawAmount('');
                     }, 2000);
-                  }, 2500);
+                  }
                 }}
                 disabled={stage !== 'idle'}
               >

@@ -4,33 +4,36 @@ import { Wallet as WalletIcon, ArrowUpCircle, ArrowDownCircle, History, Shield, 
 import { usePayment } from '../../context/PaymentContext';
 
 const PosterWallet = ({ onAnimation }) => {
-  const { balance, transactions, escrow, updateBalance } = usePayment();
+  const { balance, transactions, escrow, updateBalance, topUp } = usePayment();
   const [showAddFunds, setShowAddFunds] = useState(false);
   const [addAmount, setAddAmount] = useState('');
   const [stage, setStage] = useState('idle');
 
-  const escrowAmount = escrow?.pending || 0;
-  const availableBalance = balance - escrowAmount;
-  const recentTransactions = transactions.slice(0, 10);
+  const escrowAmount = Object.values(escrow || {}).reduce((acc, curr) => acc + (curr.amount || 0), 0);
+  const availableBalance = (balance || 0) - escrowAmount;
+  const recentTransactions = Array.isArray(transactions) ? transactions.slice(0, 10) : [];
 
-  const handleAddFunds = () => {
+  const handleAddFunds = async () => {
     const amt = parseFloat(addAmount);
     if (isNaN(amt) || amt <= 0) return;
     
     setStage('transferring');
     if (onAnimation) onAnimation('transferring');
     
-    setTimeout(() => {
+    try {
+      await topUp(amt, 'BIBD');
       setStage('success');
-      updateBalance((balance || 0) + amt);
+    } catch (err) {
+      console.error("Top up failed", err);
+      setStage('idle');
+    } finally {
       if (onAnimation) onAnimation(null);
-      
       setTimeout(() => {
         setShowAddFunds(false);
         setStage('idle');
         setAddAmount('');
       }, 2000);
-    }, 2500);
+    }
   };
 
   return (
@@ -57,7 +60,7 @@ const PosterWallet = ({ onAnimation }) => {
             <div style={{ fontSize: '0.8rem', opacity: 0.8, marginBottom: '4px', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px' }}>Current Balance</div>
             <div style={{ display: 'flex', alignItems: 'baseline', gap: '8px' }}>
               <span style={{ fontSize: '1.2rem', fontWeight: 700, opacity: 0.8 }}>BND</span>
-              <span style={{ fontSize: '2.5rem', fontWeight: 900 }}>{(balance || 0).toFixed(2)}</span>
+              <span style={{ fontSize: '2.5rem', fontWeight: 900 }}>{Number(balance || 0).toFixed(2)}</span>
             </div>
           </div>
 
@@ -74,7 +77,7 @@ const PosterWallet = ({ onAnimation }) => {
                 <CreditCard size={18} />
               </div>
             </div>
-            <div style={{ fontSize: '1.1rem', fontWeight: 800 }}>BND {(availableBalance || 0).toFixed(2)}</div>
+            <div style={{ fontSize: '1.1rem', fontWeight: 800 }}>BND {Number(availableBalance || 0).toFixed(2)}</div>
             <div style={{ fontSize: '0.65rem', color: 'var(--text-secondary)', fontWeight: 600 }}>Spendable</div>
           </div>
           <div className="card" style={{ padding: '16px' }}>
@@ -83,7 +86,7 @@ const PosterWallet = ({ onAnimation }) => {
                 <Shield size={18} />
               </div>
             </div>
-            <div style={{ fontSize: '1.1rem', fontWeight: 800 }}>BND {(escrowAmount || 0).toFixed(2)}</div>
+            <div style={{ fontSize: '1.1rem', fontWeight: 800 }}>BND {Number(escrowAmount || 0).toFixed(2)}</div>
             <div style={{ fontSize: '0.65rem', color: 'var(--text-secondary)', fontWeight: 600 }}>Committed</div>
           </div>
         </div>
@@ -129,12 +132,12 @@ const PosterWallet = ({ onAnimation }) => {
                     </div>
                     <div>
                       <div style={{ fontSize: '0.9rem', fontWeight: 700 }}>{tx.description}</div>
-                      <div style={{ fontSize: '0.7rem', color: 'var(--text-secondary)' }}>{new Date(tx.date).toLocaleDateString()} • {tx.type === 'credit' ? 'Deposit' : 'Payment'}</div>
+                      <div style={{ fontSize: '0.7rem', color: 'var(--text-secondary)' }}>{tx.date ? new Date(tx.date).toLocaleDateString() : 'Recent'} • {tx.type === 'credit' ? 'Deposit' : 'Payment'}</div>
                     </div>
                   </div>
                   <div style={{ textAlign: 'right' }}>
                     <div style={{ fontSize: '0.95rem', fontWeight: 800, color: tx.type === 'credit' ? 'var(--emerald)' : 'var(--red)' }}>
-                      {tx.type === 'credit' ? '+' : '-'} {(tx.amount || 0).toFixed(2)}
+                      {tx.type === 'credit' ? '+' : '-'} {Number(tx.amount || 0).toFixed(2)}
                     </div>
                     <div style={{ fontSize: '0.6rem', color: 'var(--text-muted)' }}>BND</div>
                   </div>

@@ -23,7 +23,7 @@ export const PaymentProvider = ({ children }) => {
       const data = await res.json();
       if (data && data.user) {
         setUser(data.user);
-        setBalance(typeof data.user.balance === 'number' ? data.user.balance : 0);
+        setBalance(data.user.balance !== undefined ? Number(data.user.balance) : 0);
         setWalletInfo({
           cardNumber: data.user.cardNumber || "•••• •••• •••• 0000",
           holder: data.user.name || "User",

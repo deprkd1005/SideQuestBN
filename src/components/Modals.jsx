@@ -164,7 +164,7 @@ export const WithdrawModal = ({ onClose, onWithdraw, balance }) => {
         <div className="input-group">
           <label>Amount (BND)</label>
           <input type="number" placeholder="0.00" value={amount} onChange={e => setAmount(e.target.value)} style={{ fontSize: '1.1rem', fontWeight: 700 }} />
-          <p style={{ fontSize: '0.72rem', color: 'var(--text-muted)', marginTop: '6px' }}>Available: BND {balance.toFixed(2)}</p>
+          <p style={{ fontSize: '0.72rem', color: 'var(--text-muted)', marginTop: '6px' }}>Available: BND {Number(balance || 0).toFixed(2)}</p>
         </div>
 
         <div className="input-group">
