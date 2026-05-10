@@ -20,18 +20,29 @@ const PosterWallet = ({ onAnimation }) => {
     setStage('transferring');
     if (onAnimation) onAnimation('transferring');
     
+    let isSuccess = false;
     try {
-      await topUp(amt, 'BIBD');
-      setStage('success');
+      const result = await topUp(amt, 'BIBD');
+      if (result && result.success) {
+        setStage('success');
+        isSuccess = true;
+        updateBalance((balance || 0) + amt);
+      } else {
+        alert(result?.error || 'Top up failed');
+        setStage('idle');
+      }
     } catch (err) {
       console.error("Top up failed", err);
+      alert('Network error. Please try again.');
       setStage('idle');
     } finally {
       if (onAnimation) onAnimation(null);
       setTimeout(() => {
-        setShowAddFunds(false);
-        setStage('idle');
-        setAddAmount('');
+        if (isSuccess) {
+          setShowAddFunds(false);
+          setStage('idle');
+          setAddAmount('');
+        }
       }, 2000);
     }
   };

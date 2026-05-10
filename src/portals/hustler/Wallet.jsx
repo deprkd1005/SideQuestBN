@@ -226,24 +226,36 @@ const Wallet = ({ onAnimation }) => {
                   onAnimation('transferring');
                   
                   // Actual Backend Call
+                  let isSuccess = false;
                   try {
-                    await withdraw({
+                    const result = await withdraw({
                         amount: amt,
                         bank: 'BIBD',
                         account: '8842',
                         twoFactorCode: '123456' // Default code for prototype
                     });
                     
-                    setStage('success');
+                    if (result && result.success) {
+                      setStage('success');
+                      isSuccess = true;
+                      // Explicitly update local balance for immediate feedback
+                      updateBalance((balance || 0) - amt);
+                    } else {
+                      alert(result?.error || 'Withdrawal failed. Please check your balance or 2FA code.');
+                      setStage('idle');
+                    }
                   } catch (err) {
                     console.error("Withdrawal failed", err);
+                    alert('Network error. Please try again.');
                     setStage('idle');
                   } finally {
                     onAnimation(null);
                     setTimeout(() => {
-                      setShowWithdraw(false);
-                      setStage('idle');
-                      setWithdrawAmount('');
+                      if (isSuccess) {
+                        setShowWithdraw(false);
+                        setStage('idle');
+                        setWithdrawAmount('');
+                      }
                     }, 2000);
                   }
                 }}
