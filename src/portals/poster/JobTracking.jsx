@@ -1,7 +1,7 @@
 import React from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ArrowLeft, User, Star, Clock, Shield, MapPin, CheckCircle, AlertCircle, MessageCircle, Phone } from 'lucide-react';
+import { ArrowLeft, User, Star, Clock, Shield, MapPin, CheckCircle, Check, AlertCircle, MessageCircle, Phone } from 'lucide-react';
 import { usePayment } from '../../context/PaymentContext';
 
 import EscrowFlow from '../../shared/EscrowFlow';
