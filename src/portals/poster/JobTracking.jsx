@@ -4,6 +4,8 @@ import { motion } from 'framer-motion';
 import { ArrowLeft, User, Star, Clock, Shield, MapPin, CheckCircle, AlertCircle, MessageCircle, Phone } from 'lucide-react';
 import { usePayment } from '../../context/PaymentContext';
 
+import EscrowFlow from '../../shared/EscrowFlow';
+
 const JobTracking = () => {
   const { jobId } = useParams();
   const navigate = useNavigate();
@@ -11,11 +13,12 @@ const JobTracking = () => {
   const job = jobs.find(j => j.id === jobId) || jobs[0]; // Fallback for demo
 
   const [timeLeft, setTimeLeft] = React.useState(30);
+  const [isTransferring, setIsTransferring] = React.useState(false);
+  const [isSuccess, setIsSuccess] = React.useState(false);
 
   React.useEffect(() => {
-    if (timeLeft <= 0) {
-      alert('Time expired! Funds automatically released from Escrow.');
-      navigate('/poster');
+    if (timeLeft <= 0 && !isTransferring && !isSuccess) {
+      handleComplete();
       return;
     }
     const timer = setInterval(() => {
@@ -23,6 +26,15 @@ const JobTracking = () => {
     }, 1000);
     return () => clearInterval(timer);
   }, [timeLeft, navigate]);
+
+  const handleComplete = () => {
+    setIsTransferring(true);
+    setTimeout(() => {
+      setIsTransferring(false);
+      setIsSuccess(true);
+      setTimeout(() => navigate('/poster'), 3000);
+    }, 4000);
+  };
 
   const formatTime = (seconds) => {
     const h = Math.floor(seconds / 3600);
@@ -40,7 +52,7 @@ const JobTracking = () => {
   };
 
   return (
-    <div className="app-content" style={{ display: 'flex', flexDirection: 'column', height: '100%', background: 'var(--bg-primary)' }}>
+    <div className="app-content" style={{ display: 'flex', flexDirection: 'column', height: '100%', background: 'var(--bg-primary)', position: 'relative' }}>
       {/* Header */}
       <div style={{ padding: '24px 20px', display: 'flex', alignItems: 'center', gap: '16px', borderBottom: '1px solid var(--border-glass)' }}>
         <button className="card-glass" style={{ width: '40px', height: '40px', borderRadius: '12px', padding: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }} onClick={() => navigate(-1)}>
@@ -116,7 +128,7 @@ const JobTracking = () => {
 
         {/* Action Buttons */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-          <button className="btn-primary" onClick={() => { alert('Task marked as completed! Funds will be released from escrow.'); navigate('/poster'); }} style={{ height: '64px', background: 'var(--orange)', boxShadow: '0 8px 30px var(--orange-glow)', fontSize: '1.1rem' }}>
+          <button className="btn-primary" onClick={handleComplete} style={{ height: '64px', background: 'var(--orange)', boxShadow: '0 8px 30px var(--orange-glow)', fontSize: '1.1rem' }}>
             <CheckCircle size={22} /> Mark as Completed
           </button>
           <button className="btn-outline" style={{ height: '56px', borderColor: 'var(--red-soft)', color: 'var(--red)' }}>
@@ -124,6 +136,36 @@ const JobTracking = () => {
           </button>
         </div>
       </div>
+
+      {/* Animation Overlay */}
+      {isTransferring && (
+        <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.85)', backdropFilter: 'blur(10px)', zIndex: 2000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '24px' }}>
+          <div style={{ width: '100%' }}>
+            <EscrowFlow stage="escrow-to-worker" amount={job.reward} />
+          </div>
+        </div>
+      )}
+
+      {/* Success Overlay Modal */}
+      {isSuccess && (
+        <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, background: 'var(--bg-primary)', zIndex: 1000, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '24px' }}>
+          <div style={{ width: '100%', padding: '24px' }}>
+             <EscrowFlow stage="completed" amount={job.reward} />
+          </div>
+          <motion.div 
+            initial={{ scale: 0, rotate: -45 }}
+            animate={{ scale: 1, rotate: 0 }}
+            transition={{ type: 'spring', damping: 12, stiffness: 200 }}
+            style={{ width: '100px', height: '100px', borderRadius: '50%', background: 'var(--emerald-soft)', color: 'var(--emerald)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+          >
+            <Check size={60} strokeWidth={3} />
+          </motion.div>
+          <div style={{ textAlign: 'center', padding: '0 20px' }}>
+            <h2 style={{ fontSize: '1.6rem', fontWeight: 900, marginBottom: '8px' }}>Payment Released!</h2>
+            <p style={{ color: 'var(--text-muted)', fontWeight: 700 }}>Hafizah has received the funds. 🚀</p>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

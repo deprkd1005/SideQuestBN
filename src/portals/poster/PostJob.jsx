@@ -5,10 +5,14 @@ import { ArrowLeft, MapPin, Calendar, Clock, DollarSign, ChevronRight, Check, In
 import { usePayment } from '../../context/PaymentContext';
 import MapView from '../../components/MapView';
 
+import EscrowFlow from '../../shared/EscrowFlow';
+
 const PostJob = ({ onAnimation }) => {
   const navigate = useNavigate();
   const { postJob, userLocation } = usePayment();
   const [step, setStep] = useState(1);
+  const [isTransferring, setIsTransferring] = useState(false);
+  const [isSuccess, setIsSuccess] = useState(false);
 
   const [jobData, setJobData] = useState({
     title: '',
@@ -18,6 +22,7 @@ const PostJob = ({ onAnimation }) => {
     location: { lat: userLocation?.lat || 4.897, lng: userLocation?.lng || 114.948, address: '' },
     date: '',
     time: '',
+    unit: 'Hours',
     indoor: true
   });
 
@@ -33,20 +38,19 @@ const PostJob = ({ onAnimation }) => {
   const handleNext = () => setStep(s => s + 1);
   const handleBack = () => step > 1 ? setStep(s => s - 1) : navigate(-1);
 
-  const [isSuccess, setIsSuccess] = useState(false);
-
   const handleSubmit = async () => {
-    if (onAnimation) onAnimation('transferring');
+    setIsTransferring(true);
+    // Stage 1: Wallet to Escrow
     setTimeout(async () => {
       try {
         await postJob(jobData);
       } catch (err) {
         console.warn("Backend post failed, proceeding for prototype");
       }
-      if (onAnimation) onAnimation(null);
+      setIsTransferring(false);
       setIsSuccess(true);
-      setTimeout(() => navigate('/poster'), 2500);
-    }, 2000);
+      setTimeout(() => navigate('/poster'), 3000);
+    }, 4000);
   };
 
   const progress = (step / 3) * 100;
@@ -278,9 +282,21 @@ const PostJob = ({ onAnimation }) => {
         )}
       </div>
 
+      {/* Animation Overlay */}
+      {isTransferring && (
+        <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.85)', backdropFilter: 'blur(10px)', zIndex: 2000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '24px' }}>
+          <div style={{ width: '100%' }}>
+            <EscrowFlow stage="wallet-to-escrow" amount={jobData.budget} />
+          </div>
+        </div>
+      )}
+
       {/* Success Overlay Modal */}
       {isSuccess && (
         <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, background: 'var(--bg-primary)', zIndex: 1000, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '24px' }}>
+          <div style={{ width: '100%', padding: '24px' }}>
+             <EscrowFlow stage="escrow-held" amount={jobData.budget} />
+          </div>
           <motion.div 
             initial={{ scale: 0, rotate: -45 }}
             animate={{ scale: 1, rotate: 0 }}

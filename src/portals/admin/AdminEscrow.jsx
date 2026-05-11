@@ -2,12 +2,14 @@ import React, { useState } from 'react';
 import { Shield, Lock, ArrowUpRight, TrendingUp, CheckCircle, FileText, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
+import EscrowFlow from '../../shared/EscrowFlow';
+
 const AdminEscrow = () => {
   const [selectedContract, setSelectedContract] = useState(null);
   const holdings = [
-    { id: 1, job: 'Design Logo', amount: '250.00', status: 'Secured', time: '12h remaining' },
-    { id: 2, job: 'Food Delivery', amount: '15.00', status: 'Pending Release', time: 'Awaiting Poster' },
-    { id: 3, job: 'Mobile App Fix', amount: '1,200.00', status: 'Secured', time: '2 days remaining' }
+    { id: 1, job: 'Design Logo', amount: '250.00', status: 'Secured', time: '12h remaining', stage: 'escrow-held' },
+    { id: 2, job: 'Food Delivery', amount: '15.00', status: 'Pending Release', time: 'Awaiting Poster', stage: 'escrow-to-worker' },
+    { id: 3, job: 'Mobile App Fix', amount: '1,200.00', status: 'Secured', time: '2 days remaining', stage: 'escrow-held' }
   ];
 
   return (
@@ -67,6 +69,10 @@ const AdminEscrow = () => {
               <div className="flex-between" style={{ marginBottom: '16px' }}>
                 <h3 style={{ fontSize: '1.2rem', fontWeight: 900 }}>Smart Contract</h3>
                 <button className="btn-ghost" onClick={() => setSelectedContract(null)}><X size={20} /></button>
+              </div>
+
+              <div style={{ marginBottom: '24px' }}>
+                <EscrowFlow stage={selectedContract.stage} amount={selectedContract.amount} />
               </div>
 
               <div className="card" style={{ padding: '16px', background: 'var(--bg-tertiary)', marginBottom: '24px', border: '1px solid var(--border-color)' }}>
