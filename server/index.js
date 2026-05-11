@@ -19,7 +19,7 @@ let state = {
     name: "TEST USER",
     phone: "+673819498",
     pin: "12345678",
-    balance: 150.00,
+    balance: 500.00,
     cardNumber: "4532 8194 9800 0001",
     role: 'SEEKER', // Initial role, can be toggled or set on login
     bruVerified: true,
@@ -116,7 +116,7 @@ app.post('/api/auth/signup', (req, res) => {
   state.user = {
     name: (name || "Guest").toUpperCase(),
     phone: phone || "0000000",
-    balance: 50.00,
+    balance: 500.00,
     cardNumber: `4532 ${Math.floor(1000 + Math.random() * 8999)} ${Math.floor(1000 + Math.random() * 8999)} ${Math.floor(1000 + Math.random() * 8999)}`,
     role: role,
     bruVerified: isBruVerified,

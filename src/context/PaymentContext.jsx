@@ -6,7 +6,7 @@ export const usePayment = () => useContext(PaymentContext);
 
 export const PaymentProvider = ({ children }) => {
   const [user, setUser] = useState(null);
-  const [balance, setBalance] = useState(5000); // Demo Balance for Prototype
+  const [balance, setBalance] = useState(500); // Demo Balance for Prototype
   const [walletInfo, setWalletInfo] = useState({ cardNumber: "•••• •••• •••• 8842", holder: "DEMO USER" });
   const [jobs, setJobs] = useState([]);
   const [transactions, setTransactions] = useState([]);
