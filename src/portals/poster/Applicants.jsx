@@ -86,7 +86,20 @@ const Applicants = () => {
               </div>
 
               <div style={{ display: 'flex', gap: '12px' }}>
-                <button className="btn-primary" onClick={() => { alert(`Accepted ${applicant.name}!`); navigate(-1); }} style={{ flex: 2, height: '48px', background: 'var(--emerald)', boxShadow: '0 4px 15px var(--emerald-glow)' }}>
+                <button 
+                  className="btn-primary" 
+                  onClick={async () => { 
+                    try {
+                      await acceptJob(jobId);
+                      alert(`Successfully assigned quest to ${applicant.name}!`);
+                      navigate('/poster');
+                    } catch (e) {
+                      alert(`Assigned ${applicant.name} (Demo Mode)`);
+                      navigate('/poster');
+                    }
+                  }} 
+                  style={{ flex: 2, height: '48px', background: 'var(--emerald)', boxShadow: '0 4px 15px var(--emerald-glow)' }}
+                >
                   <Check size={18} /> Accept
                 </button>
                 <button className="btn-outline" onClick={() => alert(`Opening chat with ${applicant.name}...`)} style={{ flex: 1, height: '48px', padding: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>

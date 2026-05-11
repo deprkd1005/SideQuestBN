@@ -19,7 +19,7 @@ const PostJob = ({ onAnimation }) => {
     description: '',
     category: '',
     budget: '',
-    location: { lat: userLocation?.lat || 4.897, lng: userLocation?.lng || 114.948, address: '' },
+    location: userLocation || [4.897, 114.948],
     date: '',
     time: '',
     unit: 'Hours',

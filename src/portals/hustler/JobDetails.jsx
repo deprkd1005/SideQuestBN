@@ -70,14 +70,14 @@ const JobDetails = () => {
             <Calendar size={18} className="text-emerald" />
             <div>
               <div style={{ fontSize: '0.65rem', color: 'var(--text-secondary)', textTransform: 'uppercase' }}>Date</div>
-              <div style={{ fontSize: '0.85rem', fontWeight: 600 }}>{new Date(job.createdAt).toLocaleDateString()}</div>
+              <div style={{ fontSize: '0.85rem', fontWeight: 600 }}>{job.createdAt ? new Date(job.createdAt).toLocaleDateString() : 'Just now'}</div>
             </div>
           </div>
           <div className="card" style={{ padding: '12px', display: 'flex', alignItems: 'center', gap: '10px' }}>
             <MapPin size={18} className="text-emerald" />
             <div>
               <div style={{ fontSize: '0.65rem', color: 'var(--text-secondary)', textTransform: 'uppercase' }}>Location</div>
-              <div style={{ fontSize: '0.85rem', fontWeight: 600 }}>{job.mukim}</div>
+              <div style={{ fontSize: '0.85rem', fontWeight: 600 }}>{job.mukim || 'Brunei-Muara'}</div>
             </div>
           </div>
         </div>
@@ -91,18 +91,18 @@ const JobDetails = () => {
         {/* Description */}
         <h3 style={{ fontSize: '1.1rem', fontWeight: 700, marginBottom: '12px' }}>Task Description</h3>
         <p style={{ fontSize: '0.95rem', color: 'var(--text-secondary)', lineHeight: '1.6', marginBottom: '24px' }}>
-          {job.description}
+          {job.description || 'No description provided.'}
         </p>
 
         {/* Poster Profile */}
         <h3 style={{ fontSize: '1.1rem', fontWeight: 700, marginBottom: '12px' }}>About the Poster</h3>
         <div className="card" style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '24px' }}>
           <div style={{ width: '56px', height: '56px', borderRadius: '16px', background: 'var(--bg-tertiary)', border: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
-            <img src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${job.payer}`} alt="avatar" />
+            <img src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${job.payer || 'User'}`} alt="avatar" />
           </div>
           <div style={{ flex: 1 }}>
             <div className="flex-between">
-              <h4 style={{ fontSize: '1rem', fontWeight: 700 }}>{job.payer}</h4>
+              <h4 style={{ fontSize: '1rem', fontWeight: 700 }}>{job.payer || 'Verified User'}</h4>
               <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
                 <CheckCircle size={14} className="text-emerald" />
                 <span style={{ fontSize: '0.75rem', fontWeight: 600 }}>Verified</span>

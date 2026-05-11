@@ -19,8 +19,11 @@ const HustlerHome = () => {
 
   const handleJobSelect = (job) => {
     setSelectedJob(job);
-    if (mapInstanceRef.current && job.location) {
-      mapInstanceRef.current.setView([job.location.lat, job.location.lng], 15);
+    if (!mapInstanceRef.current) return;
+    
+    const pos = job.coords || (job.location ? [job.location.lat, job.location.lng] : null);
+    if (pos) {
+      mapInstanceRef.current.setView(pos, 15);
     }
   };
 
