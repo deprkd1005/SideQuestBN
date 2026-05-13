@@ -1,0 +1,36 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;900&family=Outfit:wght@400;600;700;800;900&display=swap');
+
+:root {
+  --color-gold: #D4AF37; /* More refined gold for light theme */
+  --color-green: #00A682; /* Slightly deeper green for contrast on white */
+  --color-purple: #6366F1;
+  --color-bg: #FFFFFF;
+  --color-text: #111827;
+  --color-text-dim: #4B5563;
+}
+
+.remotion-root {
+  font-family: 'Inter', sans-serif;
+  color: var(--color-text);
+  background-color: var(--color-bg);
+  overflow: hidden;
+}
+
+.glass-card {
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+}
+
+.glow-text {
+  /* Subtle glow for light theme */
+  text-shadow: 0 0 15px rgba(0, 166, 130, 0.2);
+}
+
+.bokeh-orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(100px);
+  opacity: 0.15;
+}

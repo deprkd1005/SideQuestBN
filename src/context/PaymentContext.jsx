@@ -6,38 +6,43 @@ export const usePayment = () => useContext(PaymentContext);
 
 export const PaymentProvider = ({ children }) => {
   const [user, setUser] = useState(null);
-  const [balance, setBalance] = useState(500); // Demo Balance for Prototype
-  const [walletInfo, setWalletInfo] = useState({ cardNumber: "•••• •••• •••• 8842", holder: "DEMO USER" });
+  const [token, setToken] = useState(localStorage.getItem('sidequest_token'));
+  const [balance, setBalance] = useState(0);
   const [jobs, setJobs] = useState([]);
   const [transactions, setTransactions] = useState([]);
-  const [escrow, setEscrow] = useState({});
-  const [chatSessions, setChatSessions] = useState([]);
-  const [impactStats, setImpactStats] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [userLocation, setUserLocation] = useState([4.9003, 114.9301]); // Default to Gadong for Prototype
+  const [impactStats, setImpactStats] = useState(null);
+
+  const fetchWithAuth = async (url, options = {}) => {
+    const headers = {
+      'Content-Type': 'application/json',
+      ...options.headers,
+    };
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
+    }
+    const baseUrl = 'https://spotty-ways-pull.loca.lt';
+    const res = await fetch(`${baseUrl}${url}`, { ...options, headers });
+    if (res.status === 401 || res.status === 403) {
+      // Handle session expiry
+      logout();
+    }
+    return res;
+  };
 
   const fetchState = async () => {
+    if (!token) {
+      setLoading(false);
+      return;
+    }
     try {
-      const res = await fetch('/api/state');
-      if (!res.ok) throw new Error('Backend unreachable');
-      const data = await res.json();
-      if (data && data.user) {
-        setUser(data.user);
-        setBalance(data.user.balance !== undefined ? Number(data.user.balance) : 0);
-        setWalletInfo({
-          cardNumber: data.user.cardNumber || "•••• •••• •••• 0000",
-          holder: data.user.name || "User",
-          role: data.user.role,
-          bruVerified: !!data.user.bruVerified,
-          icColor: data.user.icColor,
-          icNumber: data.user.icNumber,
-          isAdmin: !!data.user.isAdmin
-        });
+      // In this new architecture, we get user data from login/signup. 
+      // But we can have a profile endpoint. For now, let's just fetch tasks and other shared state.
+      const resTasks = await fetchWithAuth('/api/tasks');
+      if (resTasks.ok) {
+        const tasks = await resTasks.json();
+        setJobs(tasks);
       }
-      if (data && data.jobs) setJobs(data.jobs);
-      if (data && data.transactions) setTransactions(data.transactions);
-      if (data && data.escrow) setEscrow(data.escrow);
-      if (data && data.chat && data.chat.sessions) setChatSessions(data.chat.sessions);
     } catch (err) {
       console.error("Failed to fetch state", err);
     } finally {
@@ -45,16 +50,10 @@ export const PaymentProvider = ({ children }) => {
     }
   };
 
-  useEffect(() => {
-    fetchState();
-    fetchImpactStats();
-    const interval = setInterval(fetchState, 5000); // Poll for updates
-    return () => clearInterval(interval);
-  }, []);
-
   const fetchImpactStats = async () => {
     try {
-      const res = await fetch('/api/impact');
+      const baseUrl = 'https://spotty-ways-pull.loca.lt';
+      const res = await fetch(`${baseUrl}/api/impact`);
       const data = await res.json();
       setImpactStats(data);
     } catch (err) {
@@ -62,124 +61,100 @@ export const PaymentProvider = ({ children }) => {
     }
   };
 
-  const topUp = async (amount, method) => {
-    const res = await fetch('/api/pay/topup', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ amount, method })
-    });
-    const data = await res.json();
-    if (data.success) fetchState();
-    return data;
-  };
-
-  const postJob = async (jobData) => {
-    const res = await fetch('/api/jobs', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(jobData)
-    });
-    const data = await res.json();
-    if (data.success) fetchState();
-    return data;
-  };
-
-  const acceptJob = async (jobId) => {
-    const res = await fetch(`/api/jobs/${jobId}/accept`, { method: 'POST' });
-    const data = await res.json();
-    if (data.success) fetchState();
-    return data;
-  };
-
-  const completeJob = async (jobId) => {
-    const res = await fetch(`/api/jobs/${jobId}/complete`, { method: 'POST' });
-    const data = await res.json();
-    if (data.success) fetchState();
-    return data;
-  };
-
-  const releaseFunds = async (jobId) => {
-    const res = await fetch(`/api/jobs/${jobId}/release`, { method: 'POST' });
-    const data = await res.json();
-    if (data.success) fetchState();
-    return data;
-  };
-
-  const sendMessage = async (sessionId, text) => {
-    const res = await fetch(`/api/chat/${sessionId}`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ text, sender: 'Me' })
-    });
-    const data = await res.json();
-    if (data.success) fetchState();
-    return data;
-  };
-
-  const fetchMessages = async (sessionId) => {
-    const res = await fetch(`/api/chat/${sessionId}`);
-    return await res.json();
-  };
-
-  const withdraw = async (details) => {
-    const res = await fetch('/api/pay/withdraw', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(details)
-    });
-    const data = await res.json();
-    if (data.success) fetchState();
-    return data;
-  };
-
-  const setRole = (newRole) => {
-     setUser(prev => ({ ...prev, role: newRole }));
-  };
-
-  const getAdminUsers = async () => {
-     const res = await fetch('/api/admin/users');
-     return await res.json();
-  };
-
-  const getSystemHealth = async () => {
-     const res = await fetch('/api/admin/system-health');
-     return await res.json();
-  };
-
-  const verifyUser = async (userId) => {
-     const res = await fetch(`/api/admin/users/${userId}/verify`, { method: 'POST' });
-     return await res.json();
-  };
-
-  const signup = async (userData) => {
-    const res = await fetch('/api/auth/signup', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(userData)
-    });
-    const data = await res.json();
-    if (data.success) await fetchState();
-    return data;
-  };
+  useEffect(() => {
+    if (token) {
+      fetchState();
+    } else {
+      setLoading(false);
+    }
+    fetchImpactStats();
+  }, [token]);
 
   const login = async (credentials) => {
-    const res = await fetch('/api/auth/login', {
+    const baseUrl = 'https://spotty-ways-pull.loca.lt';
+    const res = await fetch(`${baseUrl}/api/auth/login`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(credentials)
     });
     const data = await res.json();
-    if (data.success) await fetchState();
+    if (data.success) {
+      setToken(data.token);
+      setUser(data.user);
+      localStorage.setItem('sidequest_token', data.token);
+      localStorage.setItem('sidequest_user', JSON.stringify(data.user));
+    }
+    return data;
+  };
+
+  const signup = async (userData) => {
+    const baseUrl = 'https://spotty-ways-pull.loca.lt';
+    const res = await fetch(`${baseUrl}/api/auth/signup`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(userData)
+    });
+    const data = await res.json();
+    if (data.success) {
+      setToken(data.token);
+      setUser(data.user);
+      localStorage.setItem('sidequest_token', data.token);
+      localStorage.setItem('sidequest_user', JSON.stringify(data.user));
+    }
+    return data;
+  };
+
+  const logout = () => {
+    setToken(null);
+    setUser(null);
+    localStorage.removeItem('sidequest_token');
+    localStorage.removeItem('sidequest_user');
+  };
+
+  // Restore user from localStorage on mount
+  useEffect(() => {
+    const savedUser = localStorage.getItem('sidequest_user');
+    if (savedUser) {
+      setUser(JSON.parse(savedUser));
+    }
+  }, []);
+
+  const postTask = async (taskData) => {
+    const res = await fetchWithAuth('/api/tasks', {
+      method: 'POST',
+      body: JSON.stringify(taskData)
+    });
+    const data = await res.json();
+    if (data.success) fetchState();
+    return data;
+  };
+
+  const acceptTask = async (taskId) => {
+    const res = await fetchWithAuth(`/api/tasks/${taskId}/accept`, { method: 'POST' });
+    const data = await res.json();
+    if (data.success) fetchState();
+    return data;
+  };
+
+  const completeTask = async (taskId) => {
+    const res = await fetchWithAuth(`/api/tasks/${taskId}/complete`, { method: 'POST' });
+    const data = await res.json();
+    if (data.success) fetchState();
+    return data;
+  };
+
+  const releasePayment = async (taskId) => {
+    const res = await fetchWithAuth(`/api/tasks/${taskId}/release`, { method: 'POST' });
+    const data = await res.json();
+    if (data.success) fetchState();
     return data;
   };
 
   return (
     <PaymentContext.Provider value={{
-      user, balance, setBalance, walletInfo, jobs, transactions, escrow, chatSessions, loading, impactStats, userLocation, setUserLocation,
-      topUp, postJob, acceptJob, completeJob, releaseFunds, withdraw, sendMessage, fetchMessages, signup, login, refresh: fetchState, 
-      fetchImpactStats, setRole, getAdminUsers, getSystemHealth, verifyUser, updateBalance: setBalance
+      user, token, balance, jobs, transactions, loading, impactStats,
+      login, signup, logout, postTask, acceptTask, completeTask, releasePayment, refresh: fetchState
     }}>
-
       {children}
     </PaymentContext.Provider>
   );

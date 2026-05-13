@@ -1,17 +1,14 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowLeft, MapPin, Calendar, Clock, DollarSign, ChevronRight, Check, Info, Home, Sun, Navigation, Shield } from 'lucide-react';
+import { ArrowLeft, MapPin, Check, ChevronRight, Shield, Info } from 'lucide-react';
 import { usePayment } from '../../context/PaymentContext';
-import MapView from '../../components/MapView';
 
-import EscrowFlow from '../../shared/EscrowFlow';
-
-const PostJob = ({ onAnimation }) => {
+const PostJob = () => {
   const navigate = useNavigate();
-  const { postJob, userLocation } = usePayment();
+  const { postTask } = usePayment();
   const [step, setStep] = useState(1);
-  const [isTransferring, setIsTransferring] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
 
   const [jobData, setJobData] = useState({
@@ -19,11 +16,7 @@ const PostJob = ({ onAnimation }) => {
     description: '',
     category: '',
     budget: '',
-    location: userLocation || [4.897, 114.948],
-    date: '',
-    time: '',
-    unit: 'Hours',
-    indoor: true
+    location: ''
   });
 
   const categories = [
@@ -32,52 +25,53 @@ const PostJob = ({ onAnimation }) => {
     { id: 'gardening', label: 'Gardening', icon: '🌿' },
     { id: 'moving', label: 'Moving', icon: '🚛' },
     { id: 'repair', label: 'Repair', icon: '🔧' },
-    { id: 'event', label: 'Event Help', icon: '🎉' }
+    { id: 'creative', label: 'Creative', icon: '🎨' }
   ];
 
   const handleNext = () => setStep(s => s + 1);
   const handleBack = () => step > 1 ? setStep(s => s - 1) : navigate(-1);
 
   const handleSubmit = async () => {
-    setIsTransferring(true);
-    // Stage 1: Wallet to Escrow
-    setTimeout(async () => {
-      try {
-        await postJob(jobData);
-      } catch (err) {
-        console.warn("Backend post failed, proceeding for prototype");
+    setIsLoading(true);
+    try {
+      const result = await postTask(jobData);
+      if (result.success) {
+        setIsSuccess(true);
+        setTimeout(() => navigate('/poster'), 3000);
+      } else {
+        alert(result.error || 'Failed to post task');
       }
-      setIsTransferring(false);
-      setIsSuccess(true);
-      setTimeout(() => navigate('/poster'), 3000);
-    }, 4000);
+    } catch (err) {
+      alert('Error connecting to server');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const progress = (step / 3) * 100;
 
   return (
-    <div className="app-content no-pad" style={{ display: 'flex', flexDirection: 'column', height: '100%', background: 'var(--bg-primary)', position: 'relative' }}>
-      {/* Header Overlay */}
+    <div className="app-content no-scrollbar" style={{ background: 'var(--bg-primary)' }}>
+      {/* Header */}
       <div style={{ padding: '24px 20px', display: 'flex', alignItems: 'center', gap: '16px' }}>
-        <button className="card-glass" style={{ width: '40px', height: '40px', borderRadius: '12px', padding: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }} onClick={handleBack}>
-          <ArrowLeft size={20} />
+        <button className="btn-ghost" onClick={handleBack}>
+          <ArrowLeft size={24} />
         </button>
-        <h1 style={{ fontSize: '1.25rem', fontWeight: 900 }}>Post a Task</h1>
+        <h1 style={{ fontSize: '1.4rem', fontWeight: 900, fontFamily: 'Outfit' }}>Post a SideQuest</h1>
       </div>
 
-      {/* Progress Indicator */}
-      <div style={{ padding: '0 20px 24px' }}>
-        <div style={{ height: '6px', width: '100%', background: 'var(--bg-tertiary)', borderRadius: '3px', overflow: 'hidden' }}>
+      {/* Progress */}
+      <div style={{ padding: '0 24px 24px' }}>
+        <div style={{ height: '6px', width: '100%', background: 'var(--bg-card)', borderRadius: '3px', overflow: 'hidden' }}>
           <motion.div 
             initial={{ width: 0 }}
             animate={{ width: `${progress}%` }}
-            style={{ height: '100%', background: 'var(--orange)', boxShadow: '0 0 15px var(--orange-glow)' }}
+            style={{ height: '100%', background: 'var(--emerald)', boxShadow: '0 0 15px var(--emerald-glow)' }}
           />
         </div>
       </div>
 
-      {/* Form Content */}
-      <div style={{ flex: 1, padding: '0 20px 24px', overflowY: 'auto' }} className="no-scrollbar">
+      <div style={{ flex: 1, padding: '0 24px 100px' }}>
         <AnimatePresence mode="wait">
           {step === 1 && (
             <motion.div 
@@ -86,48 +80,49 @@ const PostJob = ({ onAnimation }) => {
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: -20 }}
             >
-              <h2 className="section-title" style={{ fontSize: '1.4rem' }}>Task Details</h2>
-              <p className="section-subtitle">What help do you need today?</p>
+              <h2 style={{ fontSize: '1.6rem', fontWeight: 800, marginBottom: '8px' }}>Task Details</h2>
+              <p style={{ color: 'var(--text-secondary)', marginBottom: '32px', fontWeight: 500 }}>What help do you need today?</p>
 
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '32px' }}>
                 {categories.map(cat => (
-                  <div 
+                  <button 
                     key={cat.id}
                     onClick={() => setJobData({...jobData, category: cat.label})}
-                    className="card"
                     style={{ 
                       padding: '20px 12px', 
-                      textAlign: 'center',
-                      borderColor: jobData.category === cat.label ? 'var(--orange)' : 'var(--border-color)',
-                      background: jobData.category === cat.label ? 'var(--orange-soft)' : 'var(--bg-secondary)',
-                      transition: 'all 0.2s'
+                      borderRadius: '20px',
+                      border: '1.5px solid',
+                      borderColor: jobData.category === cat.label ? 'var(--emerald)' : 'var(--border-glass)',
+                      background: jobData.category === cat.label ? 'var(--emerald-soft)' : 'var(--bg-card)',
+                      transition: 'all 0.2s',
+                      cursor: 'pointer',
+                      color: 'var(--text-primary)'
                     }}
                   >
-                    <div style={{ fontSize: '1.8rem', marginBottom: '8px' }}>{cat.icon}</div>
-                    <div style={{ fontSize: '0.85rem', fontWeight: 800 }}>{cat.label}</div>
-                  </div>
+                    <div style={{ fontSize: '2rem', marginBottom: '8px' }}>{cat.icon}</div>
+                    <div style={{ fontSize: '0.9rem', fontWeight: 800 }}>{cat.label}</div>
+                  </button>
                 ))}
               </div>
 
-              <div style={{ marginBottom: '24px' }}>
-                <label style={{ fontSize: '0.75rem', fontWeight: 800, color: 'var(--text-muted)', textTransform: 'uppercase', marginBottom: '8px', display: 'block' }}>Job Title</label>
+              <div className="input-group">
+                <label>Job Title</label>
                 <input 
                   type="text" 
                   placeholder="e.g. Grass cutting for back garden" 
                   value={jobData.title}
                   onChange={(e) => setJobData({...jobData, title: e.target.value})}
-                  style={{ width: '100%', background: 'var(--bg-secondary)', border: '1px solid var(--border-color)', borderRadius: '16px', padding: '16px', color: 'var(--text-primary)', fontWeight: 600 }}
                 />
               </div>
 
-              <div style={{ marginBottom: '24px' }}>
-                <label style={{ fontSize: '0.75rem', fontWeight: 800, color: 'var(--text-muted)', textTransform: 'uppercase', marginBottom: '8px', display: 'block' }}>Description</label>
+              <div className="input-group">
+                <label>Description</label>
                 <textarea 
                   placeholder="Provide more details about the work..." 
                   value={jobData.description}
                   onChange={(e) => setJobData({...jobData, description: e.target.value})}
                   rows={4}
-                  style={{ width: '100%', background: 'var(--bg-secondary)', border: '1px solid var(--border-color)', borderRadius: '16px', padding: '16px', color: 'var(--text-primary)', fontWeight: 600, resize: 'none' }}
+                  style={{ width: '100%', background: 'var(--bg-secondary)', border: '1.5px solid var(--border-glass)', borderRadius: '16px', padding: '16px', color: 'var(--text-primary)', resize: 'none' }}
                 />
               </div>
             </motion.div>
@@ -140,80 +135,28 @@ const PostJob = ({ onAnimation }) => {
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: -20 }}
             >
-              <h2 className="section-title" style={{ fontSize: '1.4rem' }}>Location & Time</h2>
-              <p className="section-subtitle">Where and when should they arrive?</p>
+              <h2 style={{ fontSize: '1.6rem', fontWeight: 800, marginBottom: '8px' }}>Location</h2>
+              <p style={{ color: 'var(--text-secondary)', marginBottom: '32px', fontWeight: 500 }}>Where should the provider go?</p>
 
-              <div className="card" style={{ padding: '0', overflow: 'hidden', height: '220px', marginBottom: '24px', position: 'relative', border: '1px solid var(--border-glass)' }}>
-                <MapView 
-                  jobs={[]} 
-                  userLocation={jobData.location}
-                  interactive={true}
-                />
-                <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -100%)', pointerEvents: 'none', zIndex: 1000 }}>
-                  <MapPin size={36} color="var(--orange)" fill="var(--orange-soft)" strokeWidth={2.5} />
-                </div>
-                <div style={{ position: 'absolute', bottom: '12px', left: '12px', right: '12px', zIndex: 1000 }}>
-                  <div className="card-glass" style={{ padding: '10px 16px', borderRadius: '12px', fontSize: '0.8rem', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    <Navigation size={14} className="text-orange" />
-                    <span style={{ fontWeight: 600 }}>Drag map to pin location</span>
-                  </div>
+              <div className="input-group">
+                <label>Address / District</label>
+                <div style={{ position: 'relative' }}>
+                  <MapPin size={18} className="text-muted" style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)' }} />
+                  <input 
+                    type="text" 
+                    placeholder="e.g. Gadong, Brunei-Muara" 
+                    value={jobData.location}
+                    onChange={(e) => setJobData({...jobData, location: e.target.value})}
+                    style={{ paddingLeft: '48px' }}
+                  />
                 </div>
               </div>
 
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '24px' }}>
-                <div 
-                  onClick={() => setJobData({...jobData, indoor: true})}
-                  className="card"
-                  style={{ 
-                    padding: '16px', 
-                    display: 'flex', 
-                    flexDirection: 'column',
-                    alignItems: 'center',
-                    gap: '8px',
-                    borderColor: jobData.indoor ? 'var(--orange)' : 'var(--border-color)',
-                    background: jobData.indoor ? 'var(--orange-soft)' : 'var(--bg-secondary)'
-                  }}
-                >
-                  <Home size={24} color={jobData.indoor ? 'var(--orange)' : 'var(--text-muted)'} />
-                  <span style={{ fontSize: '0.85rem', fontWeight: 800 }}>Indoor</span>
-                </div>
-                <div 
-                  onClick={() => setJobData({...jobData, indoor: false})}
-                  className="card"
-                  style={{ 
-                    padding: '16px', 
-                    display: 'flex', 
-                    flexDirection: 'column',
-                    alignItems: 'center',
-                    gap: '8px',
-                    borderColor: !jobData.indoor ? 'var(--orange)' : 'var(--border-color)',
-                    background: !jobData.indoor ? 'var(--orange-soft)' : 'var(--bg-secondary)'
-                  }}
-                >
-                  <Sun size={24} color={!jobData.indoor ? 'var(--orange)' : 'var(--text-muted)'} />
-                  <span style={{ fontSize: '0.85rem', fontWeight: 800 }}>Outdoor</span>
-                </div>
-              </div>
-
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
-                <div>
-                  <label style={{ fontSize: '0.75rem', fontWeight: 800, color: 'var(--text-muted)', textTransform: 'uppercase', marginBottom: '8px', display: 'block' }}>Date</label>
-                  <input 
-                    type="date" 
-                    value={jobData.date}
-                    onChange={(e) => setJobData({...jobData, date: e.target.value})}
-                    style={{ width: '100%', background: 'var(--bg-secondary)', border: '1px solid var(--border-color)', borderRadius: '16px', padding: '16px', color: 'var(--text-primary)', fontWeight: 600 }}
-                  />
-                </div>
-                <div>
-                  <label style={{ fontSize: '0.75rem', fontWeight: 800, color: 'var(--text-muted)', textTransform: 'uppercase', marginBottom: '8px', display: 'block' }}>Time</label>
-                  <input 
-                    type="time" 
-                    value={jobData.time}
-                    onChange={(e) => setJobData({...jobData, time: e.target.value})}
-                    style={{ width: '100%', background: 'var(--bg-secondary)', border: '1px solid var(--border-color)', borderRadius: '16px', padding: '16px', color: 'var(--text-primary)', fontWeight: 600 }}
-                  />
-                </div>
+              <div className="card-glass" style={{ display: 'flex', gap: '16px', marginTop: '40px' }}>
+                <Info className="text-emerald" size={24} style={{ flexShrink: 0 }} />
+                <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', lineHeight: 1.5 }}>
+                  Ensure the location is accurate to help providers find you easily.
+                </p>
               </div>
             </motion.div>
           )}
@@ -225,32 +168,31 @@ const PostJob = ({ onAnimation }) => {
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: -20 }}
             >
-              <h2 className="section-title" style={{ fontSize: '1.4rem' }}>Budget & Trust</h2>
-              <p className="section-subtitle">Secure payment via SideQuest Escrow</p>
+              <h2 style={{ fontSize: '1.6rem', fontWeight: 800, marginBottom: '8px' }}>Budget & Trust</h2>
+              <p style={{ color: 'var(--text-secondary)', marginBottom: '32px', fontWeight: 500 }}>Secure payment via SideQuest Escrow</p>
 
-              <div className="card-glass" style={{ textAlign: 'center', padding: '40px 24px', marginBottom: '32px', borderColor: 'var(--orange-soft)' }}>
+              <div className="card-glass" style={{ textAlign: 'center', padding: '48px 24px', marginBottom: '32px', borderColor: 'var(--emerald-glow)' }}>
                 <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', fontWeight: 800, textTransform: 'uppercase', marginBottom: '16px' }}>Your Offer</div>
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '12px' }}>
-                  <span style={{ fontSize: '1.8rem', fontWeight: 900, color: 'var(--text-secondary)' }}>BND</span>
+                  <span style={{ fontSize: '2rem', fontWeight: 900, color: 'var(--text-muted)' }}>BND</span>
                   <input 
                     type="number" 
                     placeholder="0"
                     value={jobData.budget}
                     onChange={(e) => setJobData({...jobData, budget: e.target.value})}
-                    style={{ background: 'none', border: 'none', fontSize: '4.5rem', fontWeight: 900, color: 'var(--orange)', width: '160px', textAlign: 'center', outline: 'none' }}
+                    style={{ background: 'none', border: 'none', fontSize: '5rem', fontWeight: 900, color: 'var(--emerald)', width: '180px', textAlign: 'center', outline: 'none' }}
                   />
                 </div>
-                <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginTop: '8px' }}>Average for {jobData.category}: BND 25.00</div>
               </div>
 
-              <div className="card" style={{ display: 'flex', gap: '16px', background: 'var(--bg-secondary)', border: '1px solid var(--border-color)', padding: '20px' }}>
-                <div style={{ width: '44px', height: '44px', borderRadius: '12px', background: 'var(--emerald-soft)', color: 'var(--emerald)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+              <div className="card" style={{ display: 'flex', gap: '16px', border: '1px solid var(--border-color)', padding: '24px' }}>
+                <div style={{ width: '48px', height: '48px', borderRadius: '14px', background: 'var(--emerald-soft)', color: 'var(--emerald)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                   <Shield size={24} />
                 </div>
                 <div>
-                  <h4 style={{ fontSize: '0.95rem', fontWeight: 800, marginBottom: '4px' }}>Escrow Protected</h4>
-                  <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', lineHeight: '1.5' }}>
-                    Payment is held securely and only released when the job is marked complete. If they don't finish, you get a refund.
+                  <h4 style={{ fontSize: '1rem', fontWeight: 800, marginBottom: '4px' }}>Escrow Protected</h4>
+                  <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', lineHeight: '1.6' }}>
+                    Payment is held securely and only released when you confirm the job is complete.
                   </p>
                 </div>
               </div>
@@ -259,14 +201,14 @@ const PostJob = ({ onAnimation }) => {
         </AnimatePresence>
       </div>
 
-      {/* Footer Actions */}
-      <div style={{ padding: '20px 24px calc(var(--nav-height) + 20px)', background: 'var(--bg-glass-strong)', borderTop: '1px solid var(--border-glass)' }}>
+      {/* Footer */}
+      <div style={{ position: 'absolute', bottom: 'calc(var(--nav-height) + 20px)', left: '24px', right: '24px' }}>
         {step < 3 ? (
           <button 
             className="btn-primary" 
             onClick={handleNext}
             disabled={step === 1 && (!jobData.title || !jobData.category)}
-            style={{ width: '100%', height: '60px', background: 'var(--orange)', boxShadow: '0 8px 30px var(--orange-glow)', fontSize: '1.1rem' }}
+            style={{ width: '100%', height: '64px', fontSize: '1.1rem' }}
           >
             Continue <ChevronRight size={22} strokeWidth={3} />
           </button>
@@ -274,43 +216,38 @@ const PostJob = ({ onAnimation }) => {
           <button 
             className="btn-primary" 
             onClick={handleSubmit}
-            disabled={!jobData.budget}
-            style={{ width: '100%', height: '60px', background: 'var(--orange)', boxShadow: '0 8px 30px var(--orange-glow)', fontSize: '1.1rem' }}
+            disabled={!jobData.budget || isLoading}
+            style={{ width: '100%', height: '64px', fontSize: '1.1rem' }}
           >
-            Confirm & Post Task <Check size={22} strokeWidth={3} />
+            {isLoading ? 'Posting...' : 'Confirm & Post Task'}
+            {!isLoading && <Check size={22} strokeWidth={3} />}
           </button>
         )}
       </div>
 
-      {/* Animation Overlay */}
-      {isTransferring && (
-        <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.85)', backdropFilter: 'blur(10px)', zIndex: 2000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '24px' }}>
-          <div style={{ width: '100%' }}>
-            <EscrowFlow stage="wallet-to-escrow" amount={jobData.budget} />
-          </div>
-        </div>
-      )}
-
-      {/* Success Overlay Modal */}
-      {isSuccess && (
-        <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, background: 'var(--bg-primary)', zIndex: 1000, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '24px' }}>
-          <div style={{ width: '100%', padding: '24px' }}>
-             <EscrowFlow stage="escrow-held" amount={jobData.budget} />
-          </div>
+      {/* Success Modal */}
+      <AnimatePresence>
+        {isSuccess && (
           <motion.div 
-            initial={{ scale: 0, rotate: -45 }}
-            animate={{ scale: 1, rotate: 0 }}
-            transition={{ type: 'spring', damping: 12, stiffness: 200 }}
-            style={{ width: '100px', height: '100px', borderRadius: '50%', background: 'var(--orange-soft)', color: 'var(--orange)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            style={{ position: 'absolute', inset: 0, background: 'var(--bg-primary)', zIndex: 1000, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '24px' }}
           >
-            <Check size={60} strokeWidth={3} />
+            <motion.div 
+              initial={{ scale: 0 }}
+              animate={{ scale: 1 }}
+              transition={{ type: 'spring', damping: 12 }}
+              style={{ width: '100px', height: '100px', borderRadius: '50%', background: 'var(--emerald-soft)', color: 'var(--emerald)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+            >
+              <Check size={60} strokeWidth={3} />
+            </motion.div>
+            <div style={{ textAlign: 'center' }}>
+              <h2 style={{ fontSize: '1.8rem', fontWeight: 900, marginBottom: '8px' }}>Task Posted!</h2>
+              <p style={{ color: 'var(--text-muted)', fontWeight: 700 }}>Hustlers are being notified. 🚀</p>
+            </div>
           </motion.div>
-          <div style={{ textAlign: 'center', padding: '0 20px' }}>
-            <h2 style={{ fontSize: '1.6rem', fontWeight: 900, marginBottom: '8px' }}>Task Successfully Posted!</h2>
-            <p style={{ color: 'var(--text-muted)', fontWeight: 700 }}>Hustlers will be notified soon. 🚀</p>
-          </div>
-        </div>
-      )}
+        )}
+      </AnimatePresence>
     </div>
   );
 };

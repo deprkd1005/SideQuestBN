@@ -1,156 +1,255 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
-import { Phone, Lock, ChevronRight, UserPlus, LogIn, ShieldCheck } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Mail, Lock, User, Phone, ChevronRight, ShieldCheck, Briefcase, UserCircle } from 'lucide-react';
 import { usePayment } from '../context/PaymentContext';
 
 const Auth = () => {
   const navigate = useNavigate();
-  const { login } = usePayment();
+  const { login, signup } = usePayment();
   const [mode, setMode] = useState('login'); // login or register
-  const [phone, setPhone] = useState('');
-  const [pin, setPin] = useState('');
-  const [name, setName] = useState('');
-  const [icNumber, setIcNumber] = useState('');
+  const [formData, setFormData] = useState({
+    email: '',
+    password: '',
+    fullname: '',
+    phone_number: '',
+    role: 'customer'
+  });
+  const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+
+  const handleInputChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
+    setError('');
     
-    // Prototype: Just wait 1s and redirect to Portal Selector
-    setTimeout(() => {
+    try {
+      let result;
+      if (mode === 'login') {
+        result = await login({ email: formData.email, password: formData.password });
+      } else {
+        result = await signup(formData);
+      }
+
+      if (result.success) {
+        // Redirect based on role
+        const role = result.user.role;
+        if (role === 'admin') navigate('/admin');
+        else if (role === 'provider') navigate('/hustler');
+        else navigate('/poster');
+      } else {
+        setError(result.error || 'Authentication failed');
+      }
+    } catch (err) {
+      setError('Connection error. Please try again.');
+    } finally {
       setIsLoading(false);
-      navigate('/select');
-    }, 1500);
+    }
   };
 
   return (
-    <div className="app-container" style={{ background: 'var(--bg-secondary)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-      <div className="app-content flex-center" style={{ padding: '40px 24px', width: '100%', maxWidth: '400px' }}>
+    <div className="app-container">
+      <div className="auth-view no-scrollbar">
         <motion.div 
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
-          style={{ textAlign: 'center', marginBottom: '48px' }}
+          style={{ textAlign: 'center', marginBottom: '40px' }}
         >
-          <div style={{ width: '80px', height: '80px', background: 'var(--orange-soft)', borderRadius: '24px', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 24px' }}>
-            <ShieldCheck size={48} className="text-orange" />
+          <div className="flex-center" style={{ marginBottom: '16px' }}>
+            <div style={{ width: '64px', height: '64px', background: 'var(--emerald-soft)', borderRadius: '18px', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid var(--emerald-glow)' }}>
+              <ShieldCheck size={32} className="text-emerald" />
+            </div>
           </div>
-          <h1 style={{ fontSize: '2rem', fontWeight: 900, marginBottom: '8px', color: 'var(--text-primary)' }}>SideQuest.BN</h1>
-          <p style={{ color: 'var(--text-secondary)', fontWeight: 600 }}>Brunei's Premier Escrow-Backed Gig Economy</p>
+          <h1 className="auth-logo">SideQuest.BN</h1>
+          <p style={{ color: 'var(--text-secondary)', fontWeight: 600, fontSize: '0.9rem' }}>Trust. Security. Efficiency.</p>
         </motion.div>
 
-        <div className="card" style={{ width: '100%', padding: '32px 24px' }}>
-          <div style={{ display: 'flex', gap: '24px', marginBottom: '32px', borderBottom: '1px solid var(--border-color)' }}>
+        <motion.div 
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="card-glass"
+          style={{ padding: '32px 24px' }}
+        >
+          <div style={{ display: 'flex', gap: '24px', marginBottom: '32px', borderBottom: '1px solid var(--border-glass)' }}>
             <button 
               onClick={() => setMode('login')}
-              style={{ paddingBottom: '12px', borderBottom: mode === 'login' ? '2px solid var(--orange)' : 'none', background: 'none', border: 'none', color: mode === 'login' ? 'var(--text-primary)' : 'var(--text-muted)', fontWeight: 800, fontSize: '1rem', cursor: 'pointer' }}
+              style={{ 
+                paddingBottom: '12px', 
+                borderBottom: mode === 'login' ? '2px solid var(--emerald)' : 'none', 
+                background: 'none', 
+                border: 'none', 
+                color: mode === 'login' ? 'var(--text-primary)' : 'var(--text-muted)', 
+                fontWeight: 700, 
+                fontSize: '1rem', 
+                cursor: 'pointer' 
+              }}
             >
-              Login
+              Sign In
             </button>
             <button 
               onClick={() => setMode('register')}
-              style={{ paddingBottom: '12px', borderBottom: mode === 'register' ? '2px solid var(--orange)' : 'none', background: 'none', border: 'none', color: mode === 'register' ? 'var(--text-primary)' : 'var(--text-muted)', fontWeight: 800, fontSize: '1rem', cursor: 'pointer' }}
+              style={{ 
+                paddingBottom: '12px', 
+                borderBottom: mode === 'register' ? '2px solid var(--emerald)' : 'none', 
+                background: 'none', 
+                border: 'none', 
+                color: mode === 'register' ? 'var(--text-primary)' : 'var(--text-muted)', 
+                fontWeight: 700, 
+                fontSize: '1rem', 
+                cursor: 'pointer' 
+              }}
             >
-              Register
+              Join
             </button>
           </div>
 
-          <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+          {error && (
+            <motion.div 
+              initial={{ opacity: 0, x: -10 }} 
+              animate={{ opacity: 1, x: 0 }}
+              style={{ padding: '12px', background: 'rgba(239, 68, 68, 0.1)', border: '1px solid var(--red)', borderRadius: '12px', color: 'var(--red)', fontSize: '0.85rem', marginBottom: '20px', textAlign: 'center' }}
+            >
+              {error}
+            </motion.div>
+          )}
+
+          <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+            {mode === 'register' && (
+              <>
+                <div className="input-group">
+                  <label>Full Name</label>
+                  <div style={{ position: 'relative' }}>
+                    <User size={18} className="text-muted" style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)' }} />
+                    <input 
+                      type="text" 
+                      name="fullname"
+                      placeholder="e.g. Awang Ali" 
+                      value={formData.fullname}
+                      onChange={handleInputChange}
+                      style={{ paddingLeft: '48px' }}
+                      required
+                    />
+                  </div>
+                </div>
+
+                <div className="input-group">
+                  <label>Account Role</label>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                    <button
+                      type="button"
+                      onClick={() => setFormData({...formData, role: 'customer'})}
+                      style={{
+                        padding: '12px',
+                        borderRadius: '12px',
+                        border: '1.5px solid',
+                        borderColor: formData.role === 'customer' ? 'var(--emerald)' : 'var(--border-glass)',
+                        background: formData.role === 'customer' ? 'var(--emerald-soft)' : 'var(--bg-secondary)',
+                        color: formData.role === 'customer' ? 'var(--emerald)' : 'var(--text-secondary)',
+                        cursor: 'pointer',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        alignItems: 'center',
+                        gap: '4px',
+                        transition: '0.2s'
+                      }}
+                    >
+                      <UserCircle size={20} />
+                      <span style={{ fontSize: '0.75rem', fontWeight: 700 }}>Customer</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setFormData({...formData, role: 'provider'})}
+                      style={{
+                        padding: '12px',
+                        borderRadius: '12px',
+                        border: '1.5px solid',
+                        borderColor: formData.role === 'provider' ? 'var(--gold)' : 'var(--border-glass)',
+                        background: formData.role === 'provider' ? 'var(--gold-soft)' : 'var(--bg-secondary)',
+                        color: formData.role === 'provider' ? 'var(--gold)' : 'var(--text-secondary)',
+                        cursor: 'pointer',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        alignItems: 'center',
+                        gap: '4px',
+                        transition: '0.2s'
+                      }}
+                    >
+                      <Briefcase size={20} />
+                      <span style={{ fontSize: '0.75rem', fontWeight: 700 }}>Provider</span>
+                    </button>
+                  </div>
+                </div>
+              </>
+            )}
+
             <div className="input-group">
-              <label style={{ fontSize: '0.75rem', fontWeight: 800, color: 'var(--text-muted)', textTransform: 'uppercase', marginBottom: '8px', display: 'block' }}>Phone Number</label>
+              <label>Email Address</label>
               <div style={{ position: 'relative' }}>
-                <Phone size={18} className="text-muted" style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)' }} />
+                <Mail size={18} className="text-muted" style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)' }} />
                 <input 
-                  type="tel" 
-                  placeholder="+673 •••• ••••" 
-                  value={phone}
-                  onChange={(e) => setPhone(e.target.value)}
-                  style={{ paddingLeft: '48px', height: '56px' }}
+                  type="email" 
+                  name="email"
+                  placeholder="name@example.com" 
+                  value={formData.email}
+                  onChange={handleInputChange}
+                  style={{ paddingLeft: '48px' }}
                   required
                 />
               </div>
             </div>
 
             <div className="input-group">
-              <label style={{ fontSize: '0.75rem', fontWeight: 800, color: 'var(--text-muted)', textTransform: 'uppercase', marginBottom: '8px', display: 'block' }}>PIN Code</label>
+              <label>Password</label>
               <div style={{ position: 'relative' }}>
                 <Lock size={18} className="text-muted" style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)' }} />
                 <input 
                   type="password" 
+                  name="password"
                   placeholder="••••••••" 
-                  value={pin}
-                  onChange={(e) => setPin(e.target.value)}
-                  style={{ paddingLeft: '48px', height: '56px' }}
+                  value={formData.password}
+                  onChange={handleInputChange}
+                  style={{ paddingLeft: '48px' }}
                   required
                 />
               </div>
             </div>
 
             {mode === 'register' && (
-              <>
-                <div className="input-group">
-                  <label style={{ fontSize: '0.75rem', fontWeight: 800, color: 'var(--text-muted)', textTransform: 'uppercase', marginBottom: '8px', display: 'block' }}>Full Name (As per IC)</label>
-                  <div style={{ position: 'relative' }}>
-                    <UserPlus size={18} className="text-muted" style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)' }} />
-                    <input 
-                      type="text" 
-                      placeholder="e.g. Awang Abu Bakar" 
-                      value={name}
-                      onChange={(e) => setName(e.target.value)}
-                      style={{ paddingLeft: '48px', height: '56px' }}
-                      required
-                    />
-                  </div>
-                </div>
-
-                <div className="input-group">
-                  <label style={{ fontSize: '0.75rem', fontWeight: 800, color: 'var(--text-muted)', textTransform: 'uppercase', marginBottom: '8px', display: 'block' }}>IC Number (Yellow/Purple)</label>
-                  <div style={{ position: 'relative' }}>
-                    <ShieldCheck size={18} className="text-muted" style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)' }} />
-                    <input 
-                      type="text" 
-                      placeholder="01-XXXXXX" 
-                      value={icNumber}
-                      onChange={(e) => setIcNumber(e.target.value)}
-                      style={{ paddingLeft: '48px', height: '56px' }}
-                      required
-                    />
-                  </div>
-                </div>
-
-                <div className="input-group">
-                  <label style={{ fontSize: '0.75rem', fontWeight: 800, color: 'var(--text-muted)', textTransform: 'uppercase', marginBottom: '8px', display: 'block' }}>Upload IC Photo (Front)</label>
+              <div className="input-group">
+                <label>Phone Number</label>
+                <div style={{ position: 'relative' }}>
+                  <Phone size={18} className="text-muted" style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)' }} />
                   <input 
-                    type="file" 
-                    accept="image/*"
-                    style={{ padding: '14px', height: '56px', background: 'var(--bg-tertiary)', borderRadius: '12px', border: '1px dashed var(--border-color)', width: '100%' }}
-                    required
+                    type="tel" 
+                    name="phone_number"
+                    placeholder="+673 •••• ••••" 
+                    value={formData.phone_number}
+                    onChange={handleInputChange}
+                    style={{ paddingLeft: '48px' }}
                   />
                 </div>
-
-                <div style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px', background: 'var(--bg-tertiary)', borderRadius: '12px', marginBottom: '10px' }}>
-                  <ShieldCheck size={20} className="text-emerald" />
-                  <p style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', fontWeight: 600 }}>Automatic Bru-Verified KYC with IC Submission</p>
-                </div>
-              </>
+              </div>
             )}
 
             <button 
               type="submit" 
               className="btn-primary" 
               disabled={isLoading}
-              style={{ height: '60px', marginTop: '10px' }}
+              style={{ width: '100%', height: '56px', marginTop: '16px' }}
             >
               {isLoading ? 'Processing...' : mode === 'login' ? 'Sign In' : 'Create Account'}
-              {!isLoading && <ChevronRight size={20} style={{ marginLeft: '8px' }} />}
+              {!isLoading && <ChevronRight size={20} />}
             </button>
           </form>
-        </div>
+        </motion.div>
 
-        <p style={{ marginTop: '32px', fontSize: '0.8rem', color: 'var(--text-muted)', textAlign: 'center', fontWeight: 600 }}>
-          By continuing, you agree to SideQuest.BN's <br />
-          <span style={{ color: 'var(--orange)' }}>Terms of Service</span> and <span style={{ color: 'var(--orange)' }}>Privacy Policy</span>
+        <p style={{ marginTop: '32px', fontSize: '0.8rem', color: 'var(--text-muted)', textAlign: 'center', fontWeight: 600, lineHeight: 1.6 }}>
+          SideQuest.BN ensures all payments are held in <br />
+          <span className="text-emerald">secure escrow</span> until task completion.
         </p>
       </div>
     </div>

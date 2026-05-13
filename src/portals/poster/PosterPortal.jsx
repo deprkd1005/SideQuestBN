@@ -12,7 +12,7 @@ import JobTracking from './JobTracking';
 
 const PosterPortal = ({ onAnimation }) => {
   return (
-    <div className="theme-poster" style={{ display: 'flex', flexDirection: 'column', height: '100%', overflow: 'hidden' }}>
+    <div className="theme-customer" style={{ display: 'flex', flexDirection: 'column', height: '100%', overflow: 'hidden' }}>
       <div style={{ flex: 1, overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
         <Routes>
           <Route path="/" element={<PosterDashboard />} />

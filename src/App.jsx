@@ -1,20 +1,35 @@
-import React, { useState } from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
-import { DollarSign } from 'lucide-react';
-import PortalSelector from './shared/PortalSelector';
+import React, { useState, useEffect } from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import HustlerPortal from './portals/hustler/HustlerPortal';
 import PosterPortal from './portals/poster/PosterPortal';
 import AdminPortal from './portals/admin/AdminPortal';
-import { PaymentProvider } from './context/PaymentContext';
-import './index.css';
-
+import { PaymentProvider, usePayment } from './context/PaymentContext';
 import SplashScreen from './shared/SplashScreen';
 import Auth from './shared/Auth';
+import './index.css';
+
+const AppRoutes = () => {
+  const { user, token, loading } = usePayment();
+
+  if (loading) {
+    return <div className="app-container flex-center" style={{ background: 'var(--bg-primary)' }}>
+      <div className="spinner-small" />
+    </div>;
+  }
+
+  return (
+    <Routes>
+      <Route path="/" element={token ? <Navigate to={user?.role === 'admin' ? '/admin' : user?.role === 'provider' ? '/hustler' : '/poster'} /> : <Auth />} />
+      <Route path="/hustler/*" element={token && user?.role === 'provider' ? <HustlerPortal /> : <Navigate to="/" />} />
+      <Route path="/poster/*" element={token && user?.role === 'customer' ? <PosterPortal /> : <Navigate to="/" />} />
+      <Route path="/admin/*" element={token && user?.role === 'admin' ? <AdminPortal /> : <Navigate to="/" />} />
+      <Route path="*" element={<Navigate to="/" />} />
+    </Routes>
+  );
+};
 
 function App() {
   const [showSplash, setShowSplash] = useState(true);
-  const [globalAnimation, setGlobalAnimation] = useState(null); // 'transferring' or null
 
   if (showSplash) {
     return <SplashScreen onComplete={() => setShowSplash(false)} />;
@@ -24,54 +39,7 @@ function App() {
     <PaymentProvider>
       <Router>
         <div className="app-container">
-          <Routes>
-            <Route path="/" element={<Auth />} />
-            <Route path="/select" element={<div className="app-content no-pad"><PortalSelector /></div>} />
-            <Route path="/hustler/*" element={<HustlerPortal onAnimation={setGlobalAnimation} />} />
-            <Route path="/poster/*" element={<PosterPortal onAnimation={setGlobalAnimation} />} />
-            <Route path="/admin/*" element={<AdminPortal />} />
-          </Routes>
-          {/* GLOBAL MONEY RAIN - Fixed at Root */}
-          <AnimatePresence>
-            {globalAnimation === 'transferring' && (
-              <motion.div 
-                initial={{ opacity: 0 }} 
-                animate={{ opacity: 1 }} 
-                exit={{ opacity: 0 }}
-                style={{ position: 'fixed', inset: 0, zIndex: 999999, pointerEvents: 'auto', background: 'rgba(0,0,0,0.85)', backdropFilter: 'blur(15px)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
-              >
-                {/* Coins falling using basic CSS animation */}
-                <div style={{ position: 'absolute', inset: 0, overflow: 'hidden', pointerEvents: 'none' }}>
-                  {[...Array(15)].map((_, i) => (
-                    <motion.div
-                      key={i}
-                      initial={{ y: -100, x: Math.random() * 380 + 20, rotate: 0 }}
-                      animate={{ y: 1000, rotate: 360 }}
-                      transition={{ duration: 1.5 + Math.random(), repeat: Infinity, delay: Math.random() }}
-                      style={{ position: 'absolute', top: 0, left: 0 }}
-                    >
-                      <div style={{ background: '#fbbf24', width: '40px', height: '40px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 10px 20px rgba(0,0,0,0.4)', border: '4px solid #f59e0b' }}>
-                        <DollarSign size={24} fill="#f59e0b" stroke="#f59e0b" />
-                      </div>
-                    </motion.div>
-                  ))}
-                </div>
-                
-                <motion.div initial={{ scale: 0.5, y: 50 }} animate={{ scale: 1, y: 0 }} style={{ padding: '32px', background: 'white', borderRadius: '32px', boxShadow: '0 20px 60px rgba(0,0,0,0.5)', textAlign: 'center', zIndex: 2, position: 'relative', width: '85%' }}>
-                    <div className="spinner-small" style={{ margin: '0 auto 16px', borderColor: 'var(--emerald)', borderRightColor: 'transparent', borderWidth: '4px' }} />
-                    <h2 style={{ fontWeight: 900, fontSize: '1.5rem', color: 'black', marginBottom: '8px' }}>Processing...</h2>
-                    <p style={{ color: 'var(--text-muted)', fontWeight: 600 }}>Securing BND Transfer</p>
-                    
-                    <button 
-                      onClick={() => setGlobalAnimation(null)}
-                      style={{ marginTop: '24px', background: 'var(--bg-tertiary)', border: 'none', padding: '8px 16px', borderRadius: '12px', fontSize: '0.75rem', fontWeight: 800, color: 'var(--text-muted)', cursor: 'pointer' }}
-                    >
-                      Stuck? Click to Cancel
-                    </button>
-                </motion.div>
-              </motion.div>
-            )}
-          </AnimatePresence>
+          <AppRoutes />
         </div>
       </Router>
     </PaymentProvider>
