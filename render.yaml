@@ -16,6 +16,13 @@ services:
       - key: NODE_ENV
         value: production
 
+  - type: web
+    name: sidequest-frontend
+    env: static
+    plan: free
+    buildCommand: npm install && npm run build
+    publishPath: dist
+
 databases:
   - name: sidequest_db
     plan: free

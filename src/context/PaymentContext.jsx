@@ -21,7 +21,7 @@ export const PaymentProvider = ({ children }) => {
     if (token) {
       headers['Authorization'] = `Bearer ${token}`;
     }
-    const baseUrl = 'https://spotty-ways-pull.loca.lt';
+    const baseUrl = 'https://sidequest-backend-bivj.onrender.com';
     const res = await fetch(`${baseUrl}${url}`, { ...options, headers });
     if (res.status === 401 || res.status === 403) {
       // Handle session expiry
@@ -52,7 +52,7 @@ export const PaymentProvider = ({ children }) => {
 
   const fetchImpactStats = async () => {
     try {
-      const baseUrl = 'https://spotty-ways-pull.loca.lt';
+      const baseUrl = 'https://sidequest-backend-bivj.onrender.com';
       const res = await fetch(`${baseUrl}/api/impact`);
       const data = await res.json();
       setImpactStats(data);
@@ -71,7 +71,7 @@ export const PaymentProvider = ({ children }) => {
   }, [token]);
 
   const login = async (credentials) => {
-    const baseUrl = 'https://spotty-ways-pull.loca.lt';
+    const baseUrl = 'https://sidequest-backend-bivj.onrender.com';
     const res = await fetch(`${baseUrl}/api/auth/login`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -88,7 +88,7 @@ export const PaymentProvider = ({ children }) => {
   };
 
   const signup = async (userData) => {
-    const baseUrl = 'https://spotty-ways-pull.loca.lt';
+    const baseUrl = 'https://sidequest-backend-bivj.onrender.com';
     const res = await fetch(`${baseUrl}/api/auth/signup`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },

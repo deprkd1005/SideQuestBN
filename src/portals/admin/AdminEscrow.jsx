@@ -10,7 +10,7 @@ const AdminEscrow = () => {
 
   const fetchPayments = async () => {
     try {
-      const baseUrl = 'https://spotty-ways-pull.loca.lt';
+      const baseUrl = 'https://sidequest-backend-bivj.onrender.com';
       const res = await fetch(`${baseUrl}/api/admin/payments`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
