@@ -5,12 +5,7 @@ import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import dotenv from 'dotenv';
 import { fileURLToPath } from 'url';
-import pool from './db.js';
-
-dotenv.config();
-
 import fs from 'fs';
-import { fileURLToPath } from 'url';
 import pool from './db.js';
 
 dotenv.config();
@@ -21,16 +16,10 @@ const __dirname = path.dirname(__filename);
 // Initialize DB Schema
 const initDB = async () => {
   try {
-    // Try to create extension separately as it might fail due to permissions on some managed DBs
-    try {
-      await pool.query('CREATE EXTENSION IF NOT EXISTS "uuid-ossp"');
-    } catch (e) {
-      console.warn('Could not create uuid-ossp extension (this is common on managed DBs if it already exists or requires superuser):', e.message);
-    }
 
     const schema = `
 CREATE TABLE IF NOT EXISTS users (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   fullname TEXT NOT NULL,
   email TEXT UNIQUE NOT NULL,
   phone_number TEXT,
@@ -42,7 +31,7 @@ CREATE TABLE IF NOT EXISTS users (
 );
 
 CREATE TABLE IF NOT EXISTS tasks (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   customer_id UUID REFERENCES users(id) ON DELETE CASCADE,
   provider_id UUID REFERENCES users(id) ON DELETE SET NULL,
   title TEXT NOT NULL,
@@ -56,7 +45,7 @@ CREATE TABLE IF NOT EXISTS tasks (
 );
 
 CREATE TABLE IF NOT EXISTS payments (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   task_id UUID REFERENCES tasks(id) ON DELETE CASCADE,
   payer_id UUID REFERENCES users(id),
   receiver_id UUID REFERENCES users(id),
@@ -67,7 +56,7 @@ CREATE TABLE IF NOT EXISTS payments (
 );
 
 CREATE TABLE IF NOT EXISTS messages (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   sender_id UUID REFERENCES users(id),
   receiver_id UUID REFERENCES users(id),
   task_id UUID REFERENCES tasks(id),
@@ -76,7 +65,7 @@ CREATE TABLE IF NOT EXISTS messages (
 );
 
 CREATE TABLE IF NOT EXISTS reviews (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   task_id UUID REFERENCES tasks(id),
   reviewer_id UUID REFERENCES users(id),
   reviewed_user_id UUID REFERENCES users(id),
