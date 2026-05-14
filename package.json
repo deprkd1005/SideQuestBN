@@ -9,11 +9,13 @@
     "prestart": "vite build",
     "start": "node server/index.js",
     "build": "vite build",
+    "postinstall": "prisma generate",
     "preview": "vite preview",
     "remotion:preview": "remotion preview src/remotion/index.jsx",
     "remotion:render": "remotion render src/remotion/index.jsx SideQuestIntro out/intro.mp4"
   },
   "dependencies": {
+    "@prisma/client": "^7.8.0",
     "@remotion/bundler": "^4.0.460",
     "@remotion/cli": "^4.0.460",
     "@remotion/player": "^4.0.460",
@@ -29,6 +31,7 @@
     "leaflet": "^1.9.4",
     "lucide-react": "^0.284.0",
     "pg": "^8.20.0",
+    "prisma": "^7.8.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-router-dom": "^7.15.0",

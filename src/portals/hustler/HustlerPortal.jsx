@@ -2,11 +2,13 @@ import React from 'react';
 import { Routes, Route } from 'react-router-dom';
 import BottomNav from '../../shared/BottomNav';
 import HustlerHome from './HustlerHome';
-import JobDetails from './JobDetails';
-import MyJobs from './MyJobs';
+import OrderDetails from './OrderDetails';
+import MyServices from './MyServices';
 import Wallet from './Wallet';
 import Messages from './Messages';
 import Profile from './Profile';
+import Notifications from './Notifications';
+import PostService from './PostService';
 
 const HustlerPortal = ({ onAnimation }) => {
   return (
@@ -14,11 +16,13 @@ const HustlerPortal = ({ onAnimation }) => {
       <div style={{ flex: 1, overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
         <Routes>
           <Route path="/" element={<HustlerHome />} />
-          <Route path="/job/:id" element={<JobDetails />} />
-          <Route path="/jobs" element={<MyJobs />} />
+          <Route path="/order/:id" element={<OrderDetails />} />
+          <Route path="/my-services" element={<MyServices />} />
+          <Route path="/post-service" element={<PostService />} />
           <Route path="/messages" element={<Messages />} />
           <Route path="/wallet" element={<Wallet onAnimation={onAnimation} />} />
           <Route path="/profile" element={<Profile />} />
+          <Route path="/notifications" element={<Notifications />} />
         </Routes>
       </div>
 

@@ -1,7 +1,7 @@
 import React from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Home, Briefcase, MessageSquare, Wallet, User } from 'lucide-react';
+import { Home, Briefcase, MessageSquare, Wallet, User, Bell } from 'lucide-react';
 
 const BottomNav = ({ portal }) => {
   const navigate = useNavigate();
@@ -10,22 +10,22 @@ const BottomNav = ({ portal }) => {
   const navItems = {
     hustler: [
       { icon: Home, label: 'Home', path: '/hustler' },
-      { icon: Briefcase, label: 'Quests', path: '/hustler/jobs' },
-      { icon: MessageSquare, label: 'Chat', path: '/hustler/messages' },
+      { icon: Briefcase, label: 'Services', path: '/hustler/my-services' },
+      { icon: Bell, label: 'Inbox', path: '/hustler/notifications' },
       { icon: Wallet, label: 'Wallet', path: '/hustler/wallet' },
       { icon: User, label: 'Profile', path: '/hustler/profile' }
     ],
     poster: [
-      { icon: Home, label: 'Home', path: '/poster' },
-      { icon: Briefcase, label: 'Posts', path: '/poster/active' },
-      { icon: MessageSquare, label: 'Chat', path: '/poster/messages' },
+      { icon: Home, label: 'Explore', path: '/poster' },
+      { icon: Briefcase, label: 'Orders', path: '/poster/orders' },
+      { icon: Bell, label: 'Inbox', path: '/poster/notifications' },
       { icon: Wallet, label: 'Wallet', path: '/poster/wallet' },
       { icon: User, label: 'Profile', path: '/poster/profile' }
     ],
     admin: [
       { icon: Home, label: 'Home', path: '/admin' },
       { icon: Briefcase, label: 'Escrow', path: '/admin/escrow' },
-      { icon: MessageSquare, label: 'Reports', path: '/admin/reports' },
+      { icon: Bell, label: 'Logs', path: '/admin/notifications' },
       { icon: Wallet, label: 'System', path: '/admin/wallet' },
       { icon: User, label: 'Admin', path: '/admin/profile' }
     ]

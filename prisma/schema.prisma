@@ -1,0 +1,136 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum Role {
+  customer
+  provider
+  admin
+}
+
+enum OrderStatus {
+  pending
+  accepted
+  in_progress
+  completed
+  cancelled
+}
+
+enum PaymentStatus {
+  held
+  released
+  cancelled
+}
+
+model User {
+  id                  String         @id @default(uuid())
+  fullname            String
+  email               String         @unique
+  phone_number        String?
+  password_hash       String
+  role                Role           @default(customer)
+  verification_status Boolean        @default(false)
+  created_at          DateTime       @default(now())
+  updated_at          DateTime       @updatedAt
+
+  profile             Profile?
+  services            Service[]      @relation("ProviderServices")
+  ordersAsCustomer    Order[]        @relation("CustomerOrders")
+  ordersAsProvider    Order[]        @relation("ProviderOrders")
+  reviewsGiven        Review[]       @relation("Reviewer")
+  reviewsReceived     Review[]       @relation("ReviewedUser")
+  notifications       Notification[]
+  sentMessages        Message[]      @relation("Sender")
+  receivedMessages    Message[]      @relation("Receiver")
+}
+
+model Profile {
+  id              String   @id @default(uuid())
+  userId          String   @unique
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  bio             String?
+  profile_picture String?
+  kyc_status      String   @default("pending") // pending, verified, rejected
+  kyc_document    String?
+  location        String?
+  updated_at      DateTime @updatedAt
+}
+
+model Service {
+  id          String   @id @default(uuid())
+  providerId  String
+  provider    User     @relation("ProviderServices", fields: [providerId], references: [id], onDelete: Cascade)
+  title       String
+  description String
+  price       Decimal  @db.Decimal(10, 2)
+  category    String
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+  orders      Order[]
+}
+
+model Order {
+  id          String      @id @default(uuid())
+  serviceId   String
+  service     Service     @relation(fields: [serviceId], references: [id])
+  customerId  String
+  customer    User        @relation("CustomerOrders", fields: [customerId], references: [id])
+  providerId  String
+  provider    User        @relation("ProviderOrders", fields: [providerId], references: [id])
+  status      OrderStatus @default(pending)
+  created_at  DateTime    @default(now())
+  updated_at  DateTime    @updatedAt
+
+  transaction Transaction?
+  reviews     Review[]
+  messages    Message[]
+}
+
+model Transaction {
+  id             String        @id @default(uuid())
+  orderId        String        @unique
+  order          Order         @relation(fields: [orderId], references: [id])
+  amount         Decimal       @db.Decimal(10, 2)
+  status         PaymentStatus @default(held)
+  payment_method String?
+  created_at     DateTime      @default(now())
+}
+
+model Review {
+  id             String   @id @default(uuid())
+  orderId        String
+  order          Order    @relation(fields: [orderId], references: [id])
+  reviewerId     String
+  reviewer       User     @relation("Reviewer", fields: [reviewerId], references: [id])
+  reviewedUserId String
+  reviewedUser   User     @relation("ReviewedUser", fields: [reviewedUserId], references: [id])
+  rating         Int
+  review_text    String
+  created_at     DateTime @default(now())
+}
+
+model Notification {
+  id         String   @id @default(uuid())
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  title      String
+  message    String
+  is_read    Boolean  @default(false)
+  created_at DateTime @default(now())
+}
+
+model Message {
+  id         String   @id @default(uuid())
+  orderId    String
+  order      Order    @relation(fields: [orderId], references: [id])
+  senderId   String
+  sender     User     @relation("Sender", fields: [senderId], references: [id])
+  receiverId String
+  receiver   User     @relation("Receiver", fields: [receiverId], references: [id])
+  message    String
+  timestamp  DateTime @default(now())
+}
