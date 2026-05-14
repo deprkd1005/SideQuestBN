@@ -1,36 +1,36 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Outfit:wght@300;400;500;600;700;800;900&display=swap');
 
 :root {
-  /* Luxury Dark Palette */
-  --bg-primary: #050a09;
-  --bg-secondary: #0a1412;
-  --bg-tertiary: #101d1a;
-  --bg-card: #152521;
-  --bg-glass: rgba(16, 29, 26, 0.7);
-  --bg-glass-strong: rgba(10, 20, 18, 0.95);
+  /* Light Palette */
+  --bg-primary: #f8fafc;
+  --bg-secondary: #ffffff;
+  --bg-tertiary: #f1f5f9;
+  --bg-card: #ffffff;
+  --bg-glass: rgba(255, 255, 255, 0.7);
+  --bg-glass-strong: rgba(255, 255, 255, 0.95);
   
   /* Brand Colors - Emerald & Gold */
   --emerald: #10b981;
-  --emerald-dark: #065f46;
-  --emerald-soft: rgba(16, 185, 129, 0.1);
+  --emerald-dark: #059669;
+  --emerald-soft: rgba(16, 185, 129, 0.15);
   --emerald-glow: rgba(16, 185, 129, 0.25);
   
   --gold: #d4af37;
   --gold-dark: #b8860b;
-  --gold-soft: rgba(212, 175, 55, 0.1);
+  --gold-soft: rgba(212, 175, 55, 0.15);
   --gold-glow: rgba(212, 175, 55, 0.2);
 
   --blue: #3b82f6;
   --red: #ef4444;
 
-  --border-color: rgba(16, 185, 129, 0.15);
-  --border-glass: rgba(255, 255, 255, 0.05);
+  --border-color: #e2e8f0;
+  --border-glass: rgba(0, 0, 0, 0.05);
   --border-gold: rgba(212, 175, 55, 0.3);
   
-  --text-primary: #f8fafc;
-  --text-secondary: #94a3b8;
+  --text-primary: #0f172a;
+  --text-secondary: #475569;
   --text-muted: #64748b;
-  --text-gold: #d4af37;
+  --text-gold: #b8860b;
 
   /* Radius System */
   --radius-xs: 8px;
@@ -67,7 +67,7 @@
 
 body {
   font-family: 'Inter', 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif;
-  background-color: #000;
+  background-color: var(--bg-primary);
   color: var(--text-primary);
   overflow: hidden;
   height: 100vh;
