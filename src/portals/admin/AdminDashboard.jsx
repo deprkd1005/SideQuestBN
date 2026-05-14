@@ -13,7 +13,7 @@ const AdminDashboard = () => {
 
   const fetchAdminData = async () => {
     try {
-      const baseUrl = 'https://sidequest-backend-bivj.onrender.com';
+      const baseUrl = import.meta.env.DEV ? '' : 'https://sidequest-backend-bivj.onrender.com';
       const headers = { 'Authorization': `Bearer ${token}` };
       const [resUsers, resPayments] = await Promise.all([
         fetch(`${baseUrl}/api/admin/users`, { headers }),
