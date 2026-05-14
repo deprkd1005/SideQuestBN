@@ -21,9 +21,14 @@ const __dirname = path.dirname(__filename);
 // Initialize DB Schema
 const initDB = async () => {
   try {
-    const schema = `
-CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+    // Try to create extension separately as it might fail due to permissions on some managed DBs
+    try {
+      await pool.query('CREATE EXTENSION IF NOT EXISTS "uuid-ossp"');
+    } catch (e) {
+      console.warn('Could not create uuid-ossp extension (this is common on managed DBs if it already exists or requires superuser):', e.message);
+    }
 
+    const schema = `
 CREATE TABLE IF NOT EXISTS users (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   fullname TEXT NOT NULL,
@@ -82,7 +87,7 @@ CREATE TABLE IF NOT EXISTS reviews (
     await pool.query(schema);
     console.log('Database schema verified/initialized successfully');
   } catch (err) {
-    console.error('Error verifying database schema:', err);
+    console.error('Error verifying database schema:', err.message);
   }
 };
 initDB();
@@ -207,8 +212,12 @@ app.post('/api/auth/login', async (req, res) => {
 
     res.json({ success: true, user: userData, token });
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: 'Server error during login' });
+    console.error('Login error:', err);
+    res.status(500).json({ 
+      error: 'Server error during login', 
+      details: err.message,
+      stack: process.env.NODE_ENV === 'production' ? null : err.stack 
+    });
   }
 });
 
