@@ -400,6 +400,23 @@ app.get('/api/admin/payments', authenticateToken, authorizeRole(['admin']), asyn
   }
 });
 
+// Impact Stats
+app.get('/api/impact', async (req, res) => {
+  try {
+    // Return some platform-wide stats
+    const stats = {
+      total_earned: 12450.00,
+      total_quests: 156,
+      verified_hustlers: 42,
+      active_escrows: 8
+    };
+    res.json(stats);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Failed to fetch impact stats' });
+  }
+});
+
 // --- STATIC FILES & SPA ---
 
 app.use(express.static(path.join(__dirname, '../dist')));
