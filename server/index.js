@@ -1,7 +1,7 @@
 import express from 'express';
 import cors from 'cors';
 import path from 'path';
-import bcrypt from 'bcrypt';
+import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import dotenv from 'dotenv';
 import { fileURLToPath } from 'url';
@@ -15,6 +15,12 @@ const __dirname = path.dirname(__filename);
 const app = express();
 const PORT = process.env.PORT || 3001;
 const JWT_SECRET = process.env.JWT_SECRET || 'sidequest_secret_key';
+
+// Strip sensitive fields from user objects
+const sanitizeUser = (user) => {
+  const { password_hash, ...safe } = user;
+  return safe;
+};
 
 app.use(cors());
 app.use(express.json());
@@ -104,7 +110,7 @@ app.post('/api/auth/login', async (req, res) => {
         }
         
         const token = jwt.sign({ id: user.id, role: user.role }, JWT_SECRET, { expiresIn: '7d' });
-        return res.json({ success: true, user, token });
+        return res.json({ success: true, user: sanitizeUser(user), token });
       }
     }
 
@@ -115,7 +121,7 @@ app.post('/api/auth/login', async (req, res) => {
     if (!validPassword) return res.status(400).json({ error: 'Invalid credentials' });
 
     const token = jwt.sign({ id: user.id, role: user.role }, JWT_SECRET, { expiresIn: '7d' });
-    res.json({ success: true, user, token });
+    res.json({ success: true, user: sanitizeUser(user), token });
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Server error during login' });
@@ -391,6 +397,20 @@ app.get('*', (req, res) => {
   }
 });
 
+// --- ERROR HANDLING ---
+process.on('unhandledRejection', (reason, promise) => {
+  console.error('Unhandled Rejection at:', promise, 'reason:', reason);
+});
+
+process.on('uncaughtException', (err) => {
+  console.error('Uncaught Exception:', err);
+  process.exit(1);
+});
+
 app.listen(PORT, '0.0.0.0', () => {
   console.log(`Server running on http://0.0.0.0:${PORT}`);
+  console.log('Environment:', process.env.NODE_ENV);
+  console.log('Database URL Present:', !!process.env.DATABASE_URL);
+}).on('error', (err) => {
+  console.error('Failed to start server:', err);
 });
