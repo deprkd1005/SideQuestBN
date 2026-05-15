@@ -24,6 +24,16 @@ const sanitizeUser = (user) => {
 
 app.use(cors());
 app.use(express.json());
+// --- HEALTH CHECK ---
+app.get('/api/health', async (req, res) => {
+  try {
+    const result = await prisma.$queryRaw`SELECT tablename FROM pg_tables WHERE schemaname = 'public'`;
+    const tables = result.map(r => r.tablename);
+    res.json({ status: 'ok', database: 'connected', tables, env: { NODE_ENV: process.env.NODE_ENV, DB_URL_SET: !!process.env.DATABASE_URL } });
+  } catch (err) {
+    res.status(500).json({ status: 'error', database: 'disconnected', error: err.message });
+  }
+});
 
 // --- AUTH MIDDLEWARE ---
 const authenticateToken = (req, res, next) => {
@@ -123,8 +133,8 @@ app.post('/api/auth/login', async (req, res) => {
     const token = jwt.sign({ id: user.id, role: user.role }, JWT_SECRET, { expiresIn: '7d' });
     res.json({ success: true, user: sanitizeUser(user), token });
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: 'Server error during login' });
+    console.error('LOGIN ERROR:', err);
+    res.status(500).json({ error: 'Server error during login', debug: err.message, code: err.code });
   }
 });
 
