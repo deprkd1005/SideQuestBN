@@ -84,8 +84,8 @@ app.post('/api/auth/signup', async (req, res) => {
     const token = jwt.sign({ id: newUser.id, role: newUser.role }, JWT_SECRET, { expiresIn: '7d' });
     res.json({ success: true, user: { id: newUser.id, fullname, email, role: newUser.role }, token });
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: 'Server error during signup' });
+    console.error('SIGNUP ERROR:', err);
+    res.status(500).json({ error: 'Server error during signup', debug: err.message, code: err.code });
   }
 });
 

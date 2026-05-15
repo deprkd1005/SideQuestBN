@@ -90,9 +90,9 @@ export const PaymentProvider = ({ children }) => {
         setUser(data.user);
         return { success: true };
       }
-      return { success: false, error: data.error };
+      return { success: false, error: data.debug || data.error || 'Server error' };
     } catch (err) {
-      return { success: false, error: 'Server error' };
+      return { success: false, error: 'Network error' };
     }
   };
 
@@ -110,9 +110,9 @@ export const PaymentProvider = ({ children }) => {
         setUser(data.user);
         return { success: true };
       }
-      return { success: false, error: data.error };
+      return { success: false, error: data.debug || data.error || 'Server error' };
     } catch (err) {
-      return { success: false, error: 'Server error' };
+      return { success: false, error: 'Network error' };
     }
   };
 
