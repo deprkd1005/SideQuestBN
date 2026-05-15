@@ -30,7 +30,7 @@ const Auth = () => {
     try {
       let result;
       if (mode === 'login') {
-        result = await login({ email: formData.email, password: formData.password });
+        result = await login(formData.email, formData.password);
       } else {
         result = await signup(formData);
       }
