@@ -5,7 +5,7 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import dotenv from 'dotenv';
 import { fileURLToPath } from 'url';
-import prisma from './prisma.js';
+import prisma, { initDatabase } from './prisma.js';
 
 dotenv.config();
 
@@ -407,10 +407,16 @@ process.on('uncaughtException', (err) => {
   process.exit(1);
 });
 
-app.listen(PORT, '0.0.0.0', () => {
-  console.log(`Server running on http://0.0.0.0:${PORT}`);
-  console.log('Environment:', process.env.NODE_ENV);
-  console.log('Database URL Present:', !!process.env.DATABASE_URL);
-}).on('error', (err) => {
-  console.error('Failed to start server:', err);
-});
+// --- STARTUP ---
+const start = async () => {
+  await initDatabase();
+  app.listen(PORT, '0.0.0.0', () => {
+    console.log(`Server running on http://0.0.0.0:${PORT}`);
+    console.log('Environment:', process.env.NODE_ENV);
+    console.log('Database URL Present:', !!process.env.DATABASE_URL);
+  }).on('error', (err) => {
+    console.error('Failed to start server:', err);
+  });
+};
+
+start();
