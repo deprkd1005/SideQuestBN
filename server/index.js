@@ -85,7 +85,7 @@ app.post('/api/auth/signup', async (req, res) => {
     res.json({ success: true, user: { id: newUser.id, fullname, email, role: newUser.role }, token });
   } catch (err) {
     console.error('SIGNUP ERROR:', err);
-    res.status(500).json({ error: 'Server error during signup', debug: err.message, code: err.code });
+    res.status(500).json({ error: 'Server error during signup' });
   }
 });
 
@@ -134,7 +134,7 @@ app.post('/api/auth/login', async (req, res) => {
     res.json({ success: true, user: sanitizeUser(user), token });
   } catch (err) {
     console.error('LOGIN ERROR:', err);
-    res.status(500).json({ error: 'Server error during login', debug: err.message, code: err.code });
+    res.status(500).json({ error: 'Server error during login' });
   }
 });
 
