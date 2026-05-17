@@ -96,46 +96,49 @@ const HustlerDashboard = () => {
       </div>
 
       {/* Floating Top Elements */}
-      <div style={{ position: 'absolute', top: 0, left: 0, right: 0, zIndex: 400, padding: '48px 20px 0 20px', pointerEvents: 'none' }}>
+      <div style={{ position: 'absolute', top: 0, left: 0, right: 0, zIndex: 400, padding: '20px 20px 0 20px', pointerEvents: 'none' }}>
         
-        {/* Top Header */}
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px', pointerEvents: 'auto' }}>
+        {/* Row 1: Search Bar & Notification */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '12px', pointerEvents: 'auto' }}>
           
-          {/* Location Pill */}
+          {/* Search Bar */}
+          <div style={{ flex: 1, display: 'flex', alignItems: 'center', gap: '12px', padding: '12px 16px', borderRadius: '50px', background: 'rgba(255,255,255,0.9)', backdropFilter: 'blur(10px)', border: '1px solid rgba(255,255,255,0.3)', boxShadow: '0 8px 24px rgba(0,0,0,0.08)' }}>
+            <Search size={18} color="#8E8E93" />
+            <input 
+              type="text" 
+              placeholder="Search nearby quests" 
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              style={{ flex: 1, background: 'transparent', border: 'none', outline: 'none', fontSize: '14px', color: '#1C1C1E', fontWeight: 600 }}
+            />
+            <SlidersHorizontal size={18} color="#1C1C1E" />
+          </div>
+
+          {/* Notification */}
+          <button onClick={() => navigate('/hustler/notifications')} style={{ position: 'relative', width: '44px', height: '44px', borderRadius: '50%', background: 'rgba(255,255,255,0.9)', backdropFilter: 'blur(10px)', border: '1px solid rgba(255,255,255,0.3)', boxShadow: '0 4px 12px rgba(0,0,0,0.05)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', flexShrink: 0 }}>
+            <Bell size={18} color="#1C1C1E" />
+            <span style={{ position: 'absolute', top: '10px', right: '10px', width: '8px', height: '8px', background: '#FF3B30', borderRadius: '50%' }} />
+          </button>
+        </div>
+
+        {/* Row 2: Location Pill */}
+        <div style={{ display: 'flex', pointerEvents: 'auto' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '8px 12px', borderRadius: '50px', background: 'rgba(255,255,255,0.9)', backdropFilter: 'blur(10px)', border: '1px solid rgba(255,255,255,0.3)', boxShadow: '0 4px 12px rgba(0,0,0,0.05)' }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '28px', height: '28px', borderRadius: '50%', background: '#1C1C1E' }}>
               <MapPin size={14} color="white" />
             </div>
             <div style={{ lineHeight: 1 }}>
-              <p style={{ fontSize: '10px', color: '#8E8E93', fontWeight: 600 }}>Current Location</p>
+              <p style={{ fontSize: '9px', color: '#8E8E93', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.5px' }}>Current Location</p>
               <p style={{ fontSize: '12px', fontWeight: 800, color: '#1C1C1E', marginTop: '2px' }}>Bandar Seri Begawan</p>
             </div>
             <ChevronDown size={14} color="#8E8E93" />
           </div>
-
-          {/* Notification */}
-          <button onClick={() => navigate('/hustler/notifications')} style={{ position: 'relative', width: '40px', height: '40px', borderRadius: '50%', background: 'rgba(255,255,255,0.9)', backdropFilter: 'blur(10px)', border: '1px solid rgba(255,255,255,0.3)', boxShadow: '0 4px 12px rgba(0,0,0,0.05)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
-            <Bell size={18} color="#1C1C1E" />
-            <span style={{ position: 'absolute', top: '8px', right: '8px', width: '8px', height: '8px', background: '#FF3B30', borderRadius: '50%' }} />
-          </button>
         </div>
 
-        {/* Search Bar */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px 16px', borderRadius: '50px', background: 'rgba(255,255,255,0.9)', backdropFilter: 'blur(10px)', border: '1px solid rgba(255,255,255,0.3)', boxShadow: '0 8px 24px rgba(0,0,0,0.08)', pointerEvents: 'auto' }}>
-          <Search size={18} color="#8E8E93" />
-          <input 
-            type="text" 
-            placeholder="Search nearby quests" 
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            style={{ flex: 1, background: 'transparent', border: 'none', outline: 'none', fontSize: '14px', color: '#1C1C1E', fontWeight: 600 }}
-          />
-          <SlidersHorizontal size={18} color="#1C1C1E" />
-        </div>
       </div>
 
       {/* Floating Left: Earnings Card */}
-      <div style={{ position: 'absolute', top: '160px', left: '20px', zIndex: 400, pointerEvents: 'auto' }}>
+      <div style={{ position: 'absolute', top: '150px', left: '20px', zIndex: 400, pointerEvents: 'auto' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '8px 12px', borderRadius: '50px', background: 'rgba(255,255,255,0.9)', backdropFilter: 'blur(10px)', border: '1px solid rgba(255,255,255,0.3)', boxShadow: '0 4px 12px rgba(0,0,0,0.05)' }}>
           <div style={{ position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center', width: '32px', height: '32px', borderRadius: '50%', background: '#1C1C1E' }}>
             <TrendingUp size={16} color="white" />
@@ -149,7 +152,7 @@ const HustlerDashboard = () => {
       </div>
 
       {/* Floating Right: Action Stack */}
-      <div style={{ position: 'absolute', top: '160px', right: '20px', zIndex: 400, display: 'flex', flexDirection: 'column', gap: '12px', pointerEvents: 'auto' }}>
+      <div style={{ position: 'absolute', top: '150px', right: '20px', zIndex: 400, display: 'flex', flexDirection: 'column', gap: '12px', pointerEvents: 'auto' }}>
         {/* Layers */}
         <button style={{ width: '40px', height: '40px', borderRadius: '50%', background: 'rgba(255,255,255,0.9)', backdropFilter: 'blur(10px)', border: '1px solid rgba(255,255,255,0.3)', boxShadow: '0 4px 12px rgba(0,0,0,0.05)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
           <Layers size={18} color="#1C1C1E" />
