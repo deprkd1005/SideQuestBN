@@ -96,21 +96,21 @@ const HustlerDashboard = () => {
       </div>
 
       {/* Floating Top Elements */}
-      <div style={{ position: 'absolute', top: 0, left: 0, right: 0, zIndex: 400, padding: '24px 24px 0 24px', pointerEvents: 'none' }}>
+      <div style={{ position: 'absolute', top: 0, left: 0, right: 0, zIndex: 400, padding: '54px 20px 0 20px', pointerEvents: 'none' }}>
         
         {/* Search & Filters */}
         <div style={{ display: 'flex', gap: '12px', marginBottom: '16px', pointerEvents: 'auto' }}>
-          <div className="card-glass" style={{ flex: 1, display: 'flex', alignItems: 'center', padding: '4px 16px', borderRadius: '24px', background: 'rgba(255, 255, 255, 0.95)', boxShadow: '0 8px 32px rgba(0,0,0,0.1)' }}>
-            <Search size={18} className="text-muted" />
+          <div className="card-glass" style={{ flex: 1, display: 'flex', alignItems: 'center', padding: '4px 16px', borderRadius: '20px', background: 'rgba(255, 255, 255, 0.98)', boxShadow: '0 8px 32px rgba(0,0,0,0.08)', border: '1px solid rgba(0,0,0,0.04)' }}>
+            <Search size={20} color="#8E8E93" />
             <input 
               type="text" 
               placeholder="Search side quests..." 
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              style={{ flex: 1, padding: '16px', background: 'none', border: 'none', color: 'var(--text-primary)', fontWeight: 600, outline: 'none' }}
+              style={{ flex: 1, padding: '16px 12px', background: 'none', border: 'none', color: '#1C1C1E', fontWeight: 600, fontSize: '0.95rem', outline: 'none' }}
             />
           </div>
-          <button className="card-glass flex-center" style={{ width: '56px', borderRadius: '20px', background: 'rgba(255, 255, 255, 0.95)', boxShadow: '0 8px 32px rgba(0,0,0,0.1)' }}>
+          <button className="card-glass flex-center" style={{ width: '56px', borderRadius: '20px', background: 'rgba(255, 255, 255, 0.98)', boxShadow: '0 8px 32px rgba(0,0,0,0.08)', border: '1px solid rgba(0,0,0,0.04)' }}>
             <Filter size={20} className="text-gold" />
           </button>
         </div>
@@ -141,43 +141,48 @@ const HustlerDashboard = () => {
       </div>
 
       {/* Floating Bottom Elements */}
-      <div style={{ position: 'absolute', bottom: '120px', left: '24px', right: '24px', zIndex: 400, pointerEvents: 'none', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+      <div style={{ position: 'absolute', bottom: '120px', left: '20px', right: '20px', zIndex: 400, pointerEvents: 'none', display: 'flex', flexDirection: 'column', gap: '16px' }}>
          
-         {/* Map Controls */}
-         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', pointerEvents: 'auto' }}>
-            <div className="card-glass" style={{ background: 'rgba(255, 255, 255, 0.95)', padding: '12px 16px', borderRadius: '16px', boxShadow: '0 8px 32px rgba(0,0,0,0.1)', border: '2px solid rgba(212, 175, 55, 0.2)' }}>
-               <div style={{ fontSize: '0.7rem', fontWeight: 800, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '4px' }}>Surge Zone Potential</div>
-               <div style={{ fontSize: '1.4rem', fontWeight: 900, color: 'var(--gold)', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                 <Zap size={18} fill="var(--gold)" />
-                 BND {totalPotential.toFixed(2)}
-               </div>
-            </div>
-            
-            <button onClick={() => mapInstanceRef.current?.setView([4.8903, 114.9401], 12)} style={{ background: 'rgba(255, 255, 255, 0.95)', width: '56px', height: '56px', borderRadius: '20px', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 8px 32px rgba(0,0,0,0.1)', border: 'none' }}>
-               <LocateFixed size={24} className="text-gold" />
+         {/* GPS Floating Action Button */}
+         <div style={{ display: 'flex', justifyContent: 'flex-end', pointerEvents: 'auto' }}>
+            <button onClick={() => mapInstanceRef.current?.setView([4.8903, 114.9401], 12)} style={{ background: 'white', width: '52px', height: '52px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 8px 24px rgba(0,0,0,0.15)', border: 'none' }}>
+               <LocateFixed size={22} className="text-gold" />
             </button>
          </div>
 
-         {/* Radius Slider */}
-         <div className="card-glass" style={{ background: 'rgba(255, 255, 255, 0.95)', padding: '16px', borderRadius: '20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', pointerEvents: 'auto', boxShadow: '0 8px 32px rgba(0,0,0,0.1)' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-              <div style={{ width: '40px', height: '40px', borderRadius: '12px', background: 'rgba(212, 175, 55, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <MapPin size={20} className="text-gold" />
-              </div>
-              <div>
-                <div style={{ fontSize: '0.9rem', fontWeight: 800 }}>Scanning Area</div>
-                <div style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-muted)' }}>Radius: {radius}km</div>
-              </div>
+         {/* Unified Mission Control Card */}
+         <div className="card-glass" style={{ background: 'rgba(255, 255, 255, 0.98)', padding: '20px', borderRadius: '28px', display: 'flex', flexDirection: 'column', gap: '20px', pointerEvents: 'auto', boxShadow: '0 12px 40px rgba(0,0,0,0.12)', border: '1px solid rgba(0,0,0,0.04)' }}>
+            
+            {/* Surge Zone Section */}
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingBottom: '16px', borderBottom: '1px solid rgba(0,0,0,0.06)' }}>
+               <div>
+                 <div style={{ fontSize: '0.75rem', fontWeight: 800, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '4px' }}>Surge Zone Potential</div>
+                 <div style={{ fontSize: '1.6rem', fontWeight: 900, color: 'var(--gold)', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                   <Zap size={22} fill="var(--gold)" />
+                   BND {totalPotential.toFixed(2)}
+                 </div>
+               </div>
             </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <input 
-                type="range" 
-                min="1" 
-                max="25" 
-                value={radius} 
-                onChange={(e) => setRadius(parseInt(e.target.value))}
-                style={{ width: '100px', accentColor: 'var(--gold)' }} 
-              />
+
+            {/* Radius Slider Section */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+              <div style={{ width: '48px', height: '48px', borderRadius: '16px', background: 'rgba(212, 175, 55, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                <MapPin size={24} className="text-gold" />
+              </div>
+              <div style={{ flex: 1 }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
+                  <span style={{ fontSize: '0.95rem', fontWeight: 800 }}>Scanning Radius</span>
+                  <span style={{ fontSize: '0.85rem', fontWeight: 800, color: 'var(--gold)' }}>{radius} km</span>
+                </div>
+                <input 
+                  type="range" 
+                  min="1" 
+                  max="25" 
+                  value={radius} 
+                  onChange={(e) => setRadius(parseInt(e.target.value))}
+                  style={{ width: '100%', accentColor: 'var(--gold)' }} 
+                />
+              </div>
             </div>
          </div>
       </div>
