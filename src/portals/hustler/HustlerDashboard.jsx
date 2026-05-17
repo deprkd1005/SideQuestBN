@@ -1,7 +1,7 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Search, Briefcase, MapPin, Star, ChevronRight, Bell, Filter, Zap } from 'lucide-react';
+import { Search, Briefcase, MapPin, Star, ChevronRight, Bell, Filter, Zap, LocateFixed } from 'lucide-react';
 import { usePayment } from '../../context/PaymentContext';
 
 const HustlerDashboard = () => {
@@ -9,10 +9,60 @@ const HustlerDashboard = () => {
   const { services, refresh, user } = usePayment();
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All');
+  const [radius, setRadius] = useState(10);
+  const mapRef = useRef(null);
+  const mapInstanceRef = useRef(null);
 
   useEffect(() => {
     refresh();
   }, []);
+
+  useEffect(() => {
+    if (!window.L || !mapRef.current) return;
+
+    if (mapInstanceRef.current) {
+      mapInstanceRef.current.remove();
+    }
+
+    const map = L.map(mapRef.current, { zoomControl: false }).setView([4.8903, 114.9401], 12);
+    mapInstanceRef.current = map;
+    
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png').addTo(map);
+
+    // Hustler Location
+    L.circleMarker([4.8903, 114.9401], { color: 'var(--gold)', fillColor: 'var(--gold)', fillOpacity: 1, radius: 8 }).addTo(map);
+    
+    // Radius Geofence
+    L.circle([4.8903, 114.9401], {
+       radius: radius * 1000, 
+       color: 'var(--gold)', 
+       weight: 2, 
+       fillColor: 'var(--gold)', 
+       fillOpacity: 0.1
+    }).addTo(map);
+
+    // Render Services as Map Pins
+    services.forEach((service, i) => {
+      // Mock coordinates near Brunei Muara
+      const lat = 4.8903 + (Math.random() - 0.5) * 0.08;
+      const lng = 114.9401 + (Math.random() - 0.5) * 0.08;
+
+      const marker = L.circleMarker([lat, lng], { color: 'var(--emerald)', fillColor: 'var(--emerald)', fillOpacity: 0.9, radius: 8 }).addTo(map);
+      marker.bindPopup(`
+        <div style="font-family:'Outfit', sans-serif; padding:4px; min-width:120px;">
+          <strong style="color:var(--text-primary); font-size:1rem; display:block; margin-bottom:4px;">${service.title}</strong>
+          <div style="font-weight:900; font-size:1.1rem; color:var(--emerald); margin-bottom:4px;">BND ${service.price}</div>
+        </div>
+      `);
+    });
+
+    return () => {
+      if (mapInstanceRef.current) {
+        mapInstanceRef.current.remove();
+        mapInstanceRef.current = null;
+      }
+    };
+  }, [services, radius]);
 
   const categories = ['All', 'Delivery', 'Cleaning', 'Digital', 'Handyman', 'Education'];
 
@@ -40,37 +90,33 @@ const HustlerDashboard = () => {
           </div>
         </div>
 
-        {/* Geofencing Radar Map */}
-        <div className="card-glass" style={{ marginBottom: '24px', overflow: 'hidden', position: 'relative', height: '220px', borderRadius: '24px', background: 'var(--bg-secondary)', border: '1px solid var(--border-glass)' }}>
-          {/* Map Background Pattern */}
-          <div style={{ position: 'absolute', inset: 0, opacity: 0.1, backgroundImage: 'url("data:image/svg+xml,%3Csvg width=\'60\' height=\'60\' viewBox=\'0 0 60 60\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cpath d=\'M54.627 0l.83.83v58.34h-58.34v-.83l.83-.83h56.68v-56.68zM53.797 2.49v55.02h-55.02v-.83l.83-.83h53.36v-53.36z\' fill=\'%23d4af37\' fill-opacity=\'1\' fill-rule=\'evenodd\'/%3E%3C/svg%3E")' }} />
+        {/* Real Geofencing Map (Leaflet) */}
+        <div className="card-glass" style={{ marginBottom: '24px', overflow: 'hidden', position: 'relative', height: '300px', borderRadius: '24px', background: 'var(--bg-secondary)', border: '1px solid var(--border-glass)' }}>
+          <div ref={mapRef} style={{ width: '100%', height: '100%', zIndex: 1 }}></div>
           
-          {/* Radar Sweep Animation */}
-          <motion.div 
-            animate={{ rotate: 360 }}
-            transition={{ duration: 4, repeat: Infinity, ease: 'linear' }}
-            style={{ position: 'absolute', top: '50%', left: '50%', width: '300px', height: '300px', margin: '-150px 0 0 -150px', borderRadius: '50%', background: 'conic-gradient(from 0deg, transparent 70%, rgba(212, 175, 55, 0.4) 100%)', zIndex: 1 }}
-          />
-          <div style={{ position: 'absolute', top: '50%', left: '50%', width: '12px', height: '12px', margin: '-6px 0 0 -6px', borderRadius: '50%', background: 'var(--gold)', boxShadow: '0 0 20px 4px var(--gold-glow)', zIndex: 2 }} />
-          
-          {/* Geofence Rings */}
-          <div style={{ position: 'absolute', top: '50%', left: '50%', width: '100px', height: '100px', margin: '-50px 0 0 -50px', borderRadius: '50%', border: '1px dashed var(--gold)', opacity: 0.5 }} />
-          <div style={{ position: 'absolute', top: '50%', left: '50%', width: '200px', height: '200px', margin: '-100px 0 0 -100px', borderRadius: '50%', border: '1px dashed var(--gold)', opacity: 0.2 }} />
+          {/* Map Controls */}
+          <div style={{ position: 'absolute', top: '16px', right: '16px', zIndex: 400 }}>
+             <button onClick={() => mapInstanceRef.current?.setView([4.8903, 114.9401], 12)} style={{ background: 'white', width: '40px', height: '40px', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 12px rgba(0,0,0,0.1)', border: 'none' }}>
+                <LocateFixed size={20} className="text-gold" />
+             </button>
+          </div>
 
-          {/* Job Pins */}
-          <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ delay: 0.5 }} style={{ position: 'absolute', top: '30%', left: '65%', width: '16px', height: '16px', borderRadius: '50%', background: 'var(--emerald)', border: '2px solid white', zIndex: 3, boxShadow: '0 0 10px var(--emerald-glow)' }} />
-          <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ delay: 1.2 }} style={{ position: 'absolute', top: '70%', left: '40%', width: '16px', height: '16px', borderRadius: '50%', background: 'var(--emerald)', border: '2px solid white', zIndex: 3, boxShadow: '0 0 10px var(--emerald-glow)' }} />
-          <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ delay: 2.1 }} style={{ position: 'absolute', top: '45%', left: '20%', width: '16px', height: '16px', borderRadius: '50%', background: 'var(--emerald)', border: '2px solid white', zIndex: 3, boxShadow: '0 0 10px var(--emerald-glow)' }} />
-
-          <div style={{ position: 'absolute', bottom: '16px', left: '16px', right: '16px', zIndex: 10 }}>
+          <div style={{ position: 'absolute', bottom: '16px', left: '16px', right: '16px', zIndex: 400 }}>
             <div className="card-glass" style={{ background: 'var(--bg-glass-strong)', padding: '12px 16px', borderRadius: '16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                 <MapPin size={16} className="text-gold" />
                 <span style={{ fontSize: '0.8rem', fontWeight: 700 }}>Brunei Muara</span>
               </div>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <span style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-muted)' }}>Radius: 10km</span>
-                <input type="range" min="1" max="25" defaultValue="10" style={{ width: '60px', accentColor: 'var(--gold)' }} />
+                <span style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-muted)' }}>{radius}km</span>
+                <input 
+                  type="range" 
+                  min="1" 
+                  max="25" 
+                  value={radius} 
+                  onChange={(e) => setRadius(parseInt(e.target.value))}
+                  style={{ width: '60px', accentColor: 'var(--gold)' }} 
+                />
               </div>
             </div>
           </div>
@@ -119,14 +165,14 @@ const HustlerDashboard = () => {
 
       <div style={{ padding: '0 24px 24px' }}>
         <div className="flex-between" style={{ marginBottom: '16px' }}>
-          <h3 style={{ fontSize: '1.1rem', fontWeight: 800, fontFamily: 'Outfit' }}>Featured Services</h3>
+          <h3 style={{ fontSize: '1.1rem', fontWeight: 800, fontFamily: 'Outfit' }}>Active Quests</h3>
           <span style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--text-muted)' }}>{filteredServices.length} found</span>
         </div>
 
         {filteredServices.length === 0 ? (
           <div className="card-glass" style={{ padding: '60px 24px', textAlign: 'center' }}>
             <Zap size={40} className="text-muted" style={{ marginBottom: '16px', opacity: 0.3 }} />
-            <p style={{ color: 'var(--text-muted)', fontWeight: 600 }}>No services found in this category.</p>
+            <p style={{ color: 'var(--text-muted)', fontWeight: 600 }}>No quests found in this category.</p>
           </div>
         ) : (
           <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '16px' }}>
@@ -156,11 +202,11 @@ const HustlerDashboard = () => {
                     </div>
                     <div>
                       <div style={{ fontSize: '0.8rem', fontWeight: 700 }}>{service.provider.fullname}</div>
-                      <div style={{ fontSize: '0.65rem', fontWeight: 600, color: 'var(--gold)' }}>✓ Verified Pro</div>
+                      <div style={{ fontSize: '0.65rem', fontWeight: 600, color: 'var(--gold)' }}>✓ Verified Customer</div>
                     </div>
                   </div>
                   <div style={{ color: 'var(--gold)', display: 'flex', alignItems: 'center', gap: '4px', fontSize: '0.8rem', fontWeight: 800 }}>
-                    Book Now <ChevronRight size={16} />
+                    Accept Quest <ChevronRight size={16} />
                   </div>
                 </div>
               </motion.div>
