@@ -141,7 +141,7 @@ const HustlerDashboard = () => {
       </div>
 
       {/* Floating Bottom Elements */}
-      <div style={{ position: 'absolute', bottom: '24px', left: '24px', right: '24px', zIndex: 400, pointerEvents: 'none', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+      <div style={{ position: 'absolute', bottom: '120px', left: '24px', right: '24px', zIndex: 400, pointerEvents: 'none', display: 'flex', flexDirection: 'column', gap: '12px' }}>
          
          {/* Map Controls */}
          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', pointerEvents: 'auto' }}>
