@@ -1,116 +1,108 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ArrowLeft, CheckCircle, Shield, Clock, MapPin, MessageSquare, Star, Zap, XCircle } from 'lucide-react';
+import { ArrowLeft, Clock, MapPin, MessageSquare, Phone, Shield, Navigation } from 'lucide-react';
 import { usePayment } from '../../context/PaymentContext';
 
 const OrderDetails = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { orders, updateOrderStatus, refresh } = usePayment();
+  const { orders, refresh } = usePayment();
   const [order, setOrder] = useState(null);
-  const [updating, setUpdating] = useState(false);
 
   useEffect(() => {
+    refresh();
     const found = orders.find(o => o.id === id);
     if (found) setOrder(found);
   }, [id, orders]);
 
-  const handleAction = async (newStatus) => {
-    setUpdating(true);
-    const res = await updateOrderStatus(id, newStatus);
-    if (res.success) {
-      refresh();
-    } else {
-      alert(res.error || 'Failed to update order');
-    }
-    setUpdating(false);
-  };
-
   if (!order) return <div className="app-content flex-center"><div className="spinner-small" /></div>;
 
   return (
-    <div className="app-content no-scrollbar" style={{ background: 'var(--bg-primary)' }}>
-      <div style={{ padding: '40px 24px 20px', display: 'flex', alignItems: 'center', gap: '16px' }}>
-        <button onClick={() => navigate(-1)} className="btn-ghost" style={{ padding: '8px' }}>
-          <ArrowLeft size={24} />
-        </button>
-        <h1 style={{ fontSize: '1.5rem', fontWeight: 900, fontFamily: 'Outfit' }}>Service Request</h1>
+    <div className="app-content no-scrollbar" style={{ background: 'var(--bg-primary)', display: 'flex', flexDirection: 'column' }}>
+      
+      {/* Live Map Area */}
+      <div style={{ flex: 1, position: 'relative', background: '#e2e8f0', overflow: 'hidden' }}>
+        {/* Mock Map Background */}
+        <div style={{ position: 'absolute', inset: 0, backgroundImage: 'url("data:image/svg+xml,%3Csvg width=\'100\' height=\'100\' viewBox=\'0 0 100 100\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cg stroke=\'%23cbd5e1\' stroke-width=\'2\' fill=\'none\'%3E%3Cpath d=\'M0 20h100M0 40h100M0 60h100M0 80h100M20 0v100M40 0v100M60 0v100M80 0v100\'/%3E%3Cpath d=\'M0 0l100 100M100 0L0 100\' stroke-opacity=\'0.2\'/%3E%3C/g%3E%3C/svg%3E")', backgroundSize: '150px' }} />
+        
+        {/* Map UI Overlay */}
+        <div style={{ position: 'absolute', top: '40px', left: '20px', zIndex: 10 }}>
+          <button onClick={() => navigate(-1)} style={{ width: '40px', height: '40px', borderRadius: '12px', background: 'white', border: 'none', boxShadow: 'var(--shadow-sm)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <ArrowLeft size={20} />
+          </button>
+        </div>
+
+        {/* Live Tracking Path */}
+        <svg style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', zIndex: 5 }}>
+          <path d="M 150 150 Q 200 300 350 400" fill="none" stroke="var(--emerald)" strokeWidth="4" strokeDasharray="8 8" />
+        </svg>
+
+        {/* Hustler Location Pin */}
+        <motion.div 
+          animate={{ x: [150, 160, 155], y: [150, 165, 160] }}
+          transition={{ duration: 4, repeat: Infinity, repeatType: 'reverse' }}
+          style={{ position: 'absolute', top: 0, left: 0, zIndex: 6, display: 'flex', flexDirection: 'column', alignItems: 'center' }}
+        >
+          <div style={{ background: 'var(--text-primary)', color: 'white', padding: '4px 8px', borderRadius: '8px', fontSize: '0.7rem', fontWeight: 700, marginBottom: '4px', whiteSpace: 'nowrap' }}>
+            5 mins away
+          </div>
+          <div style={{ width: '36px', height: '36px', borderRadius: '50%', background: 'white', border: '3px solid var(--emerald)', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: 'var(--shadow-md)' }}>
+            <img src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${order.providerId}`} alt="hustler" style={{ width: '100%', height: '100%', borderRadius: '50%' }} />
+          </div>
+        </motion.div>
+
+        {/* Destination Pin */}
+        <div style={{ position: 'absolute', top: '380px', left: '330px', zIndex: 5, width: '24px', height: '24px', borderRadius: '50%', background: 'var(--text-primary)', border: '4px solid white', boxShadow: 'var(--shadow-md)' }} />
       </div>
 
-      <div style={{ padding: '0 24px 100px' }}>
-        {/* Customer Card */}
-        <div className="card-glass" style={{ padding: '20px', display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '24px' }}>
-          <div style={{ width: '48px', height: '48px', borderRadius: '12px', overflow: 'hidden' }}>
-            <img src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${order.customerId}`} alt="customer" />
+      {/* Tracking Info Bottom Sheet */}
+      <div style={{ background: 'var(--bg-card)', borderRadius: '32px 32px 0 0', padding: '24px', position: 'relative', zIndex: 20, boxShadow: '0 -10px 40px rgba(0,0,0,0.1)', marginTop: '-20px' }}>
+        <div style={{ width: '40px', height: '4px', background: 'var(--border-color)', borderRadius: '4px', margin: '0 auto 20px' }} />
+        
+        <div className="flex-between" style={{ marginBottom: '16px' }}>
+          <h2 style={{ fontSize: '1.4rem', fontWeight: 900, fontFamily: 'Outfit' }}>Tracking Order</h2>
+          <div className="badge badge-emerald">On the way</div>
+        </div>
+
+        <div style={{ fontSize: '1.1rem', fontWeight: 800, marginBottom: '24px' }}>{order.service.title}</div>
+
+        <div className="card-glass" style={{ padding: '16px', display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '24px', background: 'var(--bg-tertiary)' }}>
+          <div style={{ width: '56px', height: '56px', borderRadius: '16px', overflow: 'hidden' }}>
+            <img src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${order.providerId}`} alt="provider" />
           </div>
           <div style={{ flex: 1 }}>
-            <div style={{ fontWeight: 800 }}>{order.customer.fullname}</div>
-            <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', fontWeight: 700 }}>CUSTOMER</div>
+            <div style={{ fontWeight: 800, fontSize: '1rem' }}>{order.provider.fullname}</div>
+            <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', fontWeight: 600 }}>Hustler • 4.9 ★</div>
           </div>
-          <button className="btn-ghost" style={{ padding: '10px' }}><MessageSquare size={20} className="text-emerald" /></button>
-        </div>
-
-        <div className="card" style={{ padding: '24px', marginBottom: '32px' }}>
-          <div className="badge badge-emerald" style={{ marginBottom: '12px' }}>{order.service.category}</div>
-          <h2 style={{ fontSize: '1.3rem', fontWeight: 900, marginBottom: '8px' }}>{order.service.title}</h2>
-          <div style={{ fontSize: '1.2rem', fontWeight: 900, color: 'var(--emerald)', marginBottom: '20px' }}>BND {order.service.price}</div>
-          
-          <div style={{ padding: '16px', background: 'var(--bg-tertiary)', borderRadius: '12px', border: '1px solid var(--border-glass)', marginBottom: '20px' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', color: 'var(--text-secondary)', fontSize: '0.85rem', fontWeight: 600 }}>
-              <Shield size={16} className="text-emerald" />
-              <span>Funds securely held in escrow</span>
-            </div>
-          </div>
-
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', color: 'var(--text-muted)', fontSize: '0.8rem', fontWeight: 700 }}>
-              <Clock size={14} /> Requested on {new Date(order.created_at).toLocaleDateString()}
-            </div>
+          <div style={{ display: 'flex', gap: '8px' }}>
+            <button className="btn-ghost" style={{ padding: '10px', background: 'white', borderRadius: '12px' }}><Phone size={20} className="text-emerald" /></button>
+            <button className="btn-ghost" style={{ padding: '10px', background: 'white', borderRadius: '12px' }}><MessageSquare size={20} className="text-emerald" /></button>
           </div>
         </div>
 
-        {/* Actions based on status */}
-        {order.status === 'pending' && (
-          <div style={{ display: 'flex', gap: '12px' }}>
-            <button 
-              className="btn-ghost" 
-              onClick={() => handleAction('cancelled')}
-              style={{ flex: 1, height: '56px', border: '1px solid #ef4444', color: '#ef4444' }}
-            >
-              Decline
-            </button>
-            <button 
-              className="btn-primary" 
-              onClick={() => handleAction('accepted')}
-              style={{ flex: 2, height: '56px' }}
-            >
-              Accept Order
-            </button>
-          </div>
-        )}
-
-        {order.status === 'accepted' && (
-          <button 
-            className="btn-primary" 
-            onClick={() => handleAction('in_progress')}
-            style={{ width: '100%', height: '56px' }}
-          >
-            Start Working
-          </button>
-        )}
-
-        {order.status === 'in_progress' && (
-          <div className="card-glass" style={{ padding: '24px', textAlign: 'center' }}>
-            <div style={{ width: '48px', height: '48px', borderRadius: '50%', background: 'var(--emerald-soft)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px', color: 'var(--emerald)' }}>
-              <Clock size={24} />
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+          <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
+            <div style={{ width: '32px', height: '32px', borderRadius: '50%', background: 'var(--emerald-soft)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <Navigation size={16} className="text-emerald" />
             </div>
-            <h3 style={{ fontSize: '1.1rem', fontWeight: 800, marginBottom: '8px' }}>Working on it!</h3>
-            <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', fontWeight: 600, marginBottom: '20px' }}>
-              Once you finish, the client will confirm and release the payment from escrow.
-            </p>
+            <div>
+              <div style={{ fontSize: '0.9rem', fontWeight: 800 }}>ETA: 5 Minutes</div>
+              <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', fontWeight: 600 }}>Hustler is approaching your location</div>
+            </div>
           </div>
-        )}
+          <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
+            <div style={{ width: '32px', height: '32px', borderRadius: '50%', background: 'rgba(59, 130, 246, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <Shield size={16} style={{ color: '#3b82f6' }} />
+            </div>
+            <div>
+              <div style={{ fontSize: '0.9rem', fontWeight: 800 }}>Payment Secured</div>
+              <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', fontWeight: 600 }}>BND {order.service.price} is held in escrow until completion</div>
+            </div>
+          </div>
+        </div>
+        
+        <button className="btn-primary" style={{ width: '100%', height: '56px', marginTop: '24px' }}>Confirm Completion</button>
       </div>
     </div>
   );

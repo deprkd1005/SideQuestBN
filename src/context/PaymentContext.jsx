@@ -131,6 +131,12 @@ export const PaymentProvider = ({ children }) => {
 
   const postService = async (serviceData) => {
     try {
+      // Deduct from local wallet before posting
+      const amt = parseFloat(serviceData.price);
+      if (balance < amt) {
+        return { success: false, error: 'Insufficient balance to escrow this task' };
+      }
+
       const res = await fetch(`${getBaseUrl()}/api/services`, {
         method: 'POST',
         headers: { 
@@ -139,7 +145,27 @@ export const PaymentProvider = ({ children }) => {
         },
         body: JSON.stringify(serviceData)
       });
-      return await res.json();
+      const data = await res.json();
+      
+      if (data.success) {
+        const newBalance = balance - amt;
+        setBalance(newBalance);
+        localStorage.setItem(`wallet_balance_${user?.id}`, newBalance.toString());
+
+        const tx = {
+          id: 'tx_' + Math.random().toString(36).substr(2, 9),
+          type: 'debit',
+          description: `Held in Escrow: ${serviceData.title}`,
+          amount: amt,
+          date: new Date().toISOString()
+        };
+        const newTransactions = [tx, ...transactions];
+        setTransactions(newTransactions);
+        localStorage.setItem(`wallet_txs_${user?.id}`, JSON.stringify(newTransactions));
+        
+        refresh();
+      }
+      return data;
     } catch (err) {
       return { success: false, error: 'Server error' };
     }
@@ -157,25 +183,6 @@ export const PaymentProvider = ({ children }) => {
       });
       const data = await res.json();
       if (data.success) {
-        // Find the service to get its price
-        const svc = services.find(s => s.id === serviceId);
-        const amt = svc ? parseFloat(svc.price) : 0;
-        
-        const newBalance = balance - amt;
-        setBalance(newBalance);
-        localStorage.setItem(`wallet_balance_${user?.id}`, newBalance.toString());
-
-        const tx = {
-          id: 'tx_' + Math.random().toString(36).substr(2, 9),
-          type: 'debit',
-          description: `Held in Escrow: ${svc?.title || 'Service Booked'}`,
-          amount: amt,
-          date: new Date().toISOString()
-        };
-        const newTransactions = [tx, ...transactions];
-        setTransactions(newTransactions);
-        localStorage.setItem(`wallet_txs_${user?.id}`, JSON.stringify(newTransactions));
-        
         refresh();
       }
       return data;

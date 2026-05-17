@@ -120,7 +120,7 @@ const ServiceDetails = () => {
           disabled={booking}
           style={{ flex: 2, height: '56px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px' }}
         >
-          {booking ? <div className="spinner-small" style={{ borderTopColor: 'white' }} /> : <><Zap size={20} /> Request Service</>}
+          {booking ? <div className="spinner-small" style={{ borderTopColor: 'white' }} /> : <><Zap size={20} /> Accept Quest</>}
         </button>
       </div>
     </div>

@@ -186,7 +186,7 @@ app.get('/api/services', async (req, res) => {
   }
 });
 
-app.post('/api/services', authenticateToken, authorizeRole(['provider']), async (req, res) => {
+app.post('/api/services', authenticateToken, authorizeRole(['customer']), async (req, res) => {
   const { title, description, price, category } = req.body;
   try {
     const service = await prisma.service.create({
@@ -212,7 +212,7 @@ app.get('/api/services/:id', async (req, res) => {
 
 // --- ORDERS MODULE (/api/orders) ---
 
-app.post('/api/orders', authenticateToken, authorizeRole(['customer']), async (req, res) => {
+app.post('/api/orders', authenticateToken, authorizeRole(['provider']), async (req, res) => {
   const { serviceId } = req.body;
   try {
     const service = await prisma.service.findUnique({ where: { id: serviceId } });
@@ -221,8 +221,8 @@ app.post('/api/orders', authenticateToken, authorizeRole(['customer']), async (r
     const order = await prisma.order.create({
       data: {
         serviceId,
-        customerId: req.user.id,
-        providerId: service.providerId,
+        customerId: service.providerId, // Customer who posted the task
+        providerId: req.user.id,        // Provider who accepted the task
         status: 'pending',
         transaction: {
           create: {

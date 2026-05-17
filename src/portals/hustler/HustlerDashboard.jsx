@@ -40,13 +40,49 @@ const HustlerDashboard = () => {
           </div>
         </div>
 
-        {/* Search */}
+        {/* Geofencing Radar Map */}
+        <div className="card-glass" style={{ marginBottom: '24px', overflow: 'hidden', position: 'relative', height: '220px', borderRadius: '24px', background: 'var(--bg-secondary)', border: '1px solid var(--border-glass)' }}>
+          {/* Map Background Pattern */}
+          <div style={{ position: 'absolute', inset: 0, opacity: 0.1, backgroundImage: 'url("data:image/svg+xml,%3Csvg width=\'60\' height=\'60\' viewBox=\'0 0 60 60\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cpath d=\'M54.627 0l.83.83v58.34h-58.34v-.83l.83-.83h56.68v-56.68zM53.797 2.49v55.02h-55.02v-.83l.83-.83h53.36v-53.36z\' fill=\'%23d4af37\' fill-opacity=\'1\' fill-rule=\'evenodd\'/%3E%3C/svg%3E")' }} />
+          
+          {/* Radar Sweep Animation */}
+          <motion.div 
+            animate={{ rotate: 360 }}
+            transition={{ duration: 4, repeat: Infinity, ease: 'linear' }}
+            style={{ position: 'absolute', top: '50%', left: '50%', width: '300px', height: '300px', margin: '-150px 0 0 -150px', borderRadius: '50%', background: 'conic-gradient(from 0deg, transparent 70%, rgba(212, 175, 55, 0.4) 100%)', zIndex: 1 }}
+          />
+          <div style={{ position: 'absolute', top: '50%', left: '50%', width: '12px', height: '12px', margin: '-6px 0 0 -6px', borderRadius: '50%', background: 'var(--gold)', boxShadow: '0 0 20px 4px var(--gold-glow)', zIndex: 2 }} />
+          
+          {/* Geofence Rings */}
+          <div style={{ position: 'absolute', top: '50%', left: '50%', width: '100px', height: '100px', margin: '-50px 0 0 -50px', borderRadius: '50%', border: '1px dashed var(--gold)', opacity: 0.5 }} />
+          <div style={{ position: 'absolute', top: '50%', left: '50%', width: '200px', height: '200px', margin: '-100px 0 0 -100px', borderRadius: '50%', border: '1px dashed var(--gold)', opacity: 0.2 }} />
+
+          {/* Job Pins */}
+          <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ delay: 0.5 }} style={{ position: 'absolute', top: '30%', left: '65%', width: '16px', height: '16px', borderRadius: '50%', background: 'var(--emerald)', border: '2px solid white', zIndex: 3, boxShadow: '0 0 10px var(--emerald-glow)' }} />
+          <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ delay: 1.2 }} style={{ position: 'absolute', top: '70%', left: '40%', width: '16px', height: '16px', borderRadius: '50%', background: 'var(--emerald)', border: '2px solid white', zIndex: 3, boxShadow: '0 0 10px var(--emerald-glow)' }} />
+          <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ delay: 2.1 }} style={{ position: 'absolute', top: '45%', left: '20%', width: '16px', height: '16px', borderRadius: '50%', background: 'var(--emerald)', border: '2px solid white', zIndex: 3, boxShadow: '0 0 10px var(--emerald-glow)' }} />
+
+          <div style={{ position: 'absolute', bottom: '16px', left: '16px', right: '16px', zIndex: 10 }}>
+            <div className="card-glass" style={{ background: 'var(--bg-glass-strong)', padding: '12px 16px', borderRadius: '16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <MapPin size={16} className="text-gold" />
+                <span style={{ fontSize: '0.8rem', fontWeight: 700 }}>Brunei Muara</span>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <span style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-muted)' }}>Radius: 10km</span>
+                <input type="range" min="1" max="25" defaultValue="10" style={{ width: '60px', accentColor: 'var(--gold)' }} />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Search & Filters */}
         <div style={{ display: 'flex', gap: '12px', marginBottom: '20px' }}>
           <div className="card-glass" style={{ flex: 1, display: 'flex', alignItems: 'center', padding: '4px 16px', borderRadius: '20px' }}>
             <Search size={18} className="text-muted" />
             <input 
               type="text" 
-              placeholder="What do you need help with?" 
+              placeholder="Search side quests..." 
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               style={{ flex: 1, padding: '16px', background: 'none', border: 'none', color: 'var(--text-primary)', fontWeight: 600, outline: 'none' }}
