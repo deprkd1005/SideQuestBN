@@ -45,8 +45,8 @@ const Notifications = () => {
                   display: 'flex', 
                   gap: '16px', 
                   padding: '20px',
-                  background: n.is_read ? 'var(--bg-card)' : 'rgba(16, 185, 129, 0.05)',
-                  borderLeft: n.is_read ? '1px solid var(--border-glass)' : '4px solid var(--emerald)'
+                  background: n.is_read ? 'var(--bg-card)' : 'var(--portal-soft)',
+                  borderLeft: n.is_read ? '1px solid var(--border-glass)' : '4px solid var(--portal-color)'
                 }}
               >
                 <div style={{ marginTop: '4px' }}>

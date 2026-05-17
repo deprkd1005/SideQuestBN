@@ -57,13 +57,14 @@ const PosterWallet = ({ onAnimation }) => {
       <div style={{ padding: '0 20px 24px' }}>
         {/* Premium Balance Card */}
         <div className="card-elevated" style={{ 
-          background: 'linear-gradient(135deg, var(--orange) 0%, #92400e 100%)',
+          background: 'linear-gradient(135deg, var(--emerald) 0%, #047857 100%)',
           padding: '24px',
           borderRadius: '24px',
           marginBottom: '24px',
           color: 'white',
           position: 'relative',
-          overflow: 'hidden'
+          overflow: 'hidden',
+          boxShadow: '0 20px 40px var(--emerald-glow)'
         }}>
           <div style={{ position: 'absolute', top: '-10%', right: '-10%', width: '140px', height: '140px', background: 'rgba(255,255,255,0.05)', borderRadius: '50%' }} />
           
@@ -75,7 +76,7 @@ const PosterWallet = ({ onAnimation }) => {
             </div>
           </div>
 
-          <button className="btn-primary" onClick={() => setShowAddFunds(true)} style={{ width: '100%', background: 'var(--bg-tertiary)', color: 'var(--orange)' }}>
+          <button className="btn-primary" onClick={() => setShowAddFunds(true)} style={{ width: '100%', background: 'var(--bg-tertiary)', color: 'var(--emerald)' }}>
             <Plus size={18} /> Add Funds
           </button>
         </div>
@@ -115,7 +116,7 @@ const PosterWallet = ({ onAnimation }) => {
         {/* Transaction History */}
         <div className="flex-between" style={{ marginBottom: '16px' }}>
           <h3 style={{ fontSize: '1.1rem', fontWeight: 700 }}>Recent Activity</h3>
-          <button className="btn-ghost" style={{ fontSize: '0.85rem', color: 'var(--orange)' }}>See All</button>
+          <button className="btn-ghost" style={{ fontSize: '0.85rem', color: 'var(--emerald)' }}>See All</button>
         </div>
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
@@ -190,7 +191,7 @@ const PosterWallet = ({ onAnimation }) => {
 
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
                 <button className="btn-outline" onClick={() => setShowAddFunds(false)}>Cancel</button>
-                <button className="btn-primary" onClick={handleAddFunds} disabled={stage !== 'idle'} style={{ background: 'var(--orange)' }}>
+                <button className="btn-primary" onClick={handleAddFunds} disabled={stage !== 'idle'} style={{ background: 'var(--emerald)' }}>
                   {stage === 'idle' && 'Continue'}
                   {stage === 'transferring' && 'Processing...'}
                   {stage === 'success' && 'Success! ✅'}

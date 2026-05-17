@@ -33,9 +33,9 @@ const Wallet = ({ onAnimation }) => {
           whileHover={{ y: -5, rotateX: 5 }}
           style={{ 
             padding: '24px', 
-            background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)', 
+            background: 'linear-gradient(135deg, var(--gold) 0%, #b45309 100%)', 
             borderRadius: '24px',
-            boxShadow: '0 20px 40px rgba(16, 185, 129, 0.25)',
+            boxShadow: '0 20px 40px var(--gold-soft)',
             position: 'relative',
             overflow: 'hidden',
             color: 'white',
@@ -69,11 +69,8 @@ const Wallet = ({ onAnimation }) => {
 
         {/* Quick Actions */}
         <div style={{ display: 'flex', gap: '12px', marginTop: '24px' }}>
-          <button className="btn-primary" style={{ flex: 1, height: '52px', borderRadius: '16px', boxShadow: '0 10px 20px rgba(16, 185, 129, 0.2)' }} onClick={() => setShowWithdraw(true)}>
+          <button className="btn-primary" style={{ flex: 1, height: '52px', borderRadius: '16px', boxShadow: '0 10px 20px var(--gold-soft)' }} onClick={() => setShowWithdraw(true)}>
             <Download size={18} /> Withdraw
-          </button>
-          <button className="btn-outline" style={{ width: '52px', height: '52px', padding: 0, borderRadius: '16px', background: 'var(--bg-tertiary)' }}>
-            <Plus size={20} />
           </button>
         </div>
       </div>
@@ -122,7 +119,7 @@ const Wallet = ({ onAnimation }) => {
         {/* Transaction History */}
         <div className="flex-between" style={{ marginBottom: '16px' }}>
           <h3 style={{ fontSize: '1.1rem', fontWeight: 800 }}>Recent History</h3>
-          <button className="btn-ghost" onClick={() => alert('Opening monthly financial statement...')} style={{ fontSize: '0.85rem', color: 'var(--emerald)', fontWeight: 700 }}>View Statements</button>
+          <button className="btn-ghost" onClick={() => alert('Opening monthly financial statement...')} style={{ fontSize: '0.85rem', color: 'var(--gold)', fontWeight: 700 }}>View Statements</button>
         </div>
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
@@ -163,26 +160,7 @@ const Wallet = ({ onAnimation }) => {
       {/* Withdraw Sheet */}
       <AnimatePresence>
         {showWithdraw && (
-          <div 
-            style={{ 
-              position: 'fixed', 
-              inset: 0, 
-              zIndex: 9999, 
-              display: 'flex', 
-              alignItems: 'flex-end', 
-              justifyContent: 'center',
-              pointerEvents: 'none'
-            }}
-          >
-            <motion.div 
-              key="withdraw-overlay"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="modal-overlay"
-              style={{ position: 'absolute', inset: 0, pointerEvents: 'auto' }}
-              onClick={() => setShowWithdraw(false)}
-            />
+          <div className="modal-overlay" onClick={() => setShowWithdraw(false)}>
             <motion.div 
               key="withdraw-sheet"
               initial={{ y: '100%' }}
@@ -190,118 +168,111 @@ const Wallet = ({ onAnimation }) => {
               exit={{ y: '100%' }}
               transition={{ type: 'spring', damping: 25, stiffness: 200 }}
               className="bottom-sheet"
-              style={{ 
-                zIndex: 10000, 
-                width: '100%', 
-                maxWidth: '480px', 
-                position: 'relative',
-                pointerEvents: 'auto'
-              }}
               onClick={e => e.stopPropagation()}
             >
-            <div className="sheet-handle" />
-            <h3 style={{ fontSize: '1.25rem', fontWeight: 900, marginBottom: '24px', color: 'var(--text-primary)' }}>Withdraw to Bank</h3>
-            
-            <div style={{ marginBottom: '24px' }}>
-              <label style={{ fontSize: '0.75rem', color: 'var(--text-muted)', fontWeight: 800, textTransform: 'uppercase', marginBottom: '12px', display: 'block' }}>Select Method</label>
-              <div className="card" style={{ padding: '16px', display: 'flex', alignItems: 'center', gap: '16px', borderColor: 'var(--emerald)', background: 'var(--bg-primary)' }}>
-                <div style={{ width: '40px', height: '24px', background: '#e0e0e0', borderRadius: '4px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#333', fontSize: '0.6rem', fontWeight: 900 }}>BIBD</div>
-                <div style={{ flex: 1 }}>
-                  <div style={{ fontSize: '0.9rem', fontWeight: 700, color: 'var(--text-primary)' }}>BIBD Aspirasi</div>
-                  <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>**** 8842</div>
-                </div>
-                <ChevronRight size={18} className="text-muted" />
-              </div>
-            </div>
-
-            <div style={{ marginBottom: '24px' }}>
-              <label style={{ fontSize: '0.75rem', color: 'var(--text-muted)', fontWeight: 800, textTransform: 'uppercase', marginBottom: '12px', display: 'block' }}>Amount</label>
-              <div style={{ position: 'relative' }}>
-                <input 
-                  type="number" 
-                  placeholder="0.00" 
-                  value={withdrawAmount}
-                  onChange={(e) => setWithdrawAmount(e.target.value)}
-                  style={{ width: '100%', background: 'var(--bg-primary)', border: '1px solid var(--border-color)', borderRadius: '16px', padding: '16px 20px', color: 'var(--text-primary)', fontSize: '1.5rem', fontWeight: 900, textAlign: 'center' }}
-                />
-                {parseFloat(withdrawAmount) > 150 && (
-                  <div style={{ color: 'var(--red)', fontSize: '0.75rem', fontWeight: 700, marginTop: '8px', textAlign: 'center' }}>
-                    Maximum instant withdrawal per day is BND 150.00.
+              <div className="sheet-handle" />
+              <h3 style={{ fontSize: '1.25rem', fontWeight: 900, marginBottom: '24px', color: 'var(--text-primary)' }}>Withdraw to Bank</h3>
+              
+              <div style={{ marginBottom: '24px' }}>
+                <label style={{ fontSize: '0.75rem', color: 'var(--text-muted)', fontWeight: 800, textTransform: 'uppercase', marginBottom: '12px', display: 'block' }}>Select Method</label>
+                <div className="card" style={{ padding: '16px', display: 'flex', alignItems: 'center', gap: '16px', borderColor: 'var(--gold)', background: 'var(--bg-primary)' }}>
+                  <div style={{ width: '40px', height: '24px', background: '#e0e0e0', borderRadius: '4px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#333', fontSize: '0.6rem', fontWeight: 900 }}>BIBD</div>
+                  <div style={{ flex: 1 }}>
+                    <div style={{ fontSize: '0.9rem', fontWeight: 700, color: 'var(--text-primary)' }}>BIBD Aspirasi</div>
+                    <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>**** 8842</div>
                   </div>
-                )}
+                  <ChevronRight size={18} className="text-muted" />
+                </div>
               </div>
-              <div className="flex-between" style={{ marginTop: '12px' }}>
-                <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Min: BND 10.00</span>
-                <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Fee: BND 0.50</span>
+
+              <div style={{ marginBottom: '24px' }}>
+                <label style={{ fontSize: '0.75rem', color: 'var(--text-muted)', fontWeight: 800, textTransform: 'uppercase', marginBottom: '12px', display: 'block' }}>Amount</label>
+                <div style={{ position: 'relative' }}>
+                  <input 
+                    type="number" 
+                    placeholder="0.00" 
+                    value={withdrawAmount}
+                    onChange={(e) => setWithdrawAmount(e.target.value)}
+                    style={{ width: '100%', background: 'var(--bg-primary)', border: '1px solid var(--border-color)', borderRadius: '16px', padding: '16px 20px', color: 'var(--text-primary)', fontSize: '1.5rem', fontWeight: 900, textAlign: 'center' }}
+                  />
+                  {parseFloat(withdrawAmount) > 150 && (
+                    <div style={{ color: 'var(--red)', fontSize: '0.75rem', fontWeight: 700, marginTop: '8px', textAlign: 'center' }}>
+                      Maximum instant withdrawal per day is BND 150.00.
+                    </div>
+                  )}
+                </div>
+                <div className="flex-between" style={{ marginTop: '12px' }}>
+                  <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Min: BND 10.00</span>
+                  <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Fee: BND 0.50</span>
+                </div>
               </div>
-            </div>
 
-            <div style={{ marginBottom: '32px' }}>
-              <label style={{ fontSize: '0.75rem', color: 'var(--text-muted)', fontWeight: 800, textTransform: 'uppercase', marginBottom: '12px', display: 'block' }}>2FA Verification</label>
-              <input 
-                type="password" 
-                placeholder="6-digit code" 
-                value={twoFactorCode}
-                onChange={(e) => setTwoFactorCode(e.target.value)}
-                maxLength={6}
-                style={{ width: '100%', background: 'var(--bg-primary)', border: '1px solid var(--border-color)', borderRadius: '16px', padding: '16px', color: 'var(--text-primary)', fontSize: '1.2rem', fontWeight: 900, textAlign: 'center', letterSpacing: '4px' }}
-              />
-            </div>
+              <div style={{ marginBottom: '32px' }}>
+                <label style={{ fontSize: '0.75rem', color: 'var(--text-muted)', fontWeight: 800, textTransform: 'uppercase', marginBottom: '12px', display: 'block' }}>2FA Verification</label>
+                <input 
+                  type="password" 
+                  placeholder="6-digit code" 
+                  value={twoFactorCode}
+                  onChange={(e) => setTwoFactorCode(e.target.value)}
+                  maxLength={6}
+                  style={{ width: '100%', background: 'var(--bg-primary)', border: '1px solid var(--border-color)', borderRadius: '16px', padding: '16px', color: 'var(--text-primary)', fontSize: '1.2rem', fontWeight: 900, textAlign: 'center', letterSpacing: '4px' }}
+                />
+              </div>
 
-            <button 
-              className="btn-primary" 
-              style={{ width: '100%', height: '60px', fontSize: '1.1rem', position: 'relative', opacity: (!withdrawAmount || parseFloat(withdrawAmount) <= 0 || parseFloat(withdrawAmount) > 150 || (twoFactorCode && twoFactorCode.length < 3)) ? 0.5 : 1 }}
-              onClick={async () => {
-                const amt = parseFloat(withdrawAmount);
-                if (isNaN(amt) || amt <= 0 || amt > (balance || 0) || amt > 150) {
-                  alert('Invalid amount or insufficient funds');
-                  return;
-                }
-                
-                setStage('transferring');
-                onAnimation('transferring');
-                
-                // Actual Backend Call
-                let isSuccess = false;
-                try {
-                  const result = await withdraw({
-                      amount: amt,
-                      bank: 'BIBD',
-                      account: '8842',
-                      twoFactorCode: twoFactorCode || '123456' 
-                  });
-                  
-                  if (result && result.success) {
-                    setStage('success');
-                    isSuccess = true;
-                    updateBalance((balance || 0) - amt);
-                  } else {
-                    alert(result?.error || 'Withdrawal failed. Please check your balance or 2FA code.');
-                    setStage('idle');
+              <button 
+                className="btn-primary" 
+                style={{ width: '100%', height: '60px', fontSize: '1.1rem', position: 'relative', opacity: (!withdrawAmount || parseFloat(withdrawAmount) <= 0 || parseFloat(withdrawAmount) > 150 || (twoFactorCode && twoFactorCode.length < 3)) ? 0.5 : 1 }}
+                onClick={async () => {
+                  const amt = parseFloat(withdrawAmount);
+                  if (isNaN(amt) || amt <= 0 || amt > (balance || 0) || amt > 150) {
+                    alert('Invalid amount or insufficient funds');
+                    return;
                   }
-                } catch (err) {
-                  console.error("Withdrawal failed", err);
-                  alert('Network error. Please try again.');
-                  setStage('idle');
-                } finally {
-                  setTimeout(() => {
-                    onAnimation(null);
-                    if (isSuccess) {
-                      setShowWithdraw(false);
+                  
+                  setStage('transferring');
+                  onAnimation('transferring');
+                  
+                  // Actual Backend Call
+                  let isSuccess = false;
+                  try {
+                    const result = await withdraw({
+                        amount: amt,
+                        bank: 'BIBD',
+                        account: '8842',
+                        twoFactorCode: twoFactorCode || '123456' 
+                    });
+                    
+                    if (result && result.success) {
+                      setStage('success');
+                      isSuccess = true;
+                      updateBalance((balance || 0) - amt);
+                    } else {
+                      alert(result?.error || 'Withdrawal failed. Please check your balance or 2FA code.');
                       setStage('idle');
-                      setWithdrawAmount('');
-                      setTwoFactorCode('');
                     }
-                  }, 2000);
-                }
-              }}
-              disabled={stage !== 'idle'}
-            >
-              {stage === 'idle' && 'Confirm Withdrawal'}
-              {stage === 'transferring' && 'Processing...'}
-              {stage === 'success' && 'Transfer Complete! ✅'}
-            </button>
-          </motion.div>
+                  } catch (err) {
+                    console.error("Withdrawal failed", err);
+                    alert('Network error. Please try again.');
+                    setStage('idle');
+                  } finally {
+                    setTimeout(() => {
+                      onAnimation(null);
+                      if (isSuccess) {
+                        setShowWithdraw(false);
+                        setStage('idle');
+                        setWithdrawAmount('');
+                        setTwoFactorCode('');
+                      }
+                    }, 2000);
+                  }
+                }}
+                disabled={stage !== 'idle'}
+              >
+                {stage === 'idle' && 'Confirm Withdrawal'}
+                {stage === 'transferring' && 'Processing...'}
+                {stage === 'success' && 'Transfer Complete! ✅'}
+              </button>
+            </motion.div>
           </div>
         )}
       </AnimatePresence>
