@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Search, Briefcase, MapPin, Star, ChevronRight, Bell, Filter, Zap, LocateFixed } from 'lucide-react';
+import { Search, Briefcase, MapPin, Star, ChevronRight, Bell, Filter, Zap, LocateFixed, ChevronDown, TrendingUp, Layers, Locate, Radar, SlidersHorizontal } from 'lucide-react';
 import { usePayment } from '../../context/PaymentContext';
 
 const HustlerDashboard = () => {
@@ -78,7 +78,7 @@ const HustlerDashboard = () => {
     };
   }, [services, radius]);
 
-  const categories = ['All', 'Delivery', 'Cleaning', 'Digital', 'Handyman', 'Education'];
+  const categories = ['All', 'Delivery', 'Cleaning', 'Handyman', 'Education'];
 
   const filteredServices = services.filter(s => 
     (selectedCategory === 'All' || s.category === selectedCategory) &&
@@ -96,95 +96,80 @@ const HustlerDashboard = () => {
       </div>
 
       {/* Floating Top Elements */}
-      <div style={{ position: 'absolute', top: 0, left: 0, right: 0, zIndex: 400, padding: '54px 20px 0 20px', pointerEvents: 'none' }}>
+      <div style={{ position: 'absolute', top: 0, left: 0, right: 0, zIndex: 400, padding: '48px 20px 0 20px', pointerEvents: 'none' }}>
         
-        {/* Search & Filters */}
-        <div style={{ display: 'flex', gap: '12px', marginBottom: '16px', pointerEvents: 'auto' }}>
-          <div className="card-glass" style={{ flex: 1, display: 'flex', alignItems: 'center', padding: '4px 16px', borderRadius: '20px', background: 'rgba(255, 255, 255, 0.98)', boxShadow: '0 8px 32px rgba(0,0,0,0.08)', border: '1px solid rgba(0,0,0,0.04)' }}>
-            <Search size={20} color="#8E8E93" />
-            <input 
-              type="text" 
-              placeholder="Search side quests..." 
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              style={{ flex: 1, padding: '16px 12px', background: 'none', border: 'none', color: '#1C1C1E', fontWeight: 600, fontSize: '0.95rem', outline: 'none' }}
-            />
+        {/* Top Header */}
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px', pointerEvents: 'auto' }}>
+          
+          {/* Location Pill */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '8px 12px', borderRadius: '50px', background: 'rgba(255,255,255,0.9)', backdropFilter: 'blur(10px)', border: '1px solid rgba(255,255,255,0.3)', boxShadow: '0 4px 12px rgba(0,0,0,0.05)' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '28px', height: '28px', borderRadius: '50%', background: '#1C1C1E' }}>
+              <MapPin size={14} color="white" />
+            </div>
+            <div style={{ lineHeight: 1 }}>
+              <p style={{ fontSize: '10px', color: '#8E8E93', fontWeight: 600 }}>Current Location</p>
+              <p style={{ fontSize: '12px', fontWeight: 800, color: '#1C1C1E', marginTop: '2px' }}>Bandar Seri Begawan</p>
+            </div>
+            <ChevronDown size={14} color="#8E8E93" />
           </div>
-          <button className="card-glass flex-center" style={{ width: '56px', borderRadius: '20px', background: 'rgba(255, 255, 255, 0.98)', boxShadow: '0 8px 32px rgba(0,0,0,0.08)', border: '1px solid rgba(0,0,0,0.04)' }}>
-            <Filter size={20} className="text-gold" />
+
+          {/* Notification */}
+          <button onClick={() => navigate('/hustler/notifications')} style={{ position: 'relative', width: '40px', height: '40px', borderRadius: '50%', background: 'rgba(255,255,255,0.9)', backdropFilter: 'blur(10px)', border: '1px solid rgba(255,255,255,0.3)', boxShadow: '0 4px 12px rgba(0,0,0,0.05)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
+            <Bell size={18} color="#1C1C1E" />
+            <span style={{ position: 'absolute', top: '8px', right: '8px', width: '8px', height: '8px', background: '#FF3B30', borderRadius: '50%' }} />
           </button>
         </div>
 
-        {/* Categories */}
-        <div className="no-scrollbar" style={{ display: 'flex', gap: '10px', overflowX: 'auto', pointerEvents: 'auto', paddingBottom: '10px' }}>
-          {categories.map(cat => (
-            <button 
-              key={cat}
-              onClick={() => setSelectedCategory(cat)}
-              style={{
-                padding: '10px 20px',
-                borderRadius: '20px',
-                background: selectedCategory === cat ? 'var(--gold)' : 'rgba(255, 255, 255, 0.95)',
-                color: selectedCategory === cat ? 'white' : 'var(--text-secondary)',
-                border: selectedCategory === cat ? 'none' : '1px solid rgba(0,0,0,0.05)',
-                boxShadow: '0 4px 12px rgba(0,0,0,0.05)',
-                fontWeight: 800,
-                fontSize: '0.85rem',
-                whiteSpace: 'nowrap',
-                transition: 'all 0.3s'
-              }}
-            >
-              {cat}
-            </button>
-          ))}
+        {/* Search Bar */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px 16px', borderRadius: '50px', background: 'rgba(255,255,255,0.9)', backdropFilter: 'blur(10px)', border: '1px solid rgba(255,255,255,0.3)', boxShadow: '0 8px 24px rgba(0,0,0,0.08)', pointerEvents: 'auto' }}>
+          <Search size={18} color="#8E8E93" />
+          <input 
+            type="text" 
+            placeholder="Search nearby quests" 
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            style={{ flex: 1, background: 'transparent', border: 'none', outline: 'none', fontSize: '14px', color: '#1C1C1E', fontWeight: 600 }}
+          />
+          <SlidersHorizontal size={18} color="#1C1C1E" />
         </div>
       </div>
 
-      {/* Floating Bottom Elements */}
-      <div style={{ position: 'absolute', bottom: '120px', left: '20px', right: '20px', zIndex: 400, pointerEvents: 'none', display: 'flex', flexDirection: 'column', gap: '16px' }}>
-         
-         {/* GPS Floating Action Button */}
-         <div style={{ display: 'flex', justifyContent: 'flex-end', pointerEvents: 'auto' }}>
-            <button onClick={() => mapInstanceRef.current?.setView([4.8903, 114.9401], 12)} style={{ background: 'white', width: '52px', height: '52px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 8px 24px rgba(0,0,0,0.15)', border: 'none' }}>
-               <LocateFixed size={22} className="text-gold" />
-            </button>
-         </div>
+      {/* Floating Left: Earnings Card */}
+      <div style={{ position: 'absolute', top: '160px', left: '20px', zIndex: 400, pointerEvents: 'auto' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '8px 12px', borderRadius: '50px', background: 'rgba(255,255,255,0.9)', backdropFilter: 'blur(10px)', border: '1px solid rgba(255,255,255,0.3)', boxShadow: '0 4px 12px rgba(0,0,0,0.05)' }}>
+          <div style={{ position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center', width: '32px', height: '32px', borderRadius: '50%', background: '#1C1C1E' }}>
+            <TrendingUp size={16} color="white" />
+            <span style={{ position: 'absolute', top: '-2px', right: '-2px', width: '10px', height: '10px', background: 'var(--emerald)', border: '2px solid white', borderRadius: '50%' }} />
+          </div>
+          <div style={{ lineHeight: 1 }}>
+            <p style={{ fontSize: '9px', color: '#8E8E93', fontWeight: 700, textTransform: 'uppercase' }}>Earnings</p>
+            <p style={{ fontSize: '12px', fontWeight: 900, color: '#1C1C1E', marginTop: '2px' }}>BND {totalPotential.toFixed(2)}</p>
+          </div>
+        </div>
+      </div>
 
-         {/* Unified Mission Control Card */}
-         <div className="card-glass" style={{ background: 'rgba(255, 255, 255, 0.98)', padding: '20px', borderRadius: '28px', display: 'flex', flexDirection: 'column', gap: '20px', pointerEvents: 'auto', boxShadow: '0 12px 40px rgba(0,0,0,0.12)', border: '1px solid rgba(0,0,0,0.04)' }}>
-            
-            {/* Surge Zone Section */}
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingBottom: '16px', borderBottom: '1px solid rgba(0,0,0,0.06)' }}>
-               <div>
-                 <div style={{ fontSize: '0.75rem', fontWeight: 800, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '4px' }}>Surge Zone Potential</div>
-                 <div style={{ fontSize: '1.6rem', fontWeight: 900, color: 'var(--gold)', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                   <Zap size={22} fill="var(--gold)" />
-                   BND {totalPotential.toFixed(2)}
-                 </div>
-               </div>
-            </div>
+      {/* Floating Right: Action Stack */}
+      <div style={{ position: 'absolute', top: '160px', right: '20px', zIndex: 400, display: 'flex', flexDirection: 'column', gap: '12px', pointerEvents: 'auto' }}>
+        {/* Layers */}
+        <button style={{ width: '40px', height: '40px', borderRadius: '50%', background: 'rgba(255,255,255,0.9)', backdropFilter: 'blur(10px)', border: '1px solid rgba(255,255,255,0.3)', boxShadow: '0 4px 12px rgba(0,0,0,0.05)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
+          <Layers size={18} color="#1C1C1E" />
+        </button>
+        {/* Locate */}
+        <button onClick={() => mapInstanceRef.current?.setView([4.8903, 114.9401], 12)} style={{ width: '40px', height: '40px', borderRadius: '50%', background: 'rgba(255,255,255,0.9)', backdropFilter: 'blur(10px)', border: '1px solid rgba(255,255,255,0.3)', boxShadow: '0 4px 12px rgba(0,0,0,0.05)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
+          <Locate size={18} color="#1C1C1E" />
+        </button>
+        {/* Main Radar Button (cycles radius) */}
+        <button onClick={() => setRadius(r => r >= 25 ? 5 : r + 5)} style={{ width: '56px', height: '56px', borderRadius: '50%', background: '#1C1C1E', color: 'white', border: '1px solid rgba(255,255,255,0.1)', boxShadow: '0 12px 24px rgba(0,0,0,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginTop: '8px', cursor: 'pointer' }}>
+          <Radar size={24} />
+        </button>
+      </div>
 
-            {/* Radius Slider Section */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-              <div style={{ width: '48px', height: '48px', borderRadius: '16px', background: 'rgba(212, 175, 55, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                <MapPin size={24} className="text-gold" />
-              </div>
-              <div style={{ flex: 1 }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
-                  <span style={{ fontSize: '0.95rem', fontWeight: 800 }}>Scanning Radius</span>
-                  <span style={{ fontSize: '0.85rem', fontWeight: 800, color: 'var(--gold)' }}>{radius} km</span>
-                </div>
-                <input 
-                  type="range" 
-                  min="1" 
-                  max="25" 
-                  value={radius} 
-                  onChange={(e) => setRadius(parseInt(e.target.value))}
-                  style={{ width: '100%', accentColor: 'var(--gold)' }} 
-                />
-              </div>
-            </div>
-         </div>
+      {/* Floating Bottom Center: Surge Info */}
+      <div style={{ position: 'absolute', bottom: '100px', left: '50%', transform: 'translateX(-50%)', zIndex: 400, pointerEvents: 'auto' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '8px 16px', borderRadius: '50px', background: 'rgba(255,255,255,0.9)', backdropFilter: 'blur(10px)', border: '1px solid rgba(255,255,255,0.3)', boxShadow: '0 8px 24px rgba(0,0,0,0.08)', whiteSpace: 'nowrap' }}>
+          <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: 'var(--emerald)', boxShadow: '0 0 8px var(--emerald)' }} />
+          <span style={{ fontSize: '11px', fontWeight: 800, color: '#1C1C1E' }}>Surge Zone · {filteredServices.length} quests · {radius} km</span>
+        </div>
       </div>
     </div>
   );
