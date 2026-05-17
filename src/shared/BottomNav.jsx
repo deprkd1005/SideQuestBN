@@ -9,15 +9,15 @@ const BottomNav = ({ portal }) => {
 
   const navItems = {
     hustler: [
-      { icon: Home, label: 'Home', path: '/hustler' },
-      { icon: Briefcase, label: 'Services', path: '/hustler/my-services' },
+      { icon: Home, label: 'Explore', path: '/hustler' },
+      { icon: Briefcase, label: 'Orders', path: '/hustler/orders' },
       { icon: Bell, label: 'Inbox', path: '/hustler/notifications' },
       { icon: Wallet, label: 'Wallet', path: '/hustler/wallet' },
       { icon: User, label: 'Profile', path: '/hustler/profile' }
     ],
     poster: [
-      { icon: Home, label: 'Explore', path: '/poster' },
-      { icon: Briefcase, label: 'Orders', path: '/poster/orders' },
+      { icon: Home, label: 'Home', path: '/poster' },
+      { icon: Briefcase, label: 'My Tasks', path: '/poster/my-services' },
       { icon: Bell, label: 'Inbox', path: '/poster/notifications' },
       { icon: Wallet, label: 'Wallet', path: '/poster/wallet' },
       { icon: User, label: 'Profile', path: '/poster/profile' }

@@ -54,9 +54,9 @@
   --nav-bottom: env(safe-area-inset-bottom, 0px);
 }
 
-.theme-customer { --portal-color: var(--emerald); --portal-soft: var(--emerald-soft); --portal-glow: var(--emerald-glow); }
-.theme-provider { --portal-color: var(--gold); --portal-soft: var(--gold-soft); --portal-glow: var(--gold-glow); }
-.theme-admin    { --portal-color: var(--blue); --portal-soft: rgba(59, 130, 246, 0.1); --portal-glow: rgba(59, 130, 246, 0.2); }
+.theme-customer { --portal-color: var(--emerald); --portal-soft: var(--emerald-soft); --portal-glow: var(--emerald-glow); --portal-dark: var(--emerald-dark); }
+.theme-provider { --portal-color: var(--gold); --portal-soft: var(--gold-soft); --portal-glow: var(--gold-glow); --portal-dark: var(--gold-dark); }
+.theme-admin    { --portal-color: var(--blue); --portal-soft: rgba(59, 130, 246, 0.1); --portal-glow: rgba(59, 130, 246, 0.2); --portal-dark: #1d4ed8; }
 
 * {
   margin: 0;
@@ -121,7 +121,7 @@ body {
 
 /* ═══════════════════ BUTTONS ═══════════════════ */
 .btn-primary {
-  background: linear-gradient(135deg, var(--portal-color) 0%, var(--emerald-dark) 100%);
+  background: linear-gradient(135deg, var(--portal-color) 0%, var(--portal-dark) 100%);
   color: white;
   border: none;
   padding: 16px 24px;
