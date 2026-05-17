@@ -29,8 +29,21 @@ const HustlerDashboard = () => {
     
     L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png').addTo(map);
 
-    // Hustler Location
-    L.circleMarker([4.8903, 114.9401], { color: 'var(--gold)', fillColor: 'var(--gold)', fillOpacity: 1, radius: 8 }).addTo(map);
+    // Custom Gamified Radar Marker
+    const radarIcon = L.divIcon({
+      className: 'custom-radar-icon',
+      html: `
+        <div style="position: relative; width: 60px; height: 60px; margin: -30px 0 0 -30px;">
+          <div style="position: absolute; inset: 0; border-radius: 50%; background: conic-gradient(from 0deg, transparent 70%, rgba(212, 175, 55, 0.6) 100%); animation: spin 3s linear infinite;"></div>
+          <div style="position: absolute; top: 50%; left: 50%; width: 14px; height: 14px; margin: -7px 0 0 -7px; border-radius: 50%; background: var(--gold); box-shadow: 0 0 15px var(--gold);"></div>
+        </div>
+        <style>@keyframes spin { 100% { transform: rotate(360deg); } }</style>
+      `,
+      iconSize: [0, 0]
+    });
+
+    // Hustler Location with Radar
+    L.marker([4.8903, 114.9401], { icon: radarIcon }).addTo(map);
     
     // Radius Geofence
     L.circle([4.8903, 114.9401], {
@@ -71,6 +84,8 @@ const HustlerDashboard = () => {
     (s.title.toLowerCase().includes(searchTerm.toLowerCase()) || s.description.toLowerCase().includes(searchTerm.toLowerCase()))
   );
 
+  const totalPotential = filteredServices.reduce((sum, s) => sum + parseFloat(s.price), 0);
+
   return (
     <div className="app-content no-scrollbar" style={{ background: 'var(--bg-primary)' }}>
       {/* Header */}
@@ -94,11 +109,22 @@ const HustlerDashboard = () => {
         <div className="card-glass" style={{ marginBottom: '24px', overflow: 'hidden', position: 'relative', height: '300px', borderRadius: '24px', background: 'var(--bg-secondary)', border: '1px solid var(--border-glass)' }}>
           <div ref={mapRef} style={{ width: '100%', height: '100%', zIndex: 1 }}></div>
           
-          {/* Map Controls */}
-          <div style={{ position: 'absolute', top: '16px', right: '16px', zIndex: 400 }}>
-             <button onClick={() => mapInstanceRef.current?.setView([4.8903, 114.9401], 12)} style={{ background: 'white', width: '40px', height: '40px', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 12px rgba(0,0,0,0.1)', border: 'none' }}>
+          {/* Map Controls & HUD */}
+          <div style={{ position: 'absolute', top: '16px', right: '16px', zIndex: 400, display: 'flex', flexDirection: 'column', gap: '12px' }}>
+             <button onClick={() => mapInstanceRef.current?.setView([4.8903, 114.9401], 12)} style={{ background: 'white', width: '40px', height: '40px', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 12px rgba(0,0,0,0.1)', border: 'none', alignSelf: 'flex-end' }}>
                 <LocateFixed size={20} className="text-gold" />
              </button>
+          </div>
+
+          {/* Financial Impact Overlay */}
+          <div style={{ position: 'absolute', top: '16px', left: '16px', zIndex: 400 }}>
+             <div className="card-glass" style={{ background: 'rgba(255, 255, 255, 0.95)', padding: '12px 16px', borderRadius: '16px', boxShadow: '0 8px 24px rgba(0,0,0,0.1)', border: '1px solid var(--gold-soft)' }}>
+               <div style={{ fontSize: '0.7rem', fontWeight: 800, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '4px' }}>Surge Zone Potential</div>
+               <div style={{ fontSize: '1.4rem', fontWeight: 900, color: 'var(--gold)', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                 <Zap size={18} fill="var(--gold)" />
+                 BND {totalPotential.toFixed(2)}
+               </div>
+             </div>
           </div>
 
           <div style={{ position: 'absolute', bottom: '16px', left: '16px', right: '16px', zIndex: 400 }}>
