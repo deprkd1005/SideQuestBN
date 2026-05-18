@@ -105,7 +105,7 @@ const Messages = () => {
             animate={{ x: 0 }}
             exit={{ x: '100%' }}
             transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-            style={{ display: 'flex', flexDirection: 'column', height: '100%', background: 'var(--bg-primary)', position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 1000 }}
+            style={{ display: 'flex', flexDirection: 'column', height: '100%', background: 'var(--bg-primary)', position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, zIndex: 1000 }}
           >
             {/* Chat Header */}
             <div className="flex-between" style={{ padding: '16px 20px', borderBottom: '1px solid var(--border-color)', background: 'var(--bg-glass)', backdropFilter: 'blur(20px)' }}>

@@ -31,6 +31,14 @@ const BottomNav = ({ portal }) => {
     ]
   }[portal] || [];
 
+  const currentPath = location.pathname.replace(/\/$/, '');
+  const isTabActive = navItems.some(item => {
+    const cleanPath = item.path.replace(/\/$/, '');
+    return currentPath === cleanPath;
+  });
+
+  if (!isTabActive) return null;
+
   return (
     <nav className="bottom-nav">
       {navItems.map(item => {

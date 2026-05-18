@@ -29,7 +29,7 @@ const ChatView = ({ onClose, sendMessage, fetchMessages, sessions, initialSessio
 
   const containerStyle = isFullView
     ? { height: '100%', display: 'flex', flexDirection: 'column' }
-    : { position: 'fixed', inset: 0, zIndex: 2000, background: 'var(--bg-primary)', display: 'flex', flexDirection: 'column' };
+    : { position: 'absolute', inset: 0, zIndex: 2000, background: 'var(--bg-primary)', display: 'flex', flexDirection: 'column' };
 
   return (
     <motion.div initial={isFullView ? {} : { y: '100%' }} animate={{ y: 0 }} exit={{ y: '100%' }} style={containerStyle}>
