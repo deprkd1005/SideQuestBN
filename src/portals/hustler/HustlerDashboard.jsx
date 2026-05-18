@@ -53,9 +53,21 @@ const HustlerDashboard = () => {
   const [accepting, setAccepting] = useState(false);
   
   // Location States
-  const [userCoords, setUserCoords] = useState({ lat: 4.8903, lng: 114.9401 });
-  const [locationName, setLocationName] = useState('Bandar Seri Begawan');
-  const [showLocationPrompt, setShowLocationPrompt] = useState(true);
+  const [userCoords, setUserCoords] = useState(() => {
+    const saved = localStorage.getItem('sidequest_user_coords');
+    if (saved) {
+      try {
+        return JSON.parse(saved);
+      } catch (e) {}
+    }
+    return { lat: 4.8903, lng: 114.9401 };
+  });
+  const [locationName, setLocationName] = useState(() => {
+    return localStorage.getItem('sidequest_location_name') || 'Bandar Seri Begawan';
+  });
+  const [showLocationPrompt, setShowLocationPrompt] = useState(() => {
+    return !localStorage.getItem('sidequest_location_authorized');
+  });
 
   const mapRef = useRef(null);
   const mapInstanceRef = useRef(null);
@@ -81,6 +93,7 @@ const HustlerDashboard = () => {
 
   // Request user geolocation
   const handleRequestLocation = () => {
+    localStorage.setItem('sidequest_location_authorized', 'true');
     setShowLocationPrompt(false);
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
@@ -91,19 +104,33 @@ const HustlerDashboard = () => {
           };
           setUserCoords(coords);
           setLocationName('Your Current Location');
+          localStorage.setItem('sidequest_user_coords', JSON.stringify(coords));
+          localStorage.setItem('sidequest_location_name', 'Your Current Location');
           if (mapInstanceRef.current) {
             mapInstanceRef.current.setView([coords.lat, coords.lng], 13);
           }
         },
         (error) => {
           console.warn('Geolocation denied or failed, falling back to default.', error);
-          setLocationName('Bandar Seri Begawan (Default)');
+          const defaultName = 'Bandar Seri Begawan (Default)';
+          setLocationName(defaultName);
+          localStorage.setItem('sidequest_location_name', defaultName);
         },
         { enableHighAccuracy: true, timeout: 5000 }
       );
     } else {
-      setLocationName('Bandar Seri Begawan (Default)');
+      const defaultName = 'Bandar Seri Begawan (Default)';
+      setLocationName(defaultName);
+      localStorage.setItem('sidequest_location_name', defaultName);
     }
+  };
+
+  const handleUseDefaultLocation = () => {
+    localStorage.setItem('sidequest_location_authorized', 'true');
+    setShowLocationPrompt(false);
+    const defaultName = 'Bandar Seri Begawan (Default)';
+    setLocationName(defaultName);
+    localStorage.setItem('sidequest_location_name', defaultName);
   };
 
   // Pre-filter services based on Category, Search Query, AND Geofence Radius
@@ -411,8 +438,8 @@ const HustlerDashboard = () => {
                 >
                   Authorize Location
                 </button>
-                <button 
-                  onClick={() => setShowLocationPrompt(false)} 
+                 <button 
+                  onClick={handleUseDefaultLocation} 
                   className="btn-ghost" 
                   style={{ width: '100%', height: '52px', border: '1px solid var(--border-glass)', fontSize: '0.9rem', color: 'var(--text-muted)' }}
                 >
