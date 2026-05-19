@@ -92,7 +92,7 @@ const PostJob = () => {
       </div>
 
       {/* Form */}
-      <form onSubmit={handleSubmit} style={{ padding: '0 24px 120px', flex: 1 }}>
+      <form onSubmit={handleSubmit} style={{ padding: '0 24px 40px', flex: 1 }}>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
           
           {/* Service Title */}
@@ -253,7 +253,7 @@ const PostJob = () => {
               width: '100%', 
               height: '56px', 
               marginTop: '12px',
-              background: '#18181b',
+              background: 'var(--emerald)',
               color: 'white',
               border: 'none',
               borderRadius: '16px',
@@ -264,14 +264,14 @@ const PostJob = () => {
               justifyContent: 'center',
               gap: '10px',
               cursor: 'pointer',
-              boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
+              boxShadow: '0 4px 14px rgba(16, 185, 129, 0.3)'
             }}
           >
             {loading ? (
               <div className="spinner-small" style={{ borderTopColor: 'white' }} />
             ) : (
               <>
-                <Send size={18} /> Publish Service
+                <Send size={18} /> Publish Task
               </>
             )}
           </button>
