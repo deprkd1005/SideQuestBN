@@ -1,16 +1,18 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowLeft, Clock, MapPin, MessageSquare, Phone, Shield, Navigation } from 'lucide-react';
 import { usePayment } from '../../context/PaymentContext';
-
 import TrackingMap from '../../components/TrackingMap';
+import EscrowFlow from '../../shared/EscrowFlow';
 
 const OrderDetails = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { orders, refresh } = usePayment();
+  const { orders, refresh, updateOrderStatus } = usePayment();
   const [order, setOrder] = useState(null);
+  const [isCompleting, setIsCompleting] = useState(false);
+  const [escrowStage, setEscrowStage] = useState('idle');
 
   useEffect(() => {
     refresh();
@@ -20,8 +22,30 @@ const OrderDetails = () => {
 
   if (!order) return <div className="app-content flex-center"><div className="spinner-small" /></div>;
 
+  const handleConfirmCompletion = async () => {
+    setIsCompleting(true);
+    setEscrowStage('escrow-to-worker');
+    
+    // Wait for the money transfer animation
+    setTimeout(async () => {
+      setEscrowStage('completed');
+      
+      try {
+        await updateOrderStatus(order.id, 'completed');
+      } catch (e) {
+        console.error("Failed to complete order:", e);
+      }
+      
+      // Wait for success check animation, then redirect
+      setTimeout(() => {
+        setIsCompleting(false);
+        navigate('/poster');
+      }, 2500);
+    }, 3000);
+  };
+
   return (
-    <div className="app-content no-scrollbar" style={{ background: 'var(--bg-primary)', display: 'flex', flexDirection: 'column' }}>
+    <div className="app-content no-scrollbar" style={{ background: 'var(--bg-primary)', display: 'flex', flexDirection: 'column', position: 'relative' }}>
       
       {/* Live Map Area */}
       <div style={{ flex: 1, position: 'relative', overflow: 'hidden', background: '#e2e8f0', zIndex: 1 }}>
@@ -82,15 +106,43 @@ const OrderDetails = () => {
         
         <button 
           className="btn-primary" 
-          onClick={async () => {
-            alert('Marking task as completed and releasing escrow payment...');
-            navigate('/poster');
-          }}
+          onClick={handleConfirmCompletion}
           style={{ width: '100%', height: '56px', marginTop: '24px' }}
         >
           Confirm Completion
         </button>
       </div>
+
+      {/* Escrow Animation Overlay */}
+      <AnimatePresence>
+        {isCompleting && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            style={{
+              position: 'fixed',
+              inset: 0,
+              background: 'rgba(15, 23, 42, 0.75)',
+              backdropFilter: 'blur(8px)',
+              zIndex: 1000,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              padding: '24px'
+            }}
+          >
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              style={{ width: '100%', maxWidth: '400px' }}
+            >
+              <EscrowFlow stage={escrowStage} amount={order.service.price} />
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };
