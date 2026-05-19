@@ -375,6 +375,46 @@ app.get('/api/admin/payments', authenticateToken, authorizeRole(['admin']), asyn
   }
 });
 
+// KYC Approve / Reject
+app.put('/api/admin/users/:id/kyc', authenticateToken, authorizeRole(['admin']), async (req, res) => {
+  const { action } = req.body; // 'approve' or 'reject'
+  const userId = req.params.id;
+
+  if (!['approve', 'reject'].includes(action)) {
+    return res.status(400).json({ error: 'Invalid action. Must be "approve" or "reject".' });
+  }
+
+  try {
+    // Update user verification_status
+    await prisma.user.update({
+      where: { id: userId },
+      data: { verification_status: action === 'approve' }
+    });
+
+    // Update profile kyc_status
+    await prisma.profile.update({
+      where: { userId: userId },
+      data: { kyc_status: action === 'approve' ? 'verified' : 'rejected' }
+    });
+
+    // Notify the user
+    await prisma.notification.create({
+      data: {
+        userId: userId,
+        title: action === 'approve' ? 'KYC Verified ✓' : 'KYC Rejected',
+        message: action === 'approve'
+          ? 'Your identity has been verified. You now have full platform access.'
+          : 'Your KYC verification was rejected. Please re-submit your documents for review.'
+      }
+    });
+
+    res.json({ success: true, action, userId });
+  } catch (err) {
+    console.error('KYC UPDATE ERROR:', err);
+    res.status(500).json({ error: 'Failed to update KYC status' });
+  }
+});
+
 // Impact Stats (Unauthenticated)
 app.get('/api/impact', async (req, res) => {
   try {

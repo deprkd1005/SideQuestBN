@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Shield, ArrowUpRight, CheckCircle, FileText, X, Activity } from 'lucide-react';
+import { Shield, ArrowUpRight, CheckCircle, FileText, X, Activity, Lock, Unlock, ArrowRight } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { usePayment } from '../../context/PaymentContext';
 
@@ -27,12 +27,16 @@ const AdminEscrow = () => {
     if (token) fetchPayments();
   }, [token]);
 
-  const totalHeld = payments.reduce((acc, p) => acc + Number(p.amount), 0);
+  const totalHeld = payments.reduce((acc, p) => acc + Number(p.amount || 0), 0);
+  const getStatus = (item) => item.payment_status || item.status || 'held';
+  const getPayerName = (item) => item.payer_name || item.order?.customer?.fullname || 'Poster';
+  const getReceiverName = (item) => item.receiver_name || item.order?.provider?.fullname || 'Hustler';
+  const getTaskTitle = (item) => item.task_title || item.order?.service?.title || 'SideQuest';
 
   return (
     <div className="app-content no-scrollbar" style={{ background: 'var(--bg-primary)' }}>
       <div style={{ padding: '40px 24px 24px' }}>
-        <h1 style={{ fontSize: '1.8rem', fontWeight: 900, fontFamily: 'Outfit' }}>Payment <span className="text-emerald">Security</span></h1>
+        <h1 style={{ fontSize: '1.8rem', fontWeight: 900, fontFamily: 'Outfit', color: 'var(--text-primary)' }}>Payment <span style={{ color: 'var(--emerald)' }}>Security</span></h1>
         <p style={{ color: 'var(--text-secondary)', fontWeight: 600, fontSize: '0.9rem' }}>Financial custody & trust control</p>
       </div>
 
@@ -40,13 +44,13 @@ const AdminEscrow = () => {
         {/* Total Card */}
         <div className="card-glass" style={{ padding: '32px 24px', background: 'linear-gradient(135deg, var(--emerald-dark) 0%, var(--bg-card) 100%)', border: '1px solid var(--emerald-glow)', marginBottom: '32px' }}>
           <div style={{ fontSize: '0.8rem', fontWeight: 800, color: 'var(--emerald)', textTransform: 'uppercase', marginBottom: '8px', letterSpacing: '1px' }}>Total Escrow Volume</div>
-          <div style={{ fontSize: '2.5rem', fontWeight: 900, marginBottom: '24px', color: 'white' }}>BND {totalHeld.toLocaleString()}</div>
+          <div style={{ fontSize: '2.5rem', fontWeight: 900, marginBottom: '24px', color: 'var(--text-primary)' }}>BND {totalHeld.toLocaleString()}</div>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
-            <div style={{ background: 'rgba(255,255,255,0.05)', padding: '12px', borderRadius: '16px', border: '1px solid var(--border-glass)' }}>
+            <div style={{ background: 'rgba(16, 185, 129, 0.08)', padding: '12px', borderRadius: '16px', border: '1px solid var(--border-glass)' }}>
               <div style={{ fontSize: '0.6rem', fontWeight: 800, color: 'var(--text-muted)' }}>ACTIVE QUESTS</div>
-              <div style={{ fontSize: '1.2rem', fontWeight: 900 }}>{payments.length}</div>
+              <div style={{ fontSize: '1.2rem', fontWeight: 900, color: 'var(--text-primary)' }}>{payments.length}</div>
             </div>
-            <div style={{ background: 'rgba(255,255,255,0.05)', padding: '12px', borderRadius: '16px', border: '1px solid var(--border-glass)' }}>
+            <div style={{ background: 'rgba(16, 185, 129, 0.08)', padding: '12px', borderRadius: '16px', border: '1px solid var(--border-glass)' }}>
               <div style={{ fontSize: '0.6rem', fontWeight: 800, color: 'var(--text-muted)' }}>SECURED FLOW</div>
               <div style={{ fontSize: '1.2rem', fontWeight: 900, color: 'var(--emerald)' }}>100%</div>
             </div>
@@ -55,7 +59,7 @@ const AdminEscrow = () => {
 
         {/* Live Holdings */}
         <div className="flex-between" style={{ marginBottom: '16px' }}>
-          <h3 style={{ fontSize: '1.1rem', fontWeight: 800, fontFamily: 'Outfit' }}>Live Smart Contracts</h3>
+          <h3 style={{ fontSize: '1.1rem', fontWeight: 800, fontFamily: 'Outfit', color: 'var(--text-primary)' }}>Live Smart Contracts</h3>
           <Activity size={18} className="text-emerald" />
         </div>
 
@@ -68,21 +72,21 @@ const AdminEscrow = () => {
                     <Shield size={22} />
                   </div>
                   <div>
-                    <h4 style={{ fontSize: '1rem', fontWeight: 800 }}>{item.task_title || 'SideQuest'}</h4>
-                    <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', fontWeight: 600 }}>ID: SQ-{item.id}X</p>
+                    <h4 style={{ fontSize: '1rem', fontWeight: 800, color: 'var(--text-primary)' }}>{getTaskTitle(item)}</h4>
+                    <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', fontWeight: 600 }}>ID: SQ-{item.id?.slice(0,6)}X</p>
                   </div>
                 </div>
                 <div style={{ textAlign: 'right' }}>
-                  <div style={{ fontSize: '1.1rem', fontWeight: 900 }}>BND {item.amount}</div>
-                  <div className={`badge ${item.payment_status === 'released' ? 'badge-emerald' : 'badge-gold'}`} style={{ marginTop: '4px' }}>
-                    {item.payment_status}
+                  <div style={{ fontSize: '1.1rem', fontWeight: 900, color: 'var(--text-primary)' }}>BND {item.amount}</div>
+                  <div className={`badge ${getStatus(item) === 'released' ? 'badge-emerald' : 'badge-gold'}`} style={{ marginTop: '4px' }}>
+                    {getStatus(item)}
                   </div>
                 </div>
               </div>
               <button 
                 className="btn-outline" 
                 onClick={() => setSelectedContract(item)} 
-                style={{ width: '100%', height: '48px', fontSize: '0.85rem', fontWeight: 800, borderColor: 'var(--emerald-glow)' }}
+                style={{ width: '100%', height: '48px', fontSize: '0.85rem', fontWeight: 800, borderColor: 'var(--emerald-glow)', color: 'var(--text-primary)' }}
               >
                 Inspect Contract
               </button>
@@ -97,12 +101,13 @@ const AdminEscrow = () => {
           <div className="modal-overlay" onClick={() => setSelectedContract(null)}>
             <motion.div 
               initial={{ y: '100%' }} animate={{ y: 0 }} exit={{ y: '100%' }}
+              transition={{ type: 'spring', damping: 30, stiffness: 400 }}
               className="bottom-sheet" onClick={e => e.stopPropagation()}
               style={{ background: 'var(--bg-card)', border: '1px solid var(--emerald-glow)' }}
             >
               <div className="bottom-sheet-handle" />
               <div className="flex-between" style={{ marginBottom: '24px' }}>
-                <h3 style={{ fontSize: '1.4rem', fontWeight: 900, fontFamily: 'Outfit' }}>Escrow Analysis</h3>
+                <h3 style={{ fontSize: '1.4rem', fontWeight: 900, fontFamily: 'Outfit', color: 'var(--text-primary)' }}>Escrow Analysis</h3>
                 <button className="btn-ghost" onClick={() => setSelectedContract(null)}><X size={24} /></button>
               </div>
 
@@ -110,7 +115,7 @@ const AdminEscrow = () => {
                 <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '20px' }}>
                   <FileText size={28} className="text-emerald" />
                   <div>
-                    <h4 style={{ fontSize: '1.1rem', fontWeight: 800 }}>{selectedContract.task_title}</h4>
+                    <h4 style={{ fontSize: '1.1rem', fontWeight: 800, color: 'var(--text-primary)' }}>{getTaskTitle(selectedContract)}</h4>
                     <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', fontWeight: 600 }}>Smart Contract Instance</p>
                   </div>
                 </div>
@@ -126,14 +131,93 @@ const AdminEscrow = () => {
                   </div>
                 </div>
 
-                <div style={{ padding: '16px', background: 'var(--bg-primary)', borderRadius: '16px', border: '1px solid var(--border-glass)' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px', fontSize: '0.75rem', color: 'var(--text-muted)', fontWeight: 700 }}>
-                    <span>Payer: {selectedContract.payer_name}</span>
-                    <span>→</span>
-                    <span>Payee: {selectedContract.receiver_name || 'TBD'}</span>
+                {/* Escrow Lock Visualization */}
+                <div style={{ padding: '20px', background: 'var(--bg-primary)', borderRadius: '16px', border: '1px solid var(--border-glass)' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0', marginBottom: '16px' }}>
+                    {/* Payer Side */}
+                    <div style={{ flex: 1, textAlign: 'center' }}>
+                      <div style={{ 
+                        width: '48px', height: '48px', borderRadius: '14px', 
+                        background: 'var(--emerald-soft)', border: '2px solid var(--emerald)',
+                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        margin: '0 auto 8px'
+                      }}>
+                        <img src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${selectedContract.order?.customer?.id || selectedContract.id}`} alt="" style={{ width: '32px', height: '32px', borderRadius: '8px' }} />
+                      </div>
+                      <div style={{ fontSize: '0.7rem', fontWeight: 800, color: 'var(--text-primary)' }}>
+                        {getPayerName(selectedContract)}
+                      </div>
+                      <div style={{ fontSize: '0.6rem', fontWeight: 700, color: 'var(--text-muted)' }}>Poster</div>
+                    </div>
+
+                    {/* Arrow to Escrow */}
+                    <div style={{ display: 'flex', alignItems: 'center', color: 'var(--text-muted)', padding: '0 4px' }}>
+                      <div style={{ width: '24px', height: '2px', background: 'var(--emerald)', opacity: 0.6 }} />
+                      <ArrowRight size={14} style={{ color: 'var(--emerald)' }} />
+                    </div>
+
+                    {/* Escrow Lock Center */}
+                    <div style={{ textAlign: 'center' }}>
+                      <div style={{ 
+                        width: '56px', height: '56px', borderRadius: '16px', 
+                        background: getStatus(selectedContract) === 'released' 
+                          ? 'linear-gradient(135deg, var(--emerald) 0%, var(--emerald-dark) 100%)'
+                          : 'linear-gradient(135deg, var(--gold) 0%, var(--gold-dark) 100%)',
+                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        margin: '0 auto 8px',
+                        boxShadow: getStatus(selectedContract) === 'released'
+                          ? '0 4px 20px var(--emerald-glow)'
+                          : '0 4px 20px var(--gold-glow)'
+                      }}>
+                        {getStatus(selectedContract) === 'released' 
+                          ? <Unlock size={24} style={{ color: 'white' }} />
+                          : <Lock size={24} style={{ color: 'white' }} />
+                        }
+                      </div>
+                      <div style={{ fontSize: '0.7rem', fontWeight: 900, color: getStatus(selectedContract) === 'released' ? 'var(--emerald)' : 'var(--gold)' }}>
+                        {getStatus(selectedContract) === 'released' ? 'RELEASED' : 'LOCKED'}
+                      </div>
+                      <div style={{ fontSize: '0.6rem', fontWeight: 700, color: 'var(--text-muted)' }}>Escrow</div>
+                    </div>
+
+                    {/* Arrow to Payee */}
+                    <div style={{ display: 'flex', alignItems: 'center', color: 'var(--text-muted)', padding: '0 4px' }}>
+                      <div style={{ width: '24px', height: '2px', background: getStatus(selectedContract) === 'released' ? 'var(--emerald)' : 'var(--text-muted)', opacity: 0.6 }} />
+                      <ArrowRight size={14} style={{ color: getStatus(selectedContract) === 'released' ? 'var(--emerald)' : 'var(--text-muted)' }} />
+                    </div>
+
+                    {/* Payee Side */}
+                    <div style={{ flex: 1, textAlign: 'center' }}>
+                      <div style={{ 
+                        width: '48px', height: '48px', borderRadius: '14px', 
+                        background: getStatus(selectedContract) === 'released' ? 'var(--emerald-soft)' : 'var(--bg-tertiary)', 
+                        border: `2px solid ${getStatus(selectedContract) === 'released' ? 'var(--emerald)' : 'var(--border-color)'}`,
+                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        margin: '0 auto 8px'
+                      }}>
+                        <img src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${selectedContract.order?.provider?.id || 'payee'}`} alt="" style={{ width: '32px', height: '32px', borderRadius: '8px' }} />
+                      </div>
+                      <div style={{ fontSize: '0.7rem', fontWeight: 800, color: 'var(--text-primary)' }}>
+                        {getReceiverName(selectedContract)}
+                      </div>
+                      <div style={{ fontSize: '0.6rem', fontWeight: 700, color: 'var(--text-muted)' }}>Hustler</div>
+                    </div>
                   </div>
-                  <div style={{ height: '4px', background: 'var(--bg-tertiary)', borderRadius: '2px', overflow: 'hidden' }}>
-                    <div style={{ width: selectedContract.payment_status === 'released' ? '100%' : '50%', height: '100%', background: 'var(--emerald)' }}></div>
+
+                  {/* Progress Bar */}
+                  <div style={{ marginTop: '8px' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px', fontSize: '0.65rem', color: 'var(--text-muted)', fontWeight: 700 }}>
+                      <span>Deposit</span>
+                      <span>{getStatus(selectedContract) === 'released' ? 'Completed' : 'In Progress'}</span>
+                    </div>
+                    <div style={{ height: '6px', background: 'var(--bg-tertiary)', borderRadius: '3px', overflow: 'hidden' }}>
+                      <motion.div 
+                        initial={{ width: 0 }}
+                        animate={{ width: getStatus(selectedContract) === 'released' ? '100%' : '50%' }}
+                        transition={{ duration: 1, ease: 'easeOut' }}
+                        style={{ height: '100%', background: getStatus(selectedContract) === 'released' ? 'var(--emerald)' : 'var(--gold)', borderRadius: '3px' }}
+                      />
+                    </div>
                   </div>
                 </div>
               </div>

@@ -6,6 +6,7 @@ import AdminEscrow from './AdminEscrow';
 import AdminReports from './AdminReports';
 import AdminSystem from './AdminSystem';
 import AdminProfile from './AdminProfile';
+import AdminLogs from './AdminLogs';
 
 const AdminPortal = () => {
   return (
@@ -15,6 +16,7 @@ const AdminPortal = () => {
           <Route path="/" element={<AdminDashboard />} />
           <Route path="/escrow" element={<AdminEscrow />} />
           <Route path="/reports" element={<AdminReports />} />
+          <Route path="/logs" element={<AdminLogs />} />
           <Route path="/wallet" element={<AdminSystem />} />
           <Route path="/profile" element={<AdminProfile />} />
         </Routes>

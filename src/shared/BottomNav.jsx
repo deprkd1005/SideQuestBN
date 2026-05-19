@@ -1,7 +1,7 @@
 import React from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Home, Briefcase, MessageSquare, Wallet, User, Bell } from 'lucide-react';
+import { Home, Briefcase, MessageSquare, Wallet, User, Bell, Shield, Terminal, Settings } from 'lucide-react';
 
 const BottomNav = ({ portal }) => {
   const navigate = useNavigate();
@@ -24,9 +24,9 @@ const BottomNav = ({ portal }) => {
     ],
     admin: [
       { icon: Home, label: 'Home', path: '/admin' },
-      { icon: Briefcase, label: 'Escrow', path: '/admin/escrow' },
-      { icon: Bell, label: 'Logs', path: '/admin/notifications' },
-      { icon: Wallet, label: 'System', path: '/admin/wallet' },
+      { icon: Shield, label: 'Escrow', path: '/admin/escrow' },
+      { icon: Terminal, label: 'Logs', path: '/admin/logs' },
+      { icon: Settings, label: 'System', path: '/admin/wallet' },
       { icon: User, label: 'Admin', path: '/admin/profile' }
     ]
   }[portal] || [];
