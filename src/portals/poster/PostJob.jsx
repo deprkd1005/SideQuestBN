@@ -1,229 +1,282 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowLeft, MapPin, Check, ChevronRight, Shield, Info } from 'lucide-react';
+import { ArrowLeft, Zap, DollarSign, Tag, FileText, Send, Check } from 'lucide-react';
 import { usePayment } from '../../context/PaymentContext';
 
 const PostJob = () => {
   const navigate = useNavigate();
   const { postTask } = usePayment();
-  const [step, setStep] = useState(1);
-  const [isLoading, setIsLoading] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
 
-  const [jobData, setJobData] = useState({
+  const [formData, setFormData] = useState({
     title: '',
+    category: 'Delivery',
+    subcategory: 'Food Delivery',
+    price: '',
     description: '',
-    category: '',
-    budget: '',
-    location: ''
+    location: 'Brunei Muara'
   });
 
-  const categories = [
-    { id: 'cleaning', label: 'Cleaning', icon: '🧹' },
-    { id: 'delivery', label: 'Delivery', icon: '📦' },
-    { id: 'gardening', label: 'Gardening', icon: '🌿' },
-    { id: 'moving', label: 'Moving', icon: '🚛' },
-    { id: 'repair', label: 'Repair', icon: '🔧' },
-    { id: 'creative', label: 'Creative', icon: '🎨' }
-  ];
+  const categories = ['Delivery', 'Cleaning', 'Gardening', 'Moving', 'Repair', 'Creative'];
 
-  const handleNext = () => setStep(s => s + 1);
-  const handleBack = () => step > 1 ? setStep(s => s - 1) : navigate(-1);
+  const subcategoriesData = {
+    'Delivery': ['Food Delivery', 'Document Drop-off', 'Parcel Delivery', 'Groceries Pickup'],
+    'Cleaning': ['House Cleaning', 'Car Washing', 'Office Cleaning', 'Deep Cleaning'],
+    'Gardening': ['Grass Cutting', 'Weeding', 'Plant Watering', 'Garden Cleanup'],
+    'Moving': ['Furniture Transport', 'House Moving', 'Lifting & Loading'],
+    'Repair': ['Plumbing', 'Electrical Repair', 'Appliance Repair', 'AC Servicing'],
+    'Creative': ['Logo Design', 'Photography', 'Video Editing', 'Social Media Posts']
+  };
 
-  const handleSubmit = async () => {
-    setIsLoading(true);
+  // Set default subcategory when category changes
+  useEffect(() => {
+    if (subcategoriesData[formData.category]) {
+      setFormData(prev => ({
+        ...prev,
+        subcategory: subcategoriesData[formData.category][0]
+      }));
+    }
+  }, [formData.category]);
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
     try {
-      const result = await postTask(jobData);
-      if (result.success) {
+      // Build the final category string including subcategory
+      const finalCategory = `${formData.category} - ${formData.subcategory}`;
+      const res = await postTask({
+        title: formData.title,
+        category: finalCategory,
+        budget: formData.price,
+        description: formData.description,
+        location: formData.location
+      });
+
+      if (res.success) {
         setIsSuccess(true);
-        setTimeout(() => navigate('/poster'), 3000);
+        setTimeout(() => navigate('/poster'), 2500);
       } else {
-        alert(result.error || 'Failed to post task');
+        alert(res.error || 'Failed to post task');
       }
     } catch (err) {
       alert('Error connecting to server');
     } finally {
-      setIsLoading(false);
+      setLoading(false);
     }
   };
 
-  const progress = (step / 3) * 100;
-
   return (
-    <div className="app-content no-scrollbar" style={{ background: 'var(--bg-primary)' }}>
+    <div className="app-content no-scrollbar" style={{ background: '#f8f9fa', color: '#1a1a1a', minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
       {/* Header */}
-      <div style={{ padding: '24px 20px', display: 'flex', alignItems: 'center', gap: '16px' }}>
-        <button className="btn-ghost" onClick={handleBack}>
-          <ArrowLeft size={24} />
+      <div style={{ padding: '40px 24px 20px', display: 'flex', alignItems: 'center', gap: '16px' }}>
+        <button 
+          onClick={() => navigate(-1)} 
+          className="btn-ghost" 
+          style={{ 
+            padding: '10px', 
+            background: 'white', 
+            borderRadius: '50%', 
+            boxShadow: '0 2px 8px rgba(0,0,0,0.05)',
+            border: 'none',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            cursor: 'pointer'
+          }}
+        >
+          <ArrowLeft size={20} color="#1a1a1a" />
         </button>
-        <h1 style={{ fontSize: '1.4rem', fontWeight: 900, fontFamily: 'Outfit' }}>Post a SideQuest</h1>
+        <h1 style={{ fontSize: '1.5rem', fontWeight: 900, fontFamily: 'Outfit', color: '#1a1a1a', margin: 0 }}>Post a Task</h1>
       </div>
 
-      {/* Progress */}
-      <div style={{ padding: '0 24px 24px' }}>
-        <div style={{ height: '6px', width: '100%', background: 'var(--bg-card)', borderRadius: '3px', overflow: 'hidden' }}>
-          <motion.div 
-            initial={{ width: 0 }}
-            animate={{ width: `${progress}%` }}
-            style={{ height: '100%', background: 'var(--emerald)', boxShadow: '0 0 15px var(--emerald-glow)' }}
-          />
+      {/* Form */}
+      <form onSubmit={handleSubmit} style={{ padding: '0 24px 120px', flex: 1 }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+          
+          {/* Service Title */}
+          <div className="form-group" style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+            <label style={{ fontSize: '0.9rem', fontWeight: 700, color: '#1a1a1a' }}>
+              Service Title
+            </label>
+            <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
+              <Zap size={18} color="#9ca3af" style={{ position: 'absolute', left: '16px' }} />
+              <input 
+                type="text" 
+                required
+                placeholder="e.g. Grass cutting for back garden"
+                value={formData.title}
+                onChange={(e) => setFormData({...formData, title: e.target.value})}
+                style={{ 
+                  width: '100%', 
+                  padding: '16px 16px 16px 48px', 
+                  borderRadius: '16px', 
+                  background: 'white', 
+                  border: '1.5px solid #e5e7eb', 
+                  color: '#1a1a1a', 
+                  fontWeight: 600,
+                  fontSize: '0.95rem',
+                  outline: 'none',
+                  boxShadow: '0 2px 4px rgba(0,0,0,0.02)'
+                }}
+              />
+            </div>
+          </div>
+
+          {/* Main Category */}
+          <div className="form-group" style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+            <label style={{ fontSize: '0.9rem', fontWeight: 700, color: '#1a1a1a' }}>
+              Category
+            </label>
+            <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
+              <Tag size={18} color="#9ca3af" style={{ position: 'absolute', left: '16px' }} />
+              <select 
+                value={formData.category}
+                onChange={(e) => setFormData({...formData, category: e.target.value})}
+                style={{ 
+                  width: '100%', 
+                  padding: '16px 16px 16px 48px', 
+                  borderRadius: '16px', 
+                  background: 'white', 
+                  border: '1.5px solid #e5e7eb', 
+                  color: '#1a1a1a', 
+                  fontWeight: 600,
+                  fontSize: '0.95rem',
+                  outline: 'none',
+                  appearance: 'none',
+                  boxShadow: '0 2px 4px rgba(0,0,0,0.02)'
+                }}
+              >
+                {categories.map(c => <option key={c} value={c}>{c}</option>)}
+              </select>
+              <div style={{ position: 'absolute', right: '16px', pointerEvents: 'none', borderLeft: '5px solid transparent', borderRight: '5px solid transparent', borderTop: '5px solid #9ca3af' }} />
+            </div>
+          </div>
+
+          {/* Sub Category */}
+          {subcategoriesData[formData.category] && (
+            <div className="form-group" style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+              <label style={{ fontSize: '0.9rem', fontWeight: 700, color: '#1a1a1a' }}>
+                Sub-category
+              </label>
+              <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
+                <Tag size={18} color="#9ca3af" style={{ position: 'absolute', left: '16px' }} />
+                <select 
+                  value={formData.subcategory}
+                  onChange={(e) => setFormData({...formData, subcategory: e.target.value})}
+                  style={{ 
+                    width: '100%', 
+                    padding: '16px 16px 16px 48px', 
+                    borderRadius: '16px', 
+                    background: 'white', 
+                    border: '1.5px solid #e5e7eb', 
+                    color: '#1a1a1a', 
+                    fontWeight: 600,
+                    fontSize: '0.95rem',
+                    outline: 'none',
+                    appearance: 'none',
+                    boxShadow: '0 2px 4px rgba(0,0,0,0.02)'
+                  }}
+                >
+                  {subcategoriesData[formData.category].map(sub => <option key={sub} value={sub}>{sub}</option>)}
+                </select>
+                <div style={{ position: 'absolute', right: '16px', pointerEvents: 'none', borderLeft: '5px solid transparent', borderRight: '5px solid transparent', borderTop: '5px solid #9ca3af' }} />
+              </div>
+            </div>
+          )}
+
+          {/* Price (BND) */}
+          <div className="form-group" style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+            <label style={{ fontSize: '0.9rem', fontWeight: 700, color: '#1a1a1a' }}>
+              Price (BND)
+            </label>
+            <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
+              <DollarSign size={18} color="#9ca3af" style={{ position: 'absolute', left: '16px' }} />
+              <input 
+                type="number" 
+                required
+                placeholder="0.00"
+                value={formData.price}
+                onChange={(e) => setFormData({...formData, price: e.target.value})}
+                style={{ 
+                  width: '100%', 
+                  padding: '16px 16px 16px 48px', 
+                  borderRadius: '16px', 
+                  background: 'white', 
+                  border: '1.5px solid #e5e7eb', 
+                  color: '#1a1a1a', 
+                  fontWeight: 600,
+                  fontSize: '0.95rem',
+                  outline: 'none',
+                  boxShadow: '0 2px 4px rgba(0,0,0,0.02)'
+                }}
+              />
+            </div>
+          </div>
+
+          {/* Description */}
+          <div className="form-group" style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+            <label style={{ fontSize: '0.9rem', fontWeight: 700, color: '#1a1a1a' }}>
+              Description
+            </label>
+            <div style={{ position: 'relative', display: 'flex' }}>
+              <FileText size={18} color="#9ca3af" style={{ position: 'absolute', left: '16px', top: '18px' }} />
+              <textarea 
+                required
+                placeholder="Describe what you offer..."
+                value={formData.description}
+                onChange={(e) => setFormData({...formData, description: e.target.value})}
+                style={{ 
+                  width: '100%', 
+                  height: '140px', 
+                  padding: '16px 16px 16px 48px', 
+                  borderRadius: '16px', 
+                  background: 'white', 
+                  border: '1.5px solid #e5e7eb', 
+                  color: '#1a1a1a', 
+                  fontWeight: 600,
+                  fontSize: '0.95rem',
+                  outline: 'none',
+                  resize: 'none',
+                  boxShadow: '0 2px 4px rgba(0,0,0,0.02)'
+                }}
+              />
+            </div>
+          </div>
+
+          {/* Submit Button */}
+          <button 
+            type="submit" 
+            disabled={loading}
+            style={{ 
+              width: '100%', 
+              height: '56px', 
+              marginTop: '12px',
+              background: '#18181b',
+              color: 'white',
+              border: 'none',
+              borderRadius: '16px',
+              fontWeight: 800,
+              fontSize: '1rem',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '10px',
+              cursor: 'pointer',
+              boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
+            }}
+          >
+            {loading ? (
+              <div className="spinner-small" style={{ borderTopColor: 'white' }} />
+            ) : (
+              <>
+                <Send size={18} /> Publish Service
+              </>
+            )}
+          </button>
         </div>
-      </div>
-
-      <div style={{ flex: 1, padding: '0 24px 100px' }}>
-        <AnimatePresence mode="wait">
-          {step === 1 && (
-            <motion.div 
-              key="step1"
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -20 }}
-            >
-              <h2 style={{ fontSize: '1.6rem', fontWeight: 800, marginBottom: '8px' }}>Task Details</h2>
-              <p style={{ color: 'var(--text-secondary)', marginBottom: '32px', fontWeight: 500 }}>What help do you need today?</p>
-
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '32px' }}>
-                {categories.map(cat => (
-                  <button 
-                    key={cat.id}
-                    onClick={() => setJobData({...jobData, category: cat.label})}
-                    style={{ 
-                      padding: '20px 12px', 
-                      borderRadius: '20px',
-                      border: '1.5px solid',
-                      borderColor: jobData.category === cat.label ? 'var(--emerald)' : 'var(--border-glass)',
-                      background: jobData.category === cat.label ? 'var(--emerald-soft)' : 'var(--bg-card)',
-                      transition: 'all 0.2s',
-                      cursor: 'pointer',
-                      color: 'var(--text-primary)'
-                    }}
-                  >
-                    <div style={{ fontSize: '2rem', marginBottom: '8px' }}>{cat.icon}</div>
-                    <div style={{ fontSize: '0.9rem', fontWeight: 800 }}>{cat.label}</div>
-                  </button>
-                ))}
-              </div>
-
-              <div className="input-group">
-                <label>Job Title</label>
-                <input 
-                  type="text" 
-                  placeholder="e.g. Grass cutting for back garden" 
-                  value={jobData.title}
-                  onChange={(e) => setJobData({...jobData, title: e.target.value})}
-                />
-              </div>
-
-              <div className="input-group">
-                <label>Description</label>
-                <textarea 
-                  placeholder="Provide more details about the work..." 
-                  value={jobData.description}
-                  onChange={(e) => setJobData({...jobData, description: e.target.value})}
-                  rows={4}
-                  style={{ width: '100%', background: 'var(--bg-secondary)', border: '1.5px solid var(--border-glass)', borderRadius: '16px', padding: '16px', color: 'var(--text-primary)', resize: 'none' }}
-                />
-              </div>
-            </motion.div>
-          )}
-
-          {step === 2 && (
-            <motion.div 
-              key="step2"
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -20 }}
-            >
-              <h2 style={{ fontSize: '1.6rem', fontWeight: 800, marginBottom: '8px' }}>Location</h2>
-              <p style={{ color: 'var(--text-secondary)', marginBottom: '32px', fontWeight: 500 }}>Where should the provider go?</p>
-
-              <div className="input-group">
-                <label>Address / District</label>
-                <div style={{ position: 'relative' }}>
-                  <MapPin size={18} className="text-muted" style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)' }} />
-                  <input 
-                    type="text" 
-                    placeholder="e.g. Gadong, Brunei-Muara" 
-                    value={jobData.location}
-                    onChange={(e) => setJobData({...jobData, location: e.target.value})}
-                    style={{ paddingLeft: '48px' }}
-                  />
-                </div>
-              </div>
-
-              <div className="card-glass" style={{ display: 'flex', gap: '16px', marginTop: '40px' }}>
-                <Info className="text-emerald" size={24} style={{ flexShrink: 0 }} />
-                <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', lineHeight: 1.5 }}>
-                  Ensure the location is accurate to help providers find you easily.
-                </p>
-              </div>
-            </motion.div>
-          )}
-
-          {step === 3 && (
-            <motion.div 
-              key="step3"
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -20 }}
-            >
-              <h2 style={{ fontSize: '1.6rem', fontWeight: 800, marginBottom: '8px' }}>Budget & Trust</h2>
-              <p style={{ color: 'var(--text-secondary)', marginBottom: '32px', fontWeight: 500 }}>Secure payment via SideQuest Escrow</p>
-
-              <div className="card-glass" style={{ textAlign: 'center', padding: '48px 24px', marginBottom: '32px', borderColor: 'var(--emerald-glow)' }}>
-                <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', fontWeight: 800, textTransform: 'uppercase', marginBottom: '16px' }}>Your Offer</div>
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '12px' }}>
-                  <span style={{ fontSize: '2rem', fontWeight: 900, color: 'var(--text-muted)' }}>BND</span>
-                  <input 
-                    type="number" 
-                    placeholder="0"
-                    value={jobData.budget}
-                    onChange={(e) => setJobData({...jobData, budget: e.target.value})}
-                    style={{ background: 'none', border: 'none', fontSize: '5rem', fontWeight: 900, color: 'var(--emerald)', width: '180px', textAlign: 'center', outline: 'none' }}
-                  />
-                </div>
-              </div>
-
-              <div className="card" style={{ display: 'flex', gap: '16px', border: '1px solid var(--border-color)', padding: '24px' }}>
-                <div style={{ width: '48px', height: '48px', borderRadius: '14px', background: 'var(--emerald-soft)', color: 'var(--emerald)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                  <Shield size={24} />
-                </div>
-                <div>
-                  <h4 style={{ fontSize: '1rem', fontWeight: 800, marginBottom: '4px' }}>Escrow Protected</h4>
-                  <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', lineHeight: '1.6' }}>
-                    Payment is held securely and only released when you confirm the job is complete.
-                  </p>
-                </div>
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </div>
-
-      {/* Footer */}
-      <div style={{ position: 'absolute', bottom: 'calc(var(--nav-height) + 20px)', left: '24px', right: '24px' }}>
-        {step < 3 ? (
-          <button 
-            className="btn-primary" 
-            onClick={handleNext}
-            disabled={step === 1 && (!jobData.title || !jobData.category)}
-            style={{ width: '100%', height: '64px', fontSize: '1.1rem' }}
-          >
-            Continue <ChevronRight size={22} strokeWidth={3} />
-          </button>
-        ) : (
-          <button 
-            className="btn-primary" 
-            onClick={handleSubmit}
-            disabled={!jobData.budget || isLoading}
-            style={{ width: '100%', height: '64px', fontSize: '1.1rem' }}
-          >
-            {isLoading ? 'Posting...' : 'Confirm & Post Task'}
-            {!isLoading && <Check size={22} strokeWidth={3} />}
-          </button>
-        )}
-      </div>
+      </form>
 
       {/* Success Modal */}
       <AnimatePresence>
@@ -231,19 +284,19 @@ const PostJob = () => {
           <motion.div 
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            style={{ position: 'absolute', inset: 0, background: 'var(--bg-primary)', zIndex: 1000, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '24px' }}
+            style={{ position: 'absolute', inset: 0, background: 'white', zIndex: 1000, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '24px' }}
           >
             <motion.div 
               initial={{ scale: 0 }}
               animate={{ scale: 1 }}
               transition={{ type: 'spring', damping: 12 }}
-              style={{ width: '100px', height: '100px', borderRadius: '50%', background: 'var(--emerald-soft)', color: 'var(--emerald)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+              style={{ width: '100px', height: '100px', borderRadius: '50%', background: '#ecfdf5', color: '#10b981', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
             >
               <Check size={60} strokeWidth={3} />
             </motion.div>
             <div style={{ textAlign: 'center' }}>
-              <h2 style={{ fontSize: '1.8rem', fontWeight: 900, marginBottom: '8px' }}>Task Posted!</h2>
-              <p style={{ color: 'var(--text-muted)', fontWeight: 700 }}>Hustlers are being notified. 🚀</p>
+              <h2 style={{ fontSize: '1.8rem', fontWeight: 900, marginBottom: '8px', color: '#1a1a1a' }}>Task Posted!</h2>
+              <p style={{ color: '#6b7280', fontWeight: 700 }}>Hustlers are being notified. 🚀</p>
             </div>
           </motion.div>
         )}
