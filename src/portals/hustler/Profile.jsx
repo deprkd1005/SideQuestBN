@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { User, Shield, Camera, LogOut, ChevronRight, CheckCircle, Clock, Settings, Info, Mail, FileText, X, Bell, Moon, Volume2, CreditCard } from 'lucide-react';
+import { User, Shield, Camera, LogOut, ChevronRight, CheckCircle, Clock, Settings, Info, Mail, FileText, X, Bell, Moon, Volume2, CreditCard, UploadCloud } from 'lucide-react';
 import { usePayment } from '../../context/PaymentContext';
 
 const Profile = () => {
@@ -10,7 +10,7 @@ const Profile = () => {
   const [bio, setBio] = useState('');
   
   // Modal Sheet state
-  const [activeSheet, setActiveSheet] = useState(null); // null | 'settings' | 'about' | 'contact' | 'terms'
+  const [activeSheet, setActiveSheet] = useState(null); // null | 'settings' | 'about' | 'contact' | 'terms' | 'kyc'
 
   // Settings State simulation
   const [settings, setSettings] = useState({
@@ -20,20 +20,27 @@ const Profile = () => {
     autoCashout: false
   });
 
+  // KYC verification form states
+  const [icNumber, setIcNumber] = useState('');
+  const [icColor, setIcColor] = useState('yellow');
+  const [icImage, setIcImage] = useState(null);
+  const [submittingKyc, setSubmittingKyc] = useState(false);
+
+  const fetchProfile = async () => {
+    try {
+      const baseUrl = import.meta.env.DEV ? '' : 'https://sidequest-backend-bivj.onrender.com';
+      const res = await fetch(`${baseUrl}/api/users/profile`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      const data = await res.json();
+      setProfile(data);
+      setBio(data.bio || '');
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
   useEffect(() => {
-    const fetchProfile = async () => {
-      try {
-        const baseUrl = import.meta.env.DEV ? '' : 'https://sidequest-backend-bivj.onrender.com';
-        const res = await fetch(`${baseUrl}/api/users/profile`, {
-          headers: { 'Authorization': `Bearer ${token}` }
-        });
-        const data = await res.json();
-        setProfile(data);
-        setBio(data.bio || '');
-      } catch (err) {
-        console.error(err);
-      }
-    };
     if (token) fetchProfile();
   }, [token]);
 
@@ -49,8 +56,55 @@ const Profile = () => {
         body: JSON.stringify({ bio })
       });
       setEditing(false);
+      fetchProfile();
     } catch (err) {
       console.error(err);
+    }
+  };
+
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setIcImage(reader.result); // Base64 representation of selected file
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleKycSubmit = async (e) => {
+    e.preventDefault();
+    if (!icNumber || !icImage) {
+      alert("Please enter your IC number and upload a photo.");
+      return;
+    }
+    setSubmittingKyc(true);
+    try {
+      const baseUrl = import.meta.env.DEV ? '' : 'https://sidequest-backend-bivj.onrender.com';
+      const res = await fetch(`${baseUrl}/api/users/profile/kyc`, {
+        method: 'PUT',
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ 
+          kyc_document: JSON.stringify({ icNumber, icColor, image: icImage })
+        })
+      });
+      const data = await res.json();
+      if (data.success) {
+        alert("Identity verification details submitted for verification!");
+        setActiveSheet(null);
+        fetchProfile();
+      } else {
+        alert("Failed to submit verification request.");
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Error submitting verification.");
+    } finally {
+      setSubmittingKyc(false);
     }
   };
 
@@ -86,20 +140,55 @@ const Profile = () => {
 
         {/* KYC Verification Card */}
         <div className="card-glass" style={{ padding: '20px', marginBottom: '24px', display: 'flex', alignItems: 'center', gap: '16px' }}>
-          <div style={{ width: '48px', height: '48px', borderRadius: '16px', background: 'var(--portal-soft)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--portal-color)' }}>
+          <div style={{ 
+            width: '48px', 
+            height: '48px', 
+            borderRadius: '16px', 
+            background: profile?.kyc_status === 'verified' ? 'rgba(16, 185, 129, 0.1)' : profile?.kyc_status === 'pending' ? 'rgba(245, 158, 11, 0.1)' : 'rgba(239, 68, 68, 0.1)', 
+            display: 'flex', 
+            alignItems: 'center', 
+            justifyContent: 'center', 
+            color: profile?.kyc_status === 'verified' ? 'var(--emerald)' : profile?.kyc_status === 'pending' ? 'var(--gold)' : 'var(--red)'
+          }}>
             <Shield size={24} />
           </div>
           <div style={{ flex: 1 }}>
             <div style={{ fontWeight: 800, fontSize: '0.95rem' }}>Identity Verification</div>
-            <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', fontWeight: 600 }}>Status: <span style={{ color: 'var(--portal-color)' }}>PENDING</span></div>
+            <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', fontWeight: 600 }}>
+              Status: {' '}
+              <span style={{ 
+                color: profile?.kyc_status === 'verified' ? 'var(--emerald)' : profile?.kyc_status === 'pending' ? 'var(--gold)' : 'var(--red)',
+                fontWeight: 900
+              }}>
+                {(profile?.kyc_status || 'unverified').toUpperCase()}
+              </span>
+            </div>
           </div>
-          <button className="btn-ghost" style={{ padding: '8px 16px', fontSize: '0.8rem', fontWeight: 800 }}>Review</button>
+          {profile?.kyc_status === 'verified' ? (
+            <div style={{ color: 'var(--emerald)', display: 'flex', alignItems: 'center', gap: '4px', fontSize: '0.8rem', fontWeight: 800 }}>
+              <CheckCircle size={16} /> Verified Pro
+            </div>
+          ) : (
+            <button 
+              onClick={() => setActiveSheet('kyc')} 
+              className="btn-ghost" 
+              style={{ 
+                padding: '8px 16px', 
+                fontSize: '0.8rem', 
+                fontWeight: 800,
+                border: '1px solid var(--border-glass)',
+                borderRadius: '12px'
+              }}
+            >
+              {profile?.kyc_status === 'pending' ? 'Review' : 'Verify Now'}
+            </button>
+          )}
         </div>
 
         {/* Bio Editor Card */}
         <div className="card-glass" style={{ padding: '20px', marginBottom: '24px' }}>
           <div>
-            <label style={{ fontSize: '0.75rem', fontWeight: 800, color: 'var(--text-muted)', textTransform: 'uppercase', marginBottom: '8px', display: 'block' }}>Hustler Bio</label>
+            <label style={{ fontSize: '0.75rem', fontWeight: 800, color: 'var(--text-muted)', textTransform: 'uppercase', marginBottom: '8px', display: 'block' }}>Biography</label>
             {editing ? (
               <textarea 
                 value={bio}
@@ -124,7 +213,7 @@ const Profile = () => {
         </div>
 
         {/* PROFILE OPTIONS SECTION (Settings, About, Contact, Terms) */}
-        <h4 style={{ fontSize: '0.78rem', fontWeight: 800, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '12px', paddingLeft: '4px' }}>Hustler Preferences</h4>
+        <h4 style={{ fontSize: '0.78rem', fontWeight: 800, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '12px', paddingLeft: '4px' }}>Preferences</h4>
         
         <div className="card" style={{ padding: '8px', marginBottom: '32px' }}>
           {[
@@ -206,6 +295,7 @@ const Profile = () => {
                   {activeSheet === 'about' && 'About SideQuest.BN'}
                   {activeSheet === 'contact' && 'Contact Support'}
                   {activeSheet === 'terms' && 'Terms & Escrow Regulations'}
+                  {activeSheet === 'kyc' && 'Verify Your Identity'}
                 </h3>
                 <button 
                   onClick={() => setActiveSheet(null)} 
@@ -227,7 +317,7 @@ const Profile = () => {
                       { key: 'mapDarkMode', label: 'Radar Dark Theme', desc: 'Use dark maps for night time questing', icon: Moon },
                       { key: 'autoCashout', label: 'Automatic Cashout', desc: 'Directly send completed quest payments to bank', icon: CreditCard }
                     ].map((s) => (
-                      <div key={s.key} style={{ display: 'flex', alignItems: 'center', justifyBetween: 'space-between', gap: '16px' }}>
+                      <div key={s.key} style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
                         <div style={{ width: '36px', height: '36px', borderRadius: '10px', background: 'var(--portal-soft)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--portal-color)', flexShrink: 0 }}>
                           <s.icon size={18} />
                         </div>
@@ -273,7 +363,7 @@ const Profile = () => {
                 {/* 2. About Us content */}
                 {activeSheet === 'about' && (
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                    <div style={{ display: 'flex', justifyCenter: 'center', padding: '16px 0' }} className="flex-center">
+                    <div style={{ display: 'flex', justifyContent: 'center', padding: '16px 0' }} className="flex-center">
                       <div style={{ fontFamily: 'Outfit', fontSize: '2rem', fontWeight: 900, background: 'linear-gradient(135deg, var(--gold) 0%, var(--emerald) 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
                         SideQuest.BN
                       </div>
@@ -343,6 +433,164 @@ const Profile = () => {
                       Providers must carry out their services in accordance with Brunei Darussalam local guidelines and regulations. SideQuest maintains zero-tolerance for illegal or fraudulent activities.
                     </p>
                   </div>
+                )}
+
+                {/* 5. Identity Verification Card Upload content */}
+                {activeSheet === 'kyc' && (
+                  <form onSubmit={handleKycSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                    <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', lineHeight: 1.5, fontWeight: 500 }}>
+                      To protect our community from fraud and ensure a trusted space, please verify your identity by entering your Brunei IC details and uploading a photo of your card.
+                    </p>
+                    
+                    {/* IC Number */}
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                      <label style={{ fontSize: '0.85rem', fontWeight: 800, color: 'var(--text-primary)' }}>Identity Card (IC) Number</label>
+                      <input 
+                        type="text"
+                        required
+                        placeholder="e.g. 01-123456"
+                        value={icNumber}
+                        onChange={(e) => setIcNumber(e.target.value)}
+                        style={{ 
+                          width: '100%', 
+                          padding: '14px 16px', 
+                          borderRadius: '12px', 
+                          background: 'var(--bg-tertiary)', 
+                          border: '1px solid var(--border-glass)', 
+                          color: 'var(--text-primary)', 
+                          fontWeight: 600,
+                          fontSize: '0.9rem',
+                          outline: 'none'
+                        }}
+                      />
+                    </div>
+
+                    {/* IC Color / Type */}
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                      <label style={{ fontSize: '0.85rem', fontWeight: 800, color: 'var(--text-primary)' }}>Identity Card Type</label>
+                      <div style={{ display: 'flex', gap: '10px' }}>
+                        {[
+                          { key: 'yellow', label: 'Yellow (Citizen)', color: '#fbbf24' },
+                          { key: 'red', label: 'Red (PR)', color: '#ef4444' },
+                          { key: 'green', label: 'Green (Foreigner)', color: '#10b981' }
+                        ].map(type => (
+                          <button
+                            key={type.key}
+                            type="button"
+                            onClick={() => setIcColor(type.key)}
+                            style={{
+                              flex: 1,
+                              padding: '12px 8px',
+                              borderRadius: '12px',
+                              border: icColor === type.key ? `2px solid ${type.color}` : '1.5px solid var(--border-glass)',
+                              background: icColor === type.key ? 'var(--bg-tertiary)' : 'none',
+                              color: 'var(--text-primary)',
+                              fontSize: '0.8rem',
+                              fontWeight: 800,
+                              cursor: 'pointer',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              gap: '6px'
+                            }}
+                          >
+                            <span style={{ width: '10px', height: '10px', borderRadius: '50%', background: type.color }} />
+                            {type.label.split(' ')[0]}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* IC Photo Upload */}
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                      <label style={{ fontSize: '0.85rem', fontWeight: 800, color: 'var(--text-primary)' }}>Front of IC Card</label>
+                      <div 
+                        style={{ 
+                          width: '100%', 
+                          height: '160px', 
+                          border: '2px dashed var(--border-glass)', 
+                          borderRadius: '16px', 
+                          display: 'flex', 
+                          flexDirection: 'column', 
+                          alignItems: 'center', 
+                          justifyContent: 'center', 
+                          background: 'var(--bg-tertiary)',
+                          position: 'relative',
+                          overflow: 'hidden',
+                          cursor: 'pointer'
+                        }}
+                      >
+                        {icImage ? (
+                          <>
+                            <img src={icImage} alt="IC Front Preview" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                            <button 
+                              type="button"
+                              onClick={(e) => { e.stopPropagation(); setIcImage(null); }}
+                              style={{ 
+                                position: 'absolute', 
+                                top: '10px', 
+                                right: '10px', 
+                                width: '28px', 
+                                height: '28px', 
+                                borderRadius: '50%', 
+                                background: 'rgba(0,0,0,0.6)', 
+                                color: 'white', 
+                                border: 'none', 
+                                display: 'flex', 
+                                alignItems: 'center', 
+                                justifyContent: 'center' 
+                              }}
+                            >
+                              <X size={14} />
+                            </button>
+                          </>
+                        ) : (
+                          <>
+                            <UploadCloud size={32} className="text-muted" style={{ marginBottom: '8px' }} />
+                            <span style={{ fontSize: '0.8rem', fontWeight: 800, color: 'var(--text-secondary)' }}>Upload or take photo</span>
+                            <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)', marginTop: '2px' }}>PNG, JPG up to 5MB</span>
+                            <input 
+                              type="file" 
+                              required
+                              accept="image/*"
+                              onChange={handleImageChange}
+                              style={{ position: 'absolute', inset: 0, opacity: 0, cursor: 'pointer' }}
+                            />
+                          </>
+                        )}
+                      </div>
+                    </div>
+
+                    <div style={{ padding: '12px', background: 'rgba(59, 130, 246, 0.05)', borderRadius: '12px', border: '1px solid rgba(59, 130, 246, 0.1)', display: 'flex', gap: '10px', alignItems: 'center' }}>
+                      <span style={{ fontSize: '1.2rem' }}>🔒</span>
+                      <p style={{ margin: 0, fontSize: '0.72rem', color: 'var(--text-secondary)', fontWeight: 600, lineHeight: 1.4 }}>
+                        Your details are fully encrypted and securely stored in compliance with Brunei AMBD digital guidelines.
+                      </p>
+                    </div>
+
+                    {/* Submit Button */}
+                    <button 
+                      type="submit"
+                      disabled={submittingKyc}
+                      style={{
+                        width: '100%',
+                        height: '50px',
+                        background: 'var(--portal-color)',
+                        color: 'white',
+                        border: 'none',
+                        borderRadius: '12px',
+                        fontSize: '0.9rem',
+                        fontWeight: 800,
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        gap: '8px',
+                        cursor: 'pointer'
+                      }}
+                    >
+                      {submittingKyc ? 'Submitting...' : 'Submit Verification'}
+                    </button>
+                  </form>
                 )}
 
               </div>

@@ -165,6 +165,22 @@ app.put('/api/users/profile', authenticateToken, async (req, res) => {
   }
 });
 
+app.put('/api/users/profile/kyc', authenticateToken, async (req, res) => {
+  const { kyc_document } = req.body;
+  try {
+    const updated = await prisma.profile.update({
+      where: { userId: req.user.id },
+      data: { 
+        kyc_document,
+        kyc_status: 'pending'
+      }
+    });
+    res.json({ success: true, profile: updated });
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to submit KYC verification' });
+  }
+});
+
 // --- SERVICES MODULE (/api/services) ---
 
 app.get('/api/services', async (req, res) => {
