@@ -42,16 +42,16 @@ const AdminEscrow = () => {
 
       <div style={{ padding: '0 24px 24px' }}>
         {/* Total Card */}
-        <div className="card-glass" style={{ padding: '32px 24px', background: 'linear-gradient(135deg, var(--emerald-dark) 0%, var(--bg-card) 100%)', border: '1px solid var(--emerald-glow)', marginBottom: '32px' }}>
+        <div className="card-glass" style={{ padding: '32px 24px', background: 'var(--bg-card)', border: '1.5px solid var(--emerald)', marginBottom: '32px', boxShadow: '0 8px 30px rgba(16, 185, 129, 0.15)' }}>
           <div style={{ fontSize: '0.8rem', fontWeight: 800, color: 'var(--emerald)', textTransform: 'uppercase', marginBottom: '8px', letterSpacing: '1px' }}>Total Escrow Volume</div>
           <div style={{ fontSize: '2.5rem', fontWeight: 900, marginBottom: '24px', color: 'var(--text-primary)' }}>BND {totalHeld.toLocaleString()}</div>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
-            <div style={{ background: 'rgba(16, 185, 129, 0.08)', padding: '12px', borderRadius: '16px', border: '1px solid var(--border-glass)' }}>
+            <div style={{ background: 'var(--bg-secondary)', padding: '12px', borderRadius: '16px', border: '1px solid var(--border-color)' }}>
               <div style={{ fontSize: '0.6rem', fontWeight: 800, color: 'var(--text-muted)' }}>ACTIVE QUESTS</div>
               <div style={{ fontSize: '1.2rem', fontWeight: 900, color: 'var(--text-primary)' }}>{payments.length}</div>
             </div>
-            <div style={{ background: 'rgba(16, 185, 129, 0.08)', padding: '12px', borderRadius: '16px', border: '1px solid var(--border-glass)' }}>
-              <div style={{ fontSize: '0.6rem', fontWeight: 800, color: 'var(--text-muted)' }}>SECURED FLOW</div>
+            <div style={{ background: 'var(--emerald-soft)', padding: '12px', borderRadius: '16px', border: '1px solid rgba(16, 185, 129, 0.2)' }}>
+              <div style={{ fontSize: '0.6rem', fontWeight: 800, color: 'var(--emerald)' }}>SECURED FLOW</div>
               <div style={{ fontSize: '1.2rem', fontWeight: 900, color: 'var(--emerald)' }}>100%</div>
             </div>
           </div>
