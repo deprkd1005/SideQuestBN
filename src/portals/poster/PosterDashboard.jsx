@@ -57,6 +57,27 @@ const PosterDashboard = () => {
           </button>
         </div>
 
+        {/* Custom Task Banner */}
+        <motion.div 
+          whileTap={{ scale: 0.98 }}
+          onClick={() => navigate('/poster/post-job')}
+          style={{ 
+            background: 'linear-gradient(135deg, var(--emerald) 0%, #059669 100%)', 
+            borderRadius: '24px', 
+            padding: '24px', 
+            marginBottom: '24px', 
+            boxShadow: '0 8px 32px rgba(16, 185, 129, 0.25)', 
+            cursor: 'pointer',
+            position: 'relative',
+            overflow: 'hidden'
+          }}
+        >
+          <div style={{ position: 'absolute', right: '-10px', bottom: '-20px', fontSize: '6rem', opacity: 0.15 }}>🚀</div>
+          <h2 style={{ color: 'white', fontSize: '1.25rem', fontWeight: 900, marginBottom: '6px', fontFamily: 'Outfit' }}>Need custom help?</h2>
+          <p style={{ color: 'rgba(255,255,255,0.9)', fontSize: '0.85rem', fontWeight: 600, marginBottom: '16px', maxWidth: '75%' }}>Post a custom SideQuest task and get applications from local Brunei hustlers.</p>
+          <span style={{ display: 'inline-block', background: 'white', color: 'var(--emerald)', border: 'none', padding: '10px 20px', borderRadius: '12px', fontSize: '0.8rem', fontWeight: 800 }}>Post a Task Now</span>
+        </motion.div>
+
         {/* Categories */}
         <div className="no-scrollbar" style={{ display: 'flex', gap: '10px', overflowX: 'auto', paddingBottom: '10px' }}>
           {categories.map(cat => (

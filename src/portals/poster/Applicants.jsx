@@ -7,7 +7,7 @@ import { usePayment } from '../../context/PaymentContext';
 const Applicants = () => {
   const { jobId } = useParams();
   const navigate = useNavigate();
-  const { jobs } = usePayment();
+  const { jobs, acceptJob } = usePayment();
   const job = jobs.find(item => item.id === jobId);
 
   const applicants = [

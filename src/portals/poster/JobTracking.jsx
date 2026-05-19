@@ -5,6 +5,7 @@ import { ArrowLeft, User, Star, Clock, Shield, MapPin, CheckCircle, Check, Alert
 import { usePayment } from '../../context/PaymentContext';
 
 import EscrowFlow from '../../shared/EscrowFlow';
+import TrackingMap from '../../components/TrackingMap';
 
 const JobTracking = () => {
   const { jobId } = useParams();
@@ -64,7 +65,12 @@ const JobTracking = () => {
         </div>
       </div>
 
-      <div style={{ flex: 1, overflowY: 'auto', padding: '24px 20px' }} className="no-scrollbar">
+      {/* Live Map Area */}
+      <div style={{ height: '240px', width: '100%', position: 'relative', overflow: 'hidden', borderBottom: '1px solid var(--border-glass)', zIndex: 1 }}>
+        <TrackingMap providerId="Hafizah" customerId={job.id} />
+      </div>
+
+      <div style={{ flex: 1, overflowY: 'auto', padding: '20px' }} className="no-scrollbar">
         {/* Worker Info Card */}
         <div className="card" style={{ padding: '20px', marginBottom: '24px', background: 'var(--bg-secondary)' }}>
           <div style={{ display: 'flex', gap: '16px', marginBottom: '20px' }}>

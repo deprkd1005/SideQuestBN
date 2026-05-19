@@ -18,7 +18,31 @@ export const PaymentProvider = ({ children }) => {
   const [transactions, setTransactions] = useState([]);
   const [escrow, setEscrow] = useState({});
   const [chatSessions, setChatSessions] = useState([]);
-  const [jobs, setJobs] = useState([]);
+  const [jobs, setJobs] = useState(() => {
+    const cached = localStorage.getItem('cached_jobs');
+    return cached ? JSON.parse(cached) : [
+      {
+        id: 'job_1',
+        title: 'Need help moving a sofa',
+        description: 'Moving a 3-seater sofa from Gadong to Kiulap. Need a pickup truck.',
+        category: 'Moving',
+        reward: 35,
+        location_name: 'Gadong Area',
+        status: 'open',
+        timestamp_human: '2 hours ago'
+      },
+      {
+        id: 'job_2',
+        title: 'Grass cutting for back garden',
+        description: 'Standard size backyard, need grass cut and disposed.',
+        category: 'Gardening',
+        reward: 20,
+        location_name: 'Sengkurong',
+        status: 'in_progress',
+        timestamp_human: '1 day ago'
+      }
+    ];
+  });
 
   const getBaseUrl = () => import.meta.env.DEV ? '' : 'https://sidequest-backend-bivj.onrender.com';
 
@@ -303,12 +327,33 @@ export const PaymentProvider = ({ children }) => {
     return { success: true };
   };
 
-  // Jobs mock stubs for backward compatibility
+  // Jobs mock implementations
   const postTask = async (taskData) => {
+    const newJob = {
+      id: 'job_' + Math.random().toString(36).substr(2, 9),
+      title: taskData.title,
+      description: taskData.description,
+      category: taskData.category,
+      reward: parseFloat(taskData.budget || 0),
+      location_name: taskData.location || 'Gadong Area',
+      status: 'open',
+      timestamp_human: 'Just now'
+    };
+    const updatedJobs = [newJob, ...jobs];
+    setJobs(updatedJobs);
+    localStorage.setItem('cached_jobs', JSON.stringify(updatedJobs));
     return { success: true };
   };
+
   const acceptTask = async (taskId) => {
+    const updatedJobs = jobs.map(j => j.id === taskId ? { ...j, status: 'in_progress' } : j);
+    setJobs(updatedJobs);
+    localStorage.setItem('cached_jobs', JSON.stringify(updatedJobs));
     return { success: true };
+  };
+
+  const acceptJob = async (jobId) => {
+    return acceptTask(jobId);
   };
 
   // Effect to initialize wallet from cache or defaults when user changes
@@ -457,7 +502,7 @@ export const PaymentProvider = ({ children }) => {
     user, token, loading, services, orders, notifications, impactStats,
     balance, transactions, escrow, chatSessions, jobs,
     login, signup, logout, refresh, postService, placeOrder, updateOrderStatus,
-    updateBalance, topUp, withdraw, fetchMessages, sendMessage, postTask, acceptTask
+    updateBalance, topUp, withdraw, fetchMessages, sendMessage, postTask, acceptTask, acceptJob
   };
 
     return <PaymentContext.Provider value={value}>{children}</PaymentContext.Provider>;

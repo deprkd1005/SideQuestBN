@@ -4,6 +4,8 @@ import { motion } from 'framer-motion';
 import { ArrowLeft, Clock, MapPin, MessageSquare, Phone, Shield, Navigation } from 'lucide-react';
 import { usePayment } from '../../context/PaymentContext';
 
+import TrackingMap from '../../components/TrackingMap';
+
 const OrderDetails = () => {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -22,38 +24,14 @@ const OrderDetails = () => {
     <div className="app-content no-scrollbar" style={{ background: 'var(--bg-primary)', display: 'flex', flexDirection: 'column' }}>
       
       {/* Live Map Area */}
-      <div style={{ flex: 1, position: 'relative', background: '#e2e8f0', overflow: 'hidden' }}>
-        {/* Mock Map Background */}
-        <div style={{ position: 'absolute', inset: 0, backgroundImage: 'url("data:image/svg+xml,%3Csvg width=\'100\' height=\'100\' viewBox=\'0 0 100 100\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cg stroke=\'%23cbd5e1\' stroke-width=\'2\' fill=\'none\'%3E%3Cpath d=\'M0 20h100M0 40h100M0 60h100M0 80h100M20 0v100M40 0v100M60 0v100M80 0v100\'/%3E%3Cpath d=\'M0 0l100 100M100 0L0 100\' stroke-opacity=\'0.2\'/%3E%3C/g%3E%3C/svg%3E")', backgroundSize: '150px' }} />
-        
-        {/* Map UI Overlay */}
-        <div style={{ position: 'absolute', top: '40px', left: '20px', zIndex: 10 }}>
-          <button onClick={() => navigate(-1)} style={{ width: '40px', height: '40px', borderRadius: '12px', background: 'white', border: 'none', boxShadow: 'var(--shadow-sm)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      <div style={{ flex: 1, position: 'relative', overflow: 'hidden', background: '#e2e8f0', zIndex: 1 }}>
+        <div style={{ position: 'absolute', top: '24px', left: '20px', zIndex: 1000 }}>
+          <button onClick={() => navigate(-1)} style={{ width: '40px', height: '40px', borderRadius: '12px', background: 'white', border: 'none', boxShadow: 'var(--shadow-md)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
             <ArrowLeft size={20} />
           </button>
         </div>
 
-        {/* Live Tracking Path */}
-        <svg style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', zIndex: 5 }}>
-          <path d="M 150 150 Q 200 300 350 400" fill="none" stroke="var(--emerald)" strokeWidth="4" strokeDasharray="8 8" />
-        </svg>
-
-        {/* Hustler Location Pin */}
-        <motion.div 
-          animate={{ x: [150, 160, 155], y: [150, 165, 160] }}
-          transition={{ duration: 4, repeat: Infinity, repeatType: 'reverse' }}
-          style={{ position: 'absolute', top: 0, left: 0, zIndex: 6, display: 'flex', flexDirection: 'column', alignItems: 'center' }}
-        >
-          <div style={{ background: 'var(--text-primary)', color: 'white', padding: '4px 8px', borderRadius: '8px', fontSize: '0.7rem', fontWeight: 700, marginBottom: '4px', whiteSpace: 'nowrap' }}>
-            5 mins away
-          </div>
-          <div style={{ width: '36px', height: '36px', borderRadius: '50%', background: 'white', border: '3px solid var(--emerald)', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: 'var(--shadow-md)' }}>
-            <img src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${order.providerId}`} alt="hustler" style={{ width: '100%', height: '100%', borderRadius: '50%' }} />
-          </div>
-        </motion.div>
-
-        {/* Destination Pin */}
-        <div style={{ position: 'absolute', top: '380px', left: '330px', zIndex: 5, width: '24px', height: '24px', borderRadius: '50%', background: 'var(--text-primary)', border: '4px solid white', boxShadow: 'var(--shadow-md)' }} />
+        <TrackingMap providerId={order.providerId} customerId={order.customerId} />
       </div>
 
       {/* Tracking Info Bottom Sheet */}
@@ -76,8 +54,8 @@ const OrderDetails = () => {
             <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', fontWeight: 600 }}>Hustler • 4.9 ★</div>
           </div>
           <div style={{ display: 'flex', gap: '8px' }}>
-            <button className="btn-ghost" style={{ padding: '10px', background: 'white', borderRadius: '12px' }}><Phone size={20} className="text-emerald" /></button>
-            <button className="btn-ghost" style={{ padding: '10px', background: 'white', borderRadius: '12px' }}><MessageSquare size={20} className="text-emerald" /></button>
+            <button className="btn-ghost" onClick={() => window.location.href = 'tel:+6738888888'} style={{ padding: '10px', background: 'white', borderRadius: '12px' }}><Phone size={20} className="text-emerald" /></button>
+            <button className="btn-ghost" onClick={() => navigate('/poster/messages')} style={{ padding: '10px', background: 'white', borderRadius: '12px' }}><MessageSquare size={20} className="text-emerald" /></button>
           </div>
         </div>
 
@@ -102,7 +80,16 @@ const OrderDetails = () => {
           </div>
         </div>
         
-        <button className="btn-primary" style={{ width: '100%', height: '56px', marginTop: '24px' }}>Confirm Completion</button>
+        <button 
+          className="btn-primary" 
+          onClick={async () => {
+            alert('Marking task as completed and releasing escrow payment...');
+            navigate('/poster');
+          }}
+          style={{ width: '100%', height: '56px', marginTop: '24px' }}
+        >
+          Confirm Completion
+        </button>
       </div>
     </div>
   );

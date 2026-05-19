@@ -13,7 +13,7 @@ const PosterHome = () => {
     refresh();
   }, []);
 
-  const myOrders = orders.filter(o => o.providerId === user?.id);
+  const myOrders = orders.filter(o => o.customerId === user?.id);
   const activeOrders = myOrders.filter(o => o.status !== 'completed' && o.status !== 'cancelled');
 
   return (
