@@ -55,6 +55,8 @@ export const PaymentProvider = ({ children }) => {
       if (res.ok) {
         const data = await res.json();
         setUser(data.user || data);
+      } else if (res.status === 401 || res.status === 403) {
+        logout();
       }
     } catch (err) {
       console.error("Failed to fetch profile", err);
