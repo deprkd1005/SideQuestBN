@@ -18,31 +18,7 @@ export const PaymentProvider = ({ children }) => {
   const [transactions, setTransactions] = useState([]);
   const [escrow, setEscrow] = useState({});
   const [chatSessions, setChatSessions] = useState([]);
-  const [jobs, setJobs] = useState(() => {
-    const cached = localStorage.getItem('cached_jobs');
-    return cached ? JSON.parse(cached) : [
-      {
-        id: 'job_1',
-        title: 'Need help moving a sofa',
-        description: 'Moving a 3-seater sofa from Gadong to Kiulap. Need a pickup truck.',
-        category: 'Moving',
-        reward: 35,
-        location_name: 'Gadong Area',
-        status: 'open',
-        timestamp_human: '2 hours ago'
-      },
-      {
-        id: 'job_2',
-        title: 'Grass cutting for back garden',
-        description: 'Standard size backyard, need grass cut and disposed.',
-        category: 'Gardening',
-        reward: 20,
-        location_name: 'Sengkurong',
-        status: 'in_progress',
-        timestamp_human: '1 day ago'
-      }
-    ];
-  });
+  const [jobs, setJobs] = useState([]);
 
   const getBaseUrl = () => '';
 
@@ -329,22 +305,52 @@ export const PaymentProvider = ({ children }) => {
     return { success: true };
   };
 
-  // Jobs mock implementations
   const postTask = async (taskData) => {
-    const newJob = {
-      id: 'job_' + Math.random().toString(36).substr(2, 9),
-      title: taskData.title,
-      description: taskData.description,
-      category: taskData.category,
-      reward: parseFloat(taskData.budget || 0),
-      location_name: taskData.location || 'Gadong Area',
-      status: 'open',
-      timestamp_human: 'Just now'
-    };
-    const updatedJobs = [newJob, ...jobs];
-    setJobs(updatedJobs);
-    localStorage.setItem('cached_jobs', JSON.stringify(updatedJobs));
-    return { success: true };
+    try {
+      const priceVal = parseFloat(taskData.budget || 0);
+      if (balance < priceVal) {
+        return { success: false, error: 'Insufficient balance to escrow this task' };
+      }
+
+      const res = await fetch(`${getBaseUrl()}/api/services`, {
+        method: 'POST',
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          title: taskData.title,
+          description: taskData.description,
+          price: priceVal,
+          category: taskData.category
+        })
+      });
+      const data = await res.json();
+      
+      if (data.success) {
+        const newBalance = balance - priceVal;
+        setBalance(newBalance);
+        localStorage.setItem(`wallet_balance_${user?.id}`, newBalance.toString());
+
+        const tx = {
+          id: 'tx_' + Math.random().toString(36).substr(2, 9),
+          type: 'debit',
+          description: `Held in Escrow: ${taskData.title}`,
+          amount: priceVal,
+          date: new Date().toISOString()
+        };
+        const newTransactions = [tx, ...transactions];
+        setTransactions(newTransactions);
+        localStorage.setItem(`wallet_txs_${user?.id}`, JSON.stringify(newTransactions));
+        
+        refresh();
+        return { success: true };
+      }
+      return { success: false, error: data.error || 'Server error' };
+    } catch (err) {
+      console.error(err);
+      return { success: false, error: 'Network error' };
+    }
   };
 
   const acceptTask = async (taskId) => {
@@ -487,6 +493,49 @@ export const PaymentProvider = ({ children }) => {
       }
     }
   }, [orders, user]);
+
+  // Sync services and orders into jobs state dynamically
+  useEffect(() => {
+    if (!services) return;
+    const dbJobs = services.map(s => {
+      // Find order that isn't cancelled
+      const order = s.orders && s.orders.find(o => o.status !== 'cancelled');
+      let status = 'open';
+      if (order) {
+        if (order.status === 'completed') {
+          status = 'completed';
+        } else if (order.status === 'cancelled') {
+          status = 'cancelled';
+        } else {
+          status = 'in_progress';
+        }
+      }
+
+      return {
+        id: s.id,
+        title: s.title,
+        description: s.description,
+        category: s.category,
+        reward: parseFloat(s.price),
+        location_name: 'Brunei Muara',
+        status: status,
+        timestamp_human: new Date(s.created_at).toLocaleDateString(),
+        providerId: s.providerId,
+        provider: s.provider,
+        customerId: order?.customerId,
+        applicants: s.orders ? s.orders.map(o => ({
+          id: o.customerId,
+          name: o.customer?.fullname || 'Hustler',
+          rating: 4.8,
+          distance: '1.2 km',
+          skills: ['Runner', 'Fast'],
+          jobs: 12,
+          orderId: o.id
+        })) : []
+      };
+    });
+    setJobs(dbJobs);
+  }, [services, orders]);
 
   useEffect(() => {
     const init = async () => {

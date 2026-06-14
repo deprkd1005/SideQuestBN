@@ -5,8 +5,8 @@ import { Briefcase, Clock, DollarSign, ChevronRight, MapPin, Users, Shield } fro
 
 const ActiveJobs = () => {
   const navigate = useNavigate();
-  const { jobs } = usePayment();
-  const activeJobs = jobs.filter(job => job.status !== 'completed');
+  const { jobs, user } = usePayment();
+  const activeJobs = jobs.filter(job => job.status !== 'completed' && job.providerId === user?.id);
 
   const handleJobClick = (job) => {
     if (job.status === 'open') {

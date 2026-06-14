@@ -17,7 +17,7 @@ const PosterActivity = () => {
   const myOrders = orders.filter(o => o.customerId === user?.id);
 
   // Filter Tasks (custom jobs the poster posted)
-  const activeJobs = jobs.filter(job => job.status !== 'completed');
+  const activeJobs = jobs.filter(job => job.status !== 'completed' && job.providerId === user?.id);
 
   const getOrderStatusColor = (status) => {
     switch(status) {

@@ -193,7 +193,10 @@ app.get('/api/services', async (req, res) => {
           search ? { OR: [{ title: { contains: search, mode: 'insensitive' } }, { description: { contains: search, mode: 'insensitive' } }] } : {}
         ]
       },
-      include: { provider: { select: { fullname: true, id: true } } },
+      include: { 
+        provider: { select: { fullname: true, id: true } },
+        orders: { include: { customer: true } }
+      },
       orderBy: { created_at: 'desc' }
     });
     res.json(services);
@@ -202,7 +205,7 @@ app.get('/api/services', async (req, res) => {
   }
 });
 
-app.post('/api/services', authenticateToken, authorizeRole(['provider']), async (req, res) => {
+app.post('/api/services', authenticateToken, async (req, res) => {
   const { title, description, price, category } = req.body;
   try {
     const service = await prisma.service.create({
@@ -228,7 +231,7 @@ app.get('/api/services/:id', async (req, res) => {
 
 // --- ORDERS MODULE (/api/orders) ---
 
-app.post('/api/orders', authenticateToken, authorizeRole(['customer']), async (req, res) => {
+app.post('/api/orders', authenticateToken, async (req, res) => {
   const { serviceId } = req.body;
   try {
     const service = await prisma.service.findUnique({ where: { id: serviceId } });

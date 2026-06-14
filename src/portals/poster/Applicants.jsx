@@ -7,14 +7,16 @@ import { usePayment } from '../../context/PaymentContext';
 const Applicants = () => {
   const { jobId } = useParams();
   const navigate = useNavigate();
-  const { jobs, acceptJob } = usePayment();
+  const { jobs, acceptJob, updateOrderStatus } = usePayment();
   const job = jobs.find(item => item.id === jobId);
 
-  const applicants = [
+  const mockApplicants = [
     { id: 'a1', name: 'Hafizah', rating: 4.9, distance: '1.2 km', skills: ['Gardening', 'Fast'], jobs: 42 },
     { id: 'a2', name: 'Farhan', rating: 4.7, distance: '0.8 km', skills: ['Heavy Lifting', 'Pro'], jobs: 18 },
     { id: 'a3', name: 'Aisyah', rating: 4.8, distance: '2.5 km', skills: ['Cleaning', 'Punctual'], jobs: 24 }
   ];
+
+  const displayApplicants = job?.applicants && job.applicants.length > 0 ? job.applicants : mockApplicants;
 
   return (
     <div className="app-content" style={{ display: 'flex', flexDirection: 'column', height: '100%', background: 'var(--bg-primary)' }}>
@@ -44,10 +46,10 @@ const Applicants = () => {
           </p>
         </div>
 
-        <h3 style={{ fontSize: '1rem', fontWeight: 800, marginBottom: '16px', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '1px' }}>Top Candidates ({applicants.length})</h3>
+        <h3 style={{ fontSize: '1rem', fontWeight: 800, marginBottom: '16px', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '1px' }}>Top Candidates ({displayApplicants.length})</h3>
 
         <div style={{ display: 'grid', gap: '16px' }}>
-          {applicants.map(applicant => (
+          {displayApplicants.map(applicant => (
             <motion.div 
               key={applicant.id} 
               initial={{ opacity: 0, y: 10 }}
@@ -90,7 +92,11 @@ const Applicants = () => {
                   className="btn-primary" 
                   onClick={async () => { 
                     try {
-                      await acceptJob(jobId);
+                      if (applicant.orderId) {
+                        await updateOrderStatus(applicant.orderId, 'accepted');
+                      } else {
+                        await acceptJob(jobId);
+                      }
                       alert(`Successfully assigned quest to ${applicant.name}!`);
                       navigate('/poster');
                     } catch (e) {
