@@ -15,7 +15,7 @@ const ServiceDetails = () => {
   useEffect(() => {
     const fetchService = async () => {
       try {
-        const baseUrl = import.meta.env.DEV ? '' : 'https://sidequest-backend-bivj.onrender.com';
+        const baseUrl = '';
         const res = await fetch(`${baseUrl}/api/services/${id}`);
         const data = await res.json();
         setService(data);

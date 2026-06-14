@@ -10,7 +10,7 @@ const AdminEscrow = () => {
 
   const fetchPayments = async () => {
     try {
-      const baseUrl = import.meta.env.DEV ? '' : 'https://sidequest-backend-bivj.onrender.com';
+      const baseUrl = '';
       const res = await fetch(`${baseUrl}/api/admin/payments`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });

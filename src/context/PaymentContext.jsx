@@ -44,7 +44,7 @@ export const PaymentProvider = ({ children }) => {
     ];
   });
 
-  const getBaseUrl = () => import.meta.env.DEV ? '' : 'https://sidequest-backend-bivj.onrender.com';
+  const getBaseUrl = () => '';
 
   const fetchProfile = async () => {
     if (!token) return;

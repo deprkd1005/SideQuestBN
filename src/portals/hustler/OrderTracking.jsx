@@ -33,7 +33,7 @@ const OrderTracking = () => {
 
   const submitReview = async () => {
     try {
-      const baseUrl = import.meta.env.DEV ? '' : 'https://sidequest-backend-bivj.onrender.com';
+      const baseUrl = '';
       await fetch(`${baseUrl}/api/reviews`, {
         method: 'POST',
         headers: { 

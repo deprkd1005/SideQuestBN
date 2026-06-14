@@ -18,7 +18,7 @@ const AdminDashboard = () => {
 
   const fetchAdminData = async () => {
     try {
-      const baseUrl = import.meta.env.DEV ? '' : 'https://sidequest-backend-bivj.onrender.com';
+      const baseUrl = '';
       const headers = { 'Authorization': `Bearer ${token}` };
       const [resUsers, resPayments] = await Promise.all([
         fetch(`${baseUrl}/api/admin/users`, { headers }),
@@ -42,7 +42,7 @@ const AdminDashboard = () => {
   const handleKycAction = async (userId, action) => {
     setKycProcessing(userId);
     try {
-      const baseUrl = import.meta.env.DEV ? '' : 'https://sidequest-backend-bivj.onrender.com';
+      const baseUrl = '';
       const res = await fetch(`${baseUrl}/api/admin/users/${userId}/kyc`, {
         method: 'PUT',
         headers: { 

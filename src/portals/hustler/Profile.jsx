@@ -28,7 +28,7 @@ const Profile = () => {
 
   const fetchProfile = async () => {
     try {
-      const baseUrl = import.meta.env.DEV ? '' : 'https://sidequest-backend-bivj.onrender.com';
+      const baseUrl = '';
       const res = await fetch(`${baseUrl}/api/users/profile`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
@@ -46,7 +46,7 @@ const Profile = () => {
 
   const handleUpdate = async () => {
     try {
-      const baseUrl = import.meta.env.DEV ? '' : 'https://sidequest-backend-bivj.onrender.com';
+      const baseUrl = '';
       await fetch(`${baseUrl}/api/users/profile`, {
         method: 'PUT',
         headers: { 
@@ -81,7 +81,7 @@ const Profile = () => {
     }
     setSubmittingKyc(true);
     try {
-      const baseUrl = import.meta.env.DEV ? '' : 'https://sidequest-backend-bivj.onrender.com';
+      const baseUrl = '';
       const res = await fetch(`${baseUrl}/api/users/profile/kyc`, {
         method: 'PUT',
         headers: { 
