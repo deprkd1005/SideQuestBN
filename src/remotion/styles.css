@@ -1,36 +1,65 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;900&family=Outfit:wght@400;600;700;800;900&display=swap');
 
 :root {
-  --color-gold: #D4AF37; /* More refined gold for light theme */
-  --color-green: #00A682; /* Slightly deeper green for contrast on white */
-  --color-purple: #6366F1;
-  --color-bg: #FFFFFF;
-  --color-text: #111827;
-  --color-text-dim: #4B5563;
+  --color-bg: #FAFBFE;
+  --color-card: rgba(255, 255, 255, 0.85);
+  --color-text: #1A1A2E;
+  --color-text-dim: #6B7280;
+  --color-primary: #2563EB;
+  --color-cyan: #06B6D4;
+  --color-green: #10B981;
+  --color-red: #EF4444;
+  --color-gold: #F59E0B;
+  --color-border: rgba(0, 0, 0, 0.06);
 }
 
 .remotion-root {
-  font-family: 'Inter', sans-serif;
+  font-family: 'Outfit', 'Inter', sans-serif;
   color: var(--color-text);
   background-color: var(--color-bg);
   overflow: hidden;
 }
 
 .glass-card {
-  background: rgba(255, 255, 255, 0.7);
-  backdrop-filter: blur(20px);
-  border: 1px solid rgba(0, 0, 0, 0.05);
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+  background: var(--color-card);
+  backdrop-filter: blur(25px);
+  border: 1px solid var(--color-border);
+  box-shadow:
+    0 8px 32px rgba(0, 0, 0, 0.08),
+    inset 0 1px 0px rgba(255, 255, 255, 0.6);
+  border-radius: 24px;
 }
 
 .glow-text {
-  /* Subtle glow for light theme */
-  text-shadow: 0 0 15px rgba(0, 166, 130, 0.2);
+  text-shadow: 0 0 20px rgba(37, 99, 235, 0.25), 0 0 40px rgba(37, 99, 235, 0.1);
+}
+
+.glow-text-blue {
+  text-shadow: 0 0 20px rgba(37, 99, 235, 0.3), 0 0 40px rgba(37, 99, 235, 0.15);
 }
 
 .bokeh-orb {
   position: absolute;
   border-radius: 50%;
-  filter: blur(100px);
-  opacity: 0.15;
+  filter: blur(140px);
+  opacity: 0.12;
+}
+
+.subtitle {
+  font-family: 'Inter', sans-serif;
+  color: var(--color-text-dim);
+}
+
+/* Scroll / UI animations helper */
+.animate-pulse-slow {
+  animation: pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: .5;
+  }
 }

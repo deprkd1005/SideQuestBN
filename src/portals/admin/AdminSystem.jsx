@@ -44,11 +44,11 @@ const AdminSystem = () => {
   ];
 
   const infraStatus = [
-    { label: 'Frontend (Vercel)', status: 'online', latency: '18ms', icon: Globe },
-    { label: 'Backend (Render)', status: 'online', latency: '42ms', icon: Server },
-    { label: 'PostgreSQL', status: 'online', latency: '8ms', icon: Database },
-    { label: 'CDN / Assets', status: 'online', latency: '12ms', icon: HardDrive },
-    { label: 'WebSocket', status: 'standby', latency: '—', icon: Wifi },
+    { label: 'Frontend (Render)', status: 'online', latency: '24ms', icon: Globe },
+    { label: 'Backend (Render)', status: 'online', latency: '35ms', icon: Server },
+    { label: 'PostgreSQL (Neon)', status: 'online', latency: '12ms', icon: Database },
+    { label: 'CDN / Assets (Render)', status: 'online', latency: '15ms', icon: HardDrive },
+    { label: 'WebSocket (Render)', status: 'standby', latency: '—', icon: Wifi },
   ];
 
   const featureToggles = [
@@ -217,8 +217,8 @@ const AdminSystem = () => {
               { label: 'Node.js', value: 'v20.x LTS' },
               { label: 'Runtime', value: 'Express 4.x' },
               { label: 'ORM', value: 'Prisma 6.2.1' },
-              { label: 'Database', value: 'PostgreSQL 15' },
-              { label: 'Hosting', value: 'Render (Backend) + Vercel (Frontend)' },
+              { label: 'Database', value: 'PostgreSQL (Neon)' },
+              { label: 'Hosting', value: 'Render (Monolithic)' },
               { label: 'Region', value: 'Singapore (SEA)' },
             ].map(env => (
               <div key={env.label} style={{ 

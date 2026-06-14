@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import { Routes, Route } from 'react-router-dom';
 import BottomNav from '../../shared/BottomNav';
 import AdminDashboard from './AdminDashboard';
@@ -9,6 +9,12 @@ import AdminProfile from './AdminProfile';
 import AdminLogs from './AdminLogs';
 
 const AdminPortal = () => {
+  const audioRef = useRef(null);
+  useEffect(() => {
+    if (audioRef.current) {
+      audioRef.current.play();
+    }
+  }, []);
   return (
     <div className="theme-admin" style={{ display: 'flex', flexDirection: 'column', height: '100%', overflow: 'hidden' }}>
       <div style={{ flex: 1, overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
@@ -22,6 +28,7 @@ const AdminPortal = () => {
         </Routes>
       </div>
 
+      <audio ref={audioRef} src="/assets/admin_demo_voice.mp3" preload="auto" autoPlay style={{ display: 'none' }} />
       <BottomNav portal="admin" />
     </div>
   );
