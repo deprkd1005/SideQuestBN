@@ -13,8 +13,8 @@ const PORT = process.env.PORT || 3000;
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Serve static frontend dashboard
-app.use(express.static(join(__dirname, 'public')));
+// Serve static frontend React App from app/dist
+app.use(express.static(join(__dirname, 'app/dist')));
 
 // API routes
 app.use('/api', routes);
@@ -29,10 +29,10 @@ app.get('/api/health', (req, res) => {
   });
 });
 
-// SPA fallback — serve dashboard for non-API routes
+// SPA fallback — serve React app index.html for non-API routes
 app.get('*', (req, res) => {
   if (!req.path.startsWith('/api')) {
-    res.sendFile(join(__dirname, 'public', 'index.html'));
+    res.sendFile(join(__dirname, 'app/dist', 'index.html'));
   }
 });
 
@@ -40,7 +40,7 @@ app.listen(PORT, () => {
   console.log(`\n╔══════════════════════════════════════════════════════════╗`);
   console.log(`║  🌴  SideQuest Tourism Vertical — Live Server           ║`);
   console.log(`║                                                          ║`);
-  console.log(`║  Dashboard:  http://localhost:${PORT}                      ║`);
+  console.log(`║  React App:  http://localhost:${PORT}                      ║`);
   console.log(`║  API Base:   http://localhost:${PORT}/api                  ║`);
   console.log(`║  Health:     http://localhost:${PORT}/api/health            ║`);
   console.log(`╚══════════════════════════════════════════════════════════╝\n`);
