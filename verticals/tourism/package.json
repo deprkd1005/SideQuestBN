@@ -1,0 +1,23 @@
+{
+  "name": "sidequest-tourism",
+  "version": "1.0.0",
+  "description": "SideQuest Tourism Vertical — Brunei Heritage & Artisan Marketplace with Tokenized Escrow and AML Firewalls",
+  "main": "server.js",
+  "type": "module",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js",
+    "test": "node tests/verify_endpoints.js",
+    "vercel-build": "echo 'No build step needed'"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "dependencies": {
+    "@neondatabase/serverless": "^0.10.4",
+    "express": "^4.21.0"
+  },
+  "keywords": ["brunei", "tourism", "escrow", "marketplace", "aml"],
+  "license": "UNLICENSED",
+  "private": true
+}
