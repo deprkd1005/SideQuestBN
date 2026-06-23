@@ -38,7 +38,7 @@ const SplashScreen = ({ onComplete }) => {
   return (
     <div style={{
       position: 'fixed', inset: 0,
-      background: 'var(--bg-primary, #0b0f19)',
+      background: 'var(--bg-primary, #f8fafc)',
       display: 'flex', flexDirection: 'column',
       alignItems: 'center', justifyContent: 'center',
       zIndex: 9999, overflow: 'hidden',
@@ -89,7 +89,7 @@ const SplashScreen = ({ onComplete }) => {
             display: 'flex', alignItems: 'center', justifyContent: 'center',
             margin: '0 auto 36px',
             border: '1px solid rgba(16,185,129,0.2)',
-            boxShadow: '0 0 60px rgba(16,185,129,0.15), inset 0 1px 0 rgba(255,255,255,0.05)',
+            boxShadow: '0 0 60px rgba(16,185,129,0.15), inset 0 1px 0 rgba(0,0,0,0.05)',
             backdropFilter: 'blur(20px)',
           }}
         >
@@ -111,7 +111,7 @@ const SplashScreen = ({ onComplete }) => {
               <h1 style={{
                 fontSize: '2.8rem', fontWeight: 900,
                 letterSpacing: '-2px', marginBottom: 4,
-                color: '#f9fafb', lineHeight: 1.1,
+                color: 'var(--text-primary, #0f172a)', lineHeight: 1.1,
               }}>
                 SideQuest<span style={{
                   background: 'linear-gradient(135deg, #10b981, #34d399)',
@@ -175,7 +175,7 @@ const SplashScreen = ({ onComplete }) => {
           position: 'absolute', bottom: -70,
           left: '50%', transform: 'translateX(-50%)',
           width: 140, height: 3,
-          background: 'rgba(255,255,255,0.06)',
+          background: 'rgba(0,0,0,0.06)',
           borderRadius: 2, overflow: 'hidden',
         }}>
           <motion.div

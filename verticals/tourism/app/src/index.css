@@ -1,13 +1,13 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Outfit:wght@300;400;500;600;700;800;900&display=swap');
 
 :root {
-  /* Premium Dark Palette */
-  --bg-primary: #0b0f19;
-  --bg-secondary: #111827;
-  --bg-tertiary: #1f2937;
-  --bg-card: #111827;
-  --bg-glass: rgba(17, 24, 39, 0.7);
-  --bg-glass-strong: rgba(17, 24, 39, 0.95);
+  /* Light Palette */
+  --bg-primary: #f8fafc;
+  --bg-secondary: #ffffff;
+  --bg-tertiary: #f1f5f9;
+  --bg-card: #ffffff;
+  --bg-glass: rgba(255, 255, 255, 0.7);
+  --bg-glass-strong: rgba(255, 255, 255, 0.95);
   
   /* Brand Colors - Emerald & Gold */
   --emerald: #10b981;
@@ -15,22 +15,22 @@
   --emerald-soft: rgba(16, 185, 129, 0.15);
   --emerald-glow: rgba(16, 185, 129, 0.25);
   
-  --gold: #facc15;
-  --gold-dark: #ca8a04;
-  --gold-soft: rgba(250, 204, 21, 0.15);
-  --gold-glow: rgba(250, 204, 21, 0.25);
+  --gold: #d4af37;
+  --gold-dark: #b8860b;
+  --gold-soft: rgba(212, 175, 55, 0.15);
+  --gold-glow: rgba(212, 175, 55, 0.2);
 
   --blue: #3b82f6;
-  --red: #f87171;
+  --red: #ef4444;
 
-  --border-color: rgba(255, 255, 255, 0.08);
-  --border-glass: rgba(255, 255, 255, 0.06);
-  --border-gold: rgba(250, 204, 21, 0.3);
+  --border-color: #e2e8f0;
+  --border-glass: rgba(0, 0, 0, 0.05);
+  --border-gold: rgba(212, 175, 55, 0.3);
   
-  --text-primary: #f9fafb;
-  --text-secondary: #9ca3af;
-  --text-muted: #6b7280;
-  --text-gold: #facc15;
+  --text-primary: #0f172a;
+  --text-secondary: #475569;
+  --text-muted: #64748b;
+  --text-gold: #b8860b;
 
   /* Radius System */
   --radius-xs: 8px;
