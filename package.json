@@ -15,11 +15,13 @@
     "remotion:render": "remotion render src/remotion/index.jsx SideQuestIntro out/intro.mp4"
   },
   "dependencies": {
+    "@neondatabase/serverless": "^1.1.0",
     "@prisma/client": "^6.2.1",
     "@remotion/bundler": "^4.0.460",
     "@remotion/cli": "^4.0.460",
     "@remotion/player": "^4.0.460",
     "@remotion/renderer": "^4.0.460",
+    "@vitejs/plugin-react": "^4.0.3",
     "bcryptjs": "^3.0.3",
     "cors": "^2.8.5",
     "dotenv": "^17.4.2",
@@ -36,7 +38,6 @@
     "react-dom": "^18.2.0",
     "react-router-dom": "^7.15.0",
     "remotion": "^4.0.460",
-    "@vitejs/plugin-react": "^4.0.3",
     "vite": "^6.0.0"
   },
   "devDependencies": {

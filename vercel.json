@@ -1,0 +1,16 @@
+{
+  "experimentalServices": {
+    "sidequest-backend": {
+      "type": "web",
+      "routePrefix": "/",
+      "framework": "vite",
+      "buildCommand": "npm install && npm run build && npx prisma db push --accept-data-loss"
+    },
+    "sidequest-frontend": {
+      "type": "web",
+      "routePrefix": "/_/sidequest-frontend",
+      "framework": "vite",
+      "buildCommand": "npm install && npm run build"
+    }
+  }
+}
