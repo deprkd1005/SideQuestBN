@@ -45,11 +45,19 @@ export const TourismPaymentProvider = ({ children }) => {
     try {
       const res = await fetch('/api/_test/db');
       if (res.ok) {
-        const data = await res.json();
-        setDbState(data);
+        const contentType = res.headers.get("content-type");
+        if (contentType && contentType.indexOf("application/json") !== -1) {
+          const data = await res.json();
+          setDbState(data);
+          return;
+        }
       }
+      throw new Error('API unavailable or returned non-JSON');
     } catch (e) {
-      console.error('Error fetching mock database:', e);
+      console.warn('Network error fetching mock database, using local fallback:', e);
+      import('../utils/mockDb').then(module => {
+        setDbState(module.localMockDb);
+      });
     } finally {
       setLoading(false);
     }
