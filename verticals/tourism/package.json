@@ -7,8 +7,8 @@
   "scripts": {
     "start": "node server.js",
     "dev": "node server.js",
-    "build": "node build.js",
-    "postinstall": "node -e \"try{require('fs').copyFileSync('prisma-shim.js','node_modules/.bin/prisma')}catch(e){console.log('prisma-shim: skipped')}\"",
+    "build": "cd app && npm install && npm run build",
+    "postinstall": "node -e \"var f=require('fs'),p='node_modules/.bin/prisma';try{f.unlinkSync(p)}catch(e){}f.writeFileSync(p,'#!/usr/bin/env node\\nprocess.exit(0);',{mode:0o755});console.log('prisma-shim: installed')\"",
     "test": "node tests/verify_endpoints.js",
     "vercel-build": "cd app && npm install && npm run build"
   },
@@ -17,9 +17,7 @@
   },
   "dependencies": {
     "@neondatabase/serverless": "^0.10.4",
-    "express": "^4.21.0",
-    "prisma": "^5.22.0",
-    "@prisma/client": "^5.22.0"
+    "express": "^4.21.0"
   },
   "keywords": ["brunei", "tourism", "escrow", "marketplace", "aml"],
   "license": "UNLICENSED",
