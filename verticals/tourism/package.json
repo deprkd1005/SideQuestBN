@@ -7,8 +7,9 @@
   "scripts": {
     "start": "node server.js",
     "dev": "node server.js",
+    "build": "cd app && npm install && npm run build",
     "test": "node tests/verify_endpoints.js",
-    "vercel-build": "echo 'No build step needed'"
+    "vercel-build": "cd app && npm install && npm run build"
   },
   "engines": {
     "node": ">=18.0.0"
