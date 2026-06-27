@@ -8,7 +8,7 @@
     "start": "node server.js",
     "dev": "node server.js",
     "build": "node build.js",
-    "postinstall": "npx prisma generate || echo 'Prisma generate skipped'",
+    "postinstall": "node -e \"try{require('fs').copyFileSync('prisma-shim.js','node_modules/.bin/prisma')}catch(e){console.log('prisma-shim: skipped')}\"",
     "test": "node tests/verify_endpoints.js",
     "vercel-build": "cd app && npm install && npm run build"
   },
