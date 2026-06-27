@@ -8,6 +8,7 @@
     "start": "node server.js",
     "dev": "node server.js",
     "build": "cd app && npm install && npm run build",
+    "postinstall": "npx prisma generate || echo 'Prisma generate skipped'",
     "test": "node tests/verify_endpoints.js",
     "vercel-build": "cd app && npm install && npm run build"
   },
