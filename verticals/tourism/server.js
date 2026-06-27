@@ -33,6 +33,13 @@ app.get('/api/health', (req, res) => {
 app.get('*', (req, res) => {
   if (!req.path.startsWith('/api')) {
     res.sendFile(join(__dirname, 'app/dist', 'index.html'));
+  } else {
+    // Return proper 404 JSON for unmatched API routes instead of hanging
+    res.status(404).json({
+      success: false,
+      error: 'NOT_FOUND',
+      message: `API route not found: ${req.method} ${req.path}`
+    });
   }
 });
 

@@ -86,8 +86,11 @@ const QRScanner = ({ onScanSuccess, onCancel, bookings = [] }) => {
     processDecodedPayload(mockText);
   };
 
-  // Filter bookings that are locked and need verification
-  const pendingBookings = bookings.filter(b => b.escrow_status === 'locked' || b.escrow_status === 'Locked');
+  // Filter bookings that are locked and need verification (backend uses 'FROZEN')
+  const pendingBookings = bookings.filter(b => {
+    const status = (b.escrow_status || '').toUpperCase();
+    return status === 'FROZEN' || status === 'LOCKED' || status === 'DISPUTED';
+  });
 
   return (
     <div style={{

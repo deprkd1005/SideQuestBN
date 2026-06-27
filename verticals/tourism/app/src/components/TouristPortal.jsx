@@ -1,3 +1,15 @@
+/**
+ * @deprecated This component is no longer used. All Tourist Portal functionality
+ * has been moved to:
+ *   - TouristDashboard.jsx (main dashboard with map, booking, AI features)
+ *   - TouristBookings.jsx (booking list with QR tickets)
+ *   - TouristWallet.jsx (payment methods, transactions)
+ *   - TouristPassport.jsx (digital passport with stamps)
+ *   - TouristProfile.jsx (user profile & settings)
+ * 
+ * This file is kept for reference only and will be removed in a future cleanup.
+ */
+
 import { useState, useEffect } from 'react';
 import { Compass, Wallet, Zap, ArrowUpCircle, Lock } from 'lucide-react';
 import WalletCard from './WalletCard';

@@ -45,9 +45,9 @@ const ActivityCreator = ({ onCreate, onCancel }) => {
 
   return (
     <div style={{
-      background: 'rgba(255, 255, 255, 0.02)',
+      background: 'var(--bg-card)',
       borderRadius: '24px',
-      border: '1px solid var(--border-glass)',
+      border: '1px solid var(--border-color)',
       padding: '24px',
       color: 'var(--text-primary)',
       fontFamily: 'Outfit'
@@ -63,18 +63,18 @@ const ActivityCreator = ({ onCreate, onCancel }) => {
                 width: '24px',
                 height: '24px',
                 borderRadius: '50%',
-                background: step === i ? 'var(--gold)' : step > i ? 'rgba(74, 222, 128, 0.2)' : 'rgba(255,255,255,0.05)',
+                background: step === i ? 'var(--gold)' : step > i ? 'rgba(74, 222, 128, 0.2)' : 'var(--bg-tertiary)',
                 color: step === i ? 'black' : step > i ? '#4ade80' : 'var(--text-muted)',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
                 fontSize: '0.7rem',
                 fontWeight: 800,
-                border: step === i ? 'none' : '1px solid var(--border-glass)'
+                border: step === i ? 'none' : '1px solid var(--border-color)'
               }}>
                 {step > i ? '✓' : i}
               </div>
-              {i < 3 && <div style={{ width: '20px', height: '1px', background: step > i ? '#4ade80' : 'rgba(255,255,255,0.1)' }} />}
+              {i < 3 && <div style={{ width: '20px', height: '1px', background: step > i ? '#4ade80' : 'var(--border-color)' }} />}
             </div>
           ))}
         </div>
@@ -104,11 +104,11 @@ const ActivityCreator = ({ onCreate, onCancel }) => {
                   onChange={(e) => setFormData(prev => ({ ...prev, title: e.target.value }))}
                   style={{
                     width: '100%',
-                    background: 'rgba(255,255,255,0.02)',
-                    border: '1px solid var(--border-glass)',
+                    background: 'var(--bg-tertiary)',
+                    border: '1px solid var(--border-color)',
                     borderRadius: '12px',
                     padding: '12px',
-                    color: 'white',
+                    color: 'var(--text-primary)',
                     fontSize: '0.85rem'
                   }}
                 />
@@ -124,11 +124,11 @@ const ActivityCreator = ({ onCreate, onCancel }) => {
                   onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
                   style={{
                     width: '100%',
-                    background: 'rgba(255,255,255,0.02)',
-                    border: '1px solid var(--border-glass)',
+                    background: 'var(--bg-tertiary)',
+                    border: '1px solid var(--border-color)',
                     borderRadius: '12px',
                     padding: '12px',
-                    color: 'white',
+                    color: 'var(--text-primary)',
                     fontSize: '0.85rem',
                     minHeight: '80px',
                     fontFamily: 'Outfit'
@@ -149,11 +149,11 @@ const ActivityCreator = ({ onCreate, onCancel }) => {
                       onChange={(e) => setFormData(prev => ({ ...prev, pricePerPerson: e.target.value }))}
                       style={{
                         width: '100%',
-                        background: 'rgba(255,255,255,0.02)',
-                        border: '1px solid var(--border-glass)',
+                        background: 'var(--bg-tertiary)',
+                        border: '1px solid var(--border-color)',
                         borderRadius: '12px',
                         padding: '12px 12px 12px 28px',
-                        color: 'white',
+                        color: 'var(--text-primary)',
                         fontSize: '0.85rem'
                       }}
                     />
@@ -168,26 +168,26 @@ const ActivityCreator = ({ onCreate, onCancel }) => {
                     onChange={(e) => setFormData(prev => ({ ...prev, district: e.target.value }))}
                     style={{
                       width: '100%',
-                      background: 'rgba(255,255,255,0.02)',
-                      border: '1px solid var(--border-glass)',
+                      background: 'var(--bg-tertiary)',
+                      border: '1px solid var(--border-color)',
                       borderRadius: '12px',
                       padding: '12px',
-                      color: 'white',
+                      color: 'var(--text-primary)',
                       fontSize: '0.85rem',
                       fontFamily: 'Outfit'
                     }}
                   >
-                    <option value="Brunei-Muara" style={{ background: '#121214' }}>Brunei-Muara</option>
-                    <option value="Tutong" style={{ background: '#121214' }}>Tutong</option>
-                    <option value="Belait" style={{ background: '#121214' }}>Belait</option>
-                    <option value="Temburong" style={{ background: '#121214' }}>Temburong</option>
+                    <option value="Brunei-Muara" style={{ background: 'var(--bg-secondary)', color: 'var(--text-primary)' }}>Brunei-Muara</option>
+                    <option value="Tutong" style={{ background: 'var(--bg-secondary)', color: 'var(--text-primary)' }}>Tutong</option>
+                    <option value="Belait" style={{ background: 'var(--bg-secondary)', color: 'var(--text-primary)' }}>Belait</option>
+                    <option value="Temburong" style={{ background: 'var(--bg-secondary)', color: 'var(--text-primary)' }}>Temburong</option>
                   </select>
                 </div>
               </div>
             </div>
 
             <div style={{ display: 'flex', gap: '8px' }}>
-              <button onClick={onCancel} className="btn-outline" style={{ border: '1px solid var(--border-glass)' }}>Cancel</button>
+              <button onClick={onCancel} className="btn-outline" style={{ border: '1px solid var(--border-color)' }}>Cancel</button>
               <button 
                 onClick={handleNext} 
                 disabled={!formData.title || !formData.description}
@@ -249,9 +249,9 @@ const ActivityCreator = ({ onCreate, onCancel }) => {
                         key={t}
                         onClick={() => handleTagToggle(t)}
                         style={{
-                          background: active ? 'rgba(255, 215, 0, 0.12)' : 'rgba(255,255,255,0.01)',
-                          border: `1px solid ${active ? 'var(--gold)' : 'var(--border-glass)'}`,
-                          color: active ? 'var(--gold)' : 'var(--text-secondary)',
+                          background: active ? 'var(--gold-soft)' : 'var(--bg-tertiary)',
+                          border: `1px solid ${active ? 'var(--gold)' : 'var(--border-color)'}`,
+                          color: active ? 'var(--gold-dark)' : 'var(--text-secondary)',
                           padding: '6px 12px',
                           borderRadius: '20px',
                           fontSize: '0.75rem',
@@ -285,9 +285,9 @@ const ActivityCreator = ({ onCreate, onCancel }) => {
                         key={t}
                         onClick={toggleSlot}
                         style={{
-                          background: active ? 'rgba(255, 215, 0, 0.12)' : 'rgba(255,255,255,0.01)',
-                          border: `1px solid ${active ? 'var(--gold)' : 'var(--border-glass)'}`,
-                          color: active ? 'var(--gold)' : 'var(--text-secondary)',
+                          background: active ? 'var(--gold-soft)' : 'var(--bg-tertiary)',
+                          border: `1px solid ${active ? 'var(--gold)' : 'var(--border-color)'}`,
+                          color: active ? 'var(--gold-dark)' : 'var(--text-secondary)',
                           padding: '8px',
                           borderRadius: '12px',
                           fontSize: '0.75rem',
@@ -304,7 +304,7 @@ const ActivityCreator = ({ onCreate, onCancel }) => {
             </div>
 
             <div style={{ display: 'flex', gap: '8px' }}>
-              <button onClick={handlePrev} className="btn-outline" style={{ border: '1px solid var(--border-glass)' }}>
+              <button onClick={handlePrev} className="btn-outline" style={{ border: '1px solid var(--border-color)' }}>
                 <ArrowLeft size={14} style={{ marginRight: '4px', display: 'inline' }} /> Back
               </button>
               <button 
@@ -352,11 +352,11 @@ const ActivityCreator = ({ onCreate, onCancel }) => {
                     onChange={(e) => setFormData(prev => ({ ...prev, lat: e.target.value }))}
                     style={{
                       width: '100%',
-                      background: 'rgba(255,255,255,0.02)',
-                      border: '1px solid var(--border-glass)',
+                      background: 'var(--bg-tertiary)',
+                      border: '1px solid var(--border-color)',
                       borderRadius: '12px',
                       padding: '12px',
-                      color: 'white',
+                      color: 'var(--text-primary)',
                       fontSize: '0.85rem'
                     }}
                   />
@@ -371,11 +371,11 @@ const ActivityCreator = ({ onCreate, onCancel }) => {
                     onChange={(e) => setFormData(prev => ({ ...prev, lng: e.target.value }))}
                     style={{
                       width: '100%',
-                      background: 'rgba(255,255,255,0.02)',
-                      border: '1px solid var(--border-glass)',
+                      background: 'var(--bg-tertiary)',
+                      border: '1px solid var(--border-color)',
                       borderRadius: '12px',
                       padding: '12px',
-                      color: 'white',
+                      color: 'var(--text-primary)',
                       fontSize: '0.85rem'
                     }}
                   />
@@ -404,7 +404,7 @@ const ActivityCreator = ({ onCreate, onCancel }) => {
             </div>
 
             <div style={{ display: 'flex', gap: '8px' }}>
-              <button onClick={handlePrev} className="btn-outline" style={{ border: '1px solid var(--border-glass)' }}>
+              <button onClick={handlePrev} className="btn-outline" style={{ border: '1px solid var(--border-color)' }}>
                 <ArrowLeft size={14} style={{ marginRight: '4px', display: 'inline' }} /> Back
               </button>
               <button 

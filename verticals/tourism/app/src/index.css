@@ -98,6 +98,7 @@ body {
   scroll-behavior: smooth;
   display: flex;
   flex-direction: column;
+  -webkit-overflow-scrolling: touch;
 }
 
 /* ═══════════════════ CARDS ═══════════════════ */
@@ -333,4 +334,10 @@ body {
   font-weight: 600;
   color: var(--text-secondary);
   padding: 0 24px 24px;
+}
+
+/* Watermark Pattern */
+.watermark-bg {
+  background-image: url('data:image/svg+xml;utf8,<svg width="60" height="60" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg"><path d="M54.627 0l.83.83-26.627 26.627-26.627-26.627.83-.83 25.797 25.797zM28.83 58.797l-25.797-25.797-.83.83 26.627 26.627 26.627-26.627-.83-.83-25.797 25.797zM0 27.17l26.627 26.628-26.627 26.627-.83-.83 25.797-25.797-25.797-25.797zM58.797 0l25.797 25.797-.83.83-26.627-26.627 26.627-26.627.83-.83-25.797 25.797z" fill="%23d4af37" fill-opacity="0.03" fill-rule="evenodd"/></svg>');
+  background-repeat: repeat;
 }

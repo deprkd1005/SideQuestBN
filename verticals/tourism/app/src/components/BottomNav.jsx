@@ -13,7 +13,7 @@ const BottomNav = ({ portal }) => {
     tourist: [
       { icon: Home, label: t('explore'), path: '/tourist' },
       { icon: Briefcase, label: t('bookings'), path: '/tourist/bookings' },
-      { icon: Bell, label: t('inbox'), path: '/tourist/notifications' },
+      { icon: Bell, label: t('passport'), path: '/tourist/passport' },
       { icon: Wallet, label: t('pocket'), path: '/tourist/wallet' },
       { icon: User, label: t('profile'), path: '/tourist/profile' }
     ],
@@ -46,7 +46,7 @@ const BottomNav = ({ portal }) => {
             style={{ position: 'relative' }}
           >
             {isActive && (
-              <motion.div 
+              <motion.div
                 layoutId="nav-indicator"
                 style={{
                   position: 'absolute',
@@ -59,13 +59,13 @@ const BottomNav = ({ portal }) => {
                 }}
               />
             )}
-            <item.icon 
-              size={22} 
-              strokeWidth={isActive ? 2.5 : 2} 
+            <item.icon
+              size={22}
+              strokeWidth={isActive ? 2.5 : 2}
               style={{ color: isActive ? 'var(--portal-color)' : 'var(--text-muted)' }}
             />
-            <span style={{ 
-              fontSize: '0.65rem', 
+            <span style={{
+              fontSize: '0.65rem',
               fontWeight: isActive ? 800 : 600,
               color: isActive ? 'var(--text-primary)' : 'var(--text-muted)',
               marginTop: '4px'

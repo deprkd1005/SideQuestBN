@@ -47,9 +47,9 @@ const HostProfileStudio = ({ onSave }) => {
 
   return (
     <div style={{
-      background: 'rgba(255, 255, 255, 0.02)',
+      background: 'var(--bg-secondary)',
       borderRadius: '24px',
-      border: '1px solid var(--border-glass)',
+      border: '1px solid var(--border-color)',
       overflow: 'hidden',
       fontFamily: 'Outfit'
     }}>
@@ -95,19 +95,19 @@ const HostProfileStudio = ({ onSave }) => {
             width: '80px',
             height: '80px',
             borderRadius: '24px',
-            border: '4px solid #121214',
+            border: '4px solid var(--bg-card)',
             backgroundImage: `url(${profile.avatarUrl})`,
             backgroundSize: 'cover',
             backgroundPosition: 'center',
             position: 'relative',
-            background: '#222'
+            background: 'var(--bg-secondary)'
           }}>
             <button style={{
               position: 'absolute',
               bottom: '-4px',
               right: '-4px',
               background: 'var(--gold)',
-              border: '2px solid #121214',
+              border: '2px solid var(--bg-card)',
               color: 'black',
               padding: '4px',
               borderRadius: '50%',
@@ -117,7 +117,7 @@ const HostProfileStudio = ({ onSave }) => {
             </button>
           </div>
           <div style={{ paddingBottom: '4px' }}>
-            <h3 style={{ fontSize: '1.2rem', fontWeight: 800, color: 'white', margin: 0 }}>
+            <h3 style={{ fontSize: '1.2rem', fontWeight: 800, color: 'var(--text-primary)', margin: 0 }}>
               {profile.businessName}
             </h3>
             <span style={{ fontSize: '0.7rem', color: 'var(--gold)', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '4px' }}>
@@ -130,9 +130,9 @@ const HostProfileStudio = ({ onSave }) => {
         <button 
           onClick={() => isEditing ? handleSave() : setIsEditing(true)}
           style={{
-            background: isEditing ? 'linear-gradient(135deg, var(--gold) 0%, var(--gold-dark) 100%)' : 'rgba(255,255,255,0.05)',
-            border: isEditing ? 'none' : '1px solid var(--border-glass)',
-            color: isEditing ? 'black' : 'white',
+            background: isEditing ? 'linear-gradient(135deg, var(--gold) 0%, var(--gold-dark) 100%)' : 'var(--bg-tertiary)',
+            border: isEditing ? 'none' : '1px solid var(--border-color)',
+            color: isEditing ? 'black' : 'var(--text-primary)',
             padding: '8px 16px',
             borderRadius: '14px',
             fontSize: '0.75rem',
@@ -162,11 +162,11 @@ const HostProfileStudio = ({ onSave }) => {
               onChange={(e) => setEditedBio(e.target.value)}
               style={{
                 width: '100%',
-                background: 'rgba(255,255,255,0.02)',
-                border: '1px solid var(--border-glass)',
+                background: 'var(--bg-tertiary)',
+                border: '1px solid var(--border-color)',
                 borderRadius: '12px',
                 padding: '12px',
-                color: 'white',
+                color: 'var(--text-primary)',
                 fontSize: '0.85rem',
                 fontFamily: 'Outfit',
                 minHeight: '80px',
@@ -182,8 +182,8 @@ const HostProfileStudio = ({ onSave }) => {
 
         {/* Contact Info */}
         <div style={{
-          background: 'rgba(255,255,255,0.01)',
-          border: '1px solid var(--border-glass)',
+          background: 'var(--bg-tertiary)',
+          border: '1px solid var(--border-color)',
           borderRadius: '16px',
           padding: '16px',
           marginBottom: '20px',
@@ -202,14 +202,14 @@ const HostProfileStudio = ({ onSave }) => {
                   background: 'transparent',
                   border: 'none',
                   borderBottom: '1px solid var(--gold)',
-                  color: 'white',
+                  color: 'var(--text-primary)',
                   fontSize: '0.8rem',
                   width: '100%',
                   padding: '2px 0'
                 }}
               />
             ) : (
-              <span style={{ fontSize: '0.8rem', fontWeight: 600 }}>{profile.contactEmail}</span>
+              <span style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-primary)' }}>{profile.contactEmail}</span>
             )}
           </div>
           <div>
@@ -223,19 +223,19 @@ const HostProfileStudio = ({ onSave }) => {
                   background: 'transparent',
                   border: 'none',
                   borderBottom: '1px solid var(--gold)',
-                  color: 'white',
+                  color: 'var(--text-primary)',
                   fontSize: '0.8rem',
                   width: '100%',
                   padding: '2px 0'
                 }}
               />
             ) : (
-              <span style={{ fontSize: '0.8rem', fontWeight: 600 }}>{profile.contactPhone}</span>
+              <span style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-primary)' }}>{profile.contactPhone}</span>
             )}
           </div>
           <div>
             <span style={{ fontSize: '0.65rem', color: 'var(--text-muted)', display: 'block' }}>DISTRICT</span>
-            <span style={{ fontSize: '0.8rem', fontWeight: 600 }}>{profile.district}</span>
+            <span style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-primary)' }}>{profile.district}</span>
           </div>
           <div>
             <span style={{ fontSize: '0.65rem', color: 'var(--text-muted)', display: 'block' }}>WEBSITE</span>
@@ -261,9 +261,9 @@ const HostProfileStudio = ({ onSave }) => {
                     key={tag}
                     onClick={() => handleTagToggle(tag)}
                     style={{
-                      background: isSelected ? 'rgba(255, 215, 0, 0.15)' : 'rgba(255,255,255,0.02)',
-                      border: `1px solid ${isSelected ? 'var(--gold)' : 'var(--border-glass)'}`,
-                      color: isSelected ? 'var(--gold)' : 'var(--text-secondary)',
+                      background: isSelected ? 'var(--gold-soft)' : 'var(--bg-tertiary)',
+                      border: `1px solid ${isSelected ? 'var(--gold)' : 'var(--border-color)'}`,
+                      color: isSelected ? 'var(--gold-dark)' : 'var(--text-secondary)',
                       padding: '6px 12px',
                       borderRadius: '20px',
                       fontSize: '0.7rem',

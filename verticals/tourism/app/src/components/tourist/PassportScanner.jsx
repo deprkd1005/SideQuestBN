@@ -38,11 +38,12 @@ const PassportScanner = ({ onComplete }) => {
     } catch (e) {
       console.warn('Camera not available, simulating scan');
     }
+  };
 
-    // Simulate scan progress
+  const simulateSuccess = () => {
     let prog = 0;
     const interval = setInterval(() => {
-      prog += 5;
+      prog += 20;
       setScanProgress(prog);
       if (prog >= 100) {
         clearInterval(interval);
@@ -52,6 +53,14 @@ const PassportScanner = ({ onComplete }) => {
         setStage('parsed');
       }
     }, 100);
+  };
+
+  const simulateError = () => {
+    alert("Invalid Document / Not a Passport detected! Please try again.");
+    setStage('ready');
+    if (streamRef.current) {
+      streamRef.current.getTracks().forEach(t => t.stop());
+    }
   };
 
   const handleContinue = () => {
@@ -180,19 +189,42 @@ const PassportScanner = ({ onComplete }) => {
             </div>
 
             <p style={{ color: '#10b981', fontWeight: 800, fontSize: '0.85rem', marginBottom: '12px', fontFamily: 'Outfit', textTransform: 'uppercase', letterSpacing: '1px' }}>
-              Scanning Passport...
+              Position Passport in Frame
             </p>
 
             {/* Progress bar */}
-            <div style={{ width: '100%', height: '6px', background: '#e2e8f0', borderRadius: '3px', overflow: 'hidden' }}>
-              <motion.div
-                animate={{ width: `${scanProgress}%` }}
-                style={{ height: '100%', background: 'linear-gradient(90deg, #10b981, #059669)', borderRadius: '3px' }}
-              />
+            {scanProgress > 0 && (
+              <div style={{ width: '100%', height: '6px', background: '#e2e8f0', borderRadius: '3px', overflow: 'hidden', marginBottom: '12px' }}>
+                <motion.div
+                  animate={{ width: `${scanProgress}%` }}
+                  style={{ height: '100%', background: 'linear-gradient(90deg, #10b981, #059669)', borderRadius: '3px' }}
+                />
+              </div>
+            )}
+
+            <div style={{ display: 'flex', gap: '10px', marginTop: '16px' }}>
+              <button
+                onClick={simulateError}
+                style={{
+                  flex: 1, padding: '12px', borderRadius: '12px',
+                  background: 'rgba(239, 68, 68, 0.1)', color: '#ef4444', border: '1px solid #ef4444',
+                  fontWeight: 700, cursor: 'pointer', fontFamily: 'Outfit'
+                }}
+              >
+                Simulate Invalid
+              </button>
+              <button
+                onClick={simulateSuccess}
+                style={{
+                  flex: 1, padding: '12px', borderRadius: '12px',
+                  background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)', color: 'white', border: 'none',
+                  fontWeight: 700, cursor: 'pointer', fontFamily: 'Outfit',
+                  boxShadow: '0 4px 15px rgba(16,185,129,0.3)'
+                }}
+              >
+                Simulate Scan
+              </button>
             </div>
-            <p style={{ color: '#94a3b8', fontSize: '0.75rem', marginTop: '8px', fontWeight: 600 }}>
-              {scanProgress}% — AI OCR Extraction
-            </p>
           </motion.div>
         )}
 

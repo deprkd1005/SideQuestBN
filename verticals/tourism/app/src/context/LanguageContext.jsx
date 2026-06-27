@@ -178,6 +178,9 @@ const translations = {
     addAccount: 'Add Account',
     confirmWithdrawal: 'Confirm Withdrawal',
     transferSuccess: 'Transfer Success',
+    passport: 'Passport',
+    digitalPassport: 'Digital Passport',
+    recommendedForYou: 'Recommended for You',
   },
 
   ms: {
@@ -318,6 +321,9 @@ const translations = {
     addAccount: 'Tambah Akaun',
     confirmWithdrawal: 'Sahkan Pengeluaran',
     transferSuccess: 'Pemindahan Berjaya',
+    passport: 'Pasport',
+    digitalPassport: 'Pasport Digital',
+    recommendedForYou: 'Disyorkan untuk Anda',
   },
 
   zh: {
@@ -458,6 +464,9 @@ const translations = {
     addAccount: '添加账户',
     confirmWithdrawal: '确认提款',
     transferSuccess: '转账成功',
+    passport: '护照',
+    digitalPassport: '数字护照',
+    recommendedForYou: '推荐给您',
   }
 };
 

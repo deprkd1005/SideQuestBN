@@ -10,7 +10,9 @@ import http from 'http';
 
 const app = express();
 app.use(express.json());
-app.use('/api/tourism', router);
+// Note: Production server.js mounts on '/api', so routes resolve as /api/bookings/create, /api/payout/initialize, etc.
+// This test mounts on '/api' to match production path structure.
+app.use('/api', router);
 
 // Simple test runner assertion helper
 function assert(condition, message) {
@@ -26,7 +28,7 @@ async function runTests() {
   // Start temporary listener
   const server = app.listen(0, async () => {
     const port = server.address().port;
-    const baseUrl = `http://localhost:${port}/api/tourism`;
+    const baseUrl = `http://localhost:${port}/api`;
     
     try {
       // 1. Reset Database State

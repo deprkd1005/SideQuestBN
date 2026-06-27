@@ -1,22 +1,24 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState, useRef, useMemo, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Search, MapPin, ChevronRight, Bell, Zap, Locate, Radar, Layers, SlidersHorizontal, Trash2, Calendar, Users, X, CreditCard, Wallet } from 'lucide-react';
+import { Search, MapPin, ChevronRight, Bell, Zap, Locate, Radar, Layers, SlidersHorizontal, Trash2, Calendar, Users, X, CreditCard, Wallet, Map, Navigation, Phone, Globe, Star, Sparkles, Camera, ExternalLink } from 'lucide-react';
 import { useTourismPayment } from '../context/TourismPaymentContext';
 import { useLanguage } from '../context/LanguageContext';
 import InteractiveScheduler from './tourist/InteractiveScheduler';
 import PaymentCard from './tourist/PaymentCard';
+import AIRecommendations from './tourist/AIRecommendations';
+import AIChatbot from './tourist/AIChatbot';
 
 // Helper to calculate exact Haversine distance in km
 const getDistance = (lat1, lon1, lat2, lon2) => {
-  const R = 6371; // Earth radius in km
+  const R = 6371;
   const dLat = (lat2 - lat1) * Math.PI / 180;
   const dLon = (lon2 - lon1) * Math.PI / 180;
-  const a = 
-    Math.sin(dLat/2) * Math.sin(dLat/2) +
-    Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * 
-    Math.sin(dLon/2) * Math.sin(dLon/2);
-  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+  const a =
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+    Math.sin(dLon / 2) * Math.sin(dLon / 2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
   return R * c;
 };
 
@@ -37,9 +39,10 @@ const TouristDashboard = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [radius, setRadius] = useState(15);
-  const [mapStyle, setMapStyle] = useState('voyager'); // voyager | dark | satellite
+  const [mapStyle, setMapStyle] = useState('voyager');
   const [selectedActivity, setSelectedActivity] = useState(null);
-  
+  const [showSearchResults, setShowSearchResults] = useState(false);
+
   // Booking details
   const [bookingDate, setBookingDate] = useState('');
   const [bookingSlot, setBookingSlot] = useState('');
@@ -51,13 +54,15 @@ const TouristDashboard = () => {
   const [showCreditCardForm, setShowCreditCardForm] = useState(false);
 
   // User location states
-  const [userCoords, setUserCoords] = useState({ lat: 4.8903, lng: 114.9401 }); // BSB default
+  const [userCoords, setUserCoords] = useState({ lat: 4.8903, lng: 114.9401 });
   const [locationName, setLocationName] = useState('Bandar Seri Begawan');
 
   const mapRef = useRef(null);
   const mapInstanceRef = useRef(null);
   const circleRef = useRef(null);
   const markersRef = useRef([]);
+  const searchRef = useRef(null);
+  const searchPanelRef = useRef(null);
 
   useEffect(() => {
     fetchDb();
@@ -81,6 +86,18 @@ const TouristDashboard = () => {
     };
   }, [dbState.activities]);
 
+  // Close search panel when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (searchPanelRef.current && !searchPanelRef.current.contains(e.target) &&
+        searchRef.current && !searchRef.current.contains(e.target)) {
+        setShowSearchResults(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
   const handleRequestLocation = () => {
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
@@ -99,16 +116,40 @@ const TouristDashboard = () => {
     }
   };
 
+  // Search results - case insensitive, search title, category, description, host name
+  const searchResults = useMemo(() => {
+    if (!searchTerm.trim()) return [];
+    const lower = searchTerm.toLowerCase();
+    return dbState.activities.filter(act => {
+      const hostProfile = dbState.host_profiles.find(h => h.id === act.host_profile_id);
+      const hostName = hostProfile?.business_name || '';
+      return (
+        act.title.toLowerCase().includes(lower) ||
+        act.category.toLowerCase().includes(lower) ||
+        act.description.toLowerCase().includes(lower) ||
+        hostName.toLowerCase().includes(lower)
+      );
+    });
+  }, [searchTerm, dbState.activities, dbState.host_profiles]);
+
   const filteredActivities = dbState.activities.filter(act => {
     const dist = getDistance(userCoords.lat, userCoords.lng, act.location_lat, act.location_lng);
     const matchesCategory = selectedCategory === 'All' || act.category.toUpperCase() === selectedCategory.toUpperCase();
-    const matchesSearch = act.title.toLowerCase().includes(searchTerm.toLowerCase()) || 
-                          act.description.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesSearch = act.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      act.description.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesRadius = dist <= radius;
     return matchesCategory && matchesSearch && matchesRadius;
   });
 
-  const totalHeritageValue = filteredActivities.reduce((sum, act) => sum + parseFloat(act.price_per_person), 0);
+  const totalHeritageValue = useMemo(() =>
+    filteredActivities.reduce((sum, act) => sum + parseFloat(act.price_per_person), 0),
+    [filteredActivities]);
+
+  // Get host profile for selected activity
+  const selectedActivityHost = useMemo(() => {
+    if (!selectedActivity) return null;
+    return dbState.host_profiles.find(h => h.id === selectedActivity.host_profile_id) || null;
+  }, [selectedActivity, dbState.host_profiles]);
 
   // Initialize and update Leaflet Map
   useEffect(() => {
@@ -204,14 +245,33 @@ const TouristDashboard = () => {
       markersRef.current.push(marker);
     });
 
-  }, [filteredActivities, mapStyle, userCoords, radius, language => t('viewActivity')]);
+  }, [filteredActivities, mapStyle, userCoords, radius, t]);
+
+  const handleSearchResultClick = useCallback((activity) => {
+    setShowSearchResults(false);
+    setSearchTerm('');
+    setSelectedActivity(activity);
+    setBookingDate('');
+    setBookingSlot('');
+    setParticipantsCount(1);
+    setShowPaymentChoice(false);
+    setShowCreditCardForm(false);
+  }, []);
+
+  const handleActivitySelect = useCallback((activity) => {
+    setSelectedActivity(activity);
+    setBookingDate('');
+    setBookingSlot('');
+    setParticipantsCount(1);
+    setShowPaymentChoice(false);
+    setShowCreditCardForm(false);
+  }, []);
 
   const handleConfirmBooking = async (paymentMethod = 'wallet') => {
     if (!selectedActivity) return;
     setBookingInProgress(true);
     const totalAmount = parseFloat(selectedActivity.price_per_person) * participantsCount;
-    
-    // For direct Card Payment, we bypass virtual card balance check (since it simulates credit card debiting directly)
+
     if (paymentMethod === 'wallet' && travelerBalance < totalAmount) {
       alert("Insufficient funds in your SideQuest virtual pocket card. Please select Card Payment or top up in Pocket tab.");
       setBookingInProgress(false);
@@ -248,28 +308,140 @@ const TouristDashboard = () => {
   const categories = ['All', 'Culture', 'Adventure', 'Food', 'Nature'];
 
   return (
-    <div className="app-content no-scrollbar" style={{ position: 'relative', height: '100%', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
-      
+    <div className="app-content no-scrollbar watermark-bg" style={{ position: 'relative', height: '100%', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+
       {/* Full Screen Map */}
       <div style={{ position: 'absolute', inset: 0, zIndex: 1 }}>
         <div ref={mapRef} style={{ width: '100%', height: '100%', background: '#e2e8f0' }}></div>
       </div>
 
       {/* Floating Top Elements */}
-      <div style={{ position: 'absolute', top: 0, left: 0, right: 0, zIndex: 400, padding: '20px 20px 0 20px', pointerEvents: 'none' }}>
-        
+      <div style={{ position: 'absolute', top: 0, left: 0, right: 0, zIndex: 400, padding: 'max(env(safe-area-inset-top), 20px) 20px 0 20px', pointerEvents: 'none' }}>
+
         {/* Row 1: Search Bar & Notifications */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '12px', pointerEvents: 'auto' }}>
-          <div style={{ flex: 1, display: 'flex', alignItems: 'center', gap: '12px', padding: '12px 16px', borderRadius: '50px', background: 'rgba(255,255,255,0.95)', backdropFilter: 'blur(20px)', border: '1px solid rgba(255,255,255,0.3)', boxShadow: '0 8px 32px rgba(0,0,0,0.1)' }}>
-            <Search size={18} color="#8E8E93" />
-            <input 
-              type="text" 
-              placeholder={t('searchActivities')} 
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              style={{ flex: 1, background: 'transparent', border: 'none', outline: 'none', fontSize: '14px', color: '#1C1C1E', fontWeight: 600 }}
-            />
-            <SlidersHorizontal size={18} color="#1C1C1E" />
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '12px', pointerEvents: 'auto' }} ref={searchRef}>
+          <div style={{ flex: 1, position: 'relative' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px 16px', borderRadius: '50px', background: 'rgba(255,255,255,0.95)', backdropFilter: 'blur(20px)', border: '1px solid rgba(255,255,255,0.3)', boxShadow: '0 8px 32px rgba(0,0,0,0.1)' }}>
+              <Search size={18} color="#8E8E93" />
+              <input
+                type="text"
+                placeholder={t('searchActivities')}
+                value={searchTerm}
+                onChange={(e) => {
+                  setSearchTerm(e.target.value);
+                  if (e.target.value.trim()) setShowSearchResults(true);
+                  else setShowSearchResults(false);
+                }}
+                onFocus={() => { if (searchTerm.trim()) setShowSearchResults(true); }}
+                style={{ flex: 1, background: 'transparent', border: 'none', outline: 'none', fontSize: '14px', color: '#1C1C1E', fontWeight: 600 }}
+              />
+              <SlidersHorizontal size={18} color="#1C1C1E" />
+            </div>
+
+            {/* Floating Search Results Panel */}
+            <AnimatePresence>
+              {showSearchResults && searchResults.length > 0 && (
+                <motion.div
+                  ref={searchPanelRef}
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10 }}
+                  style={{
+                    position: 'absolute',
+                    top: '100%',
+                    left: 0,
+                    right: 0,
+                    marginTop: '8px',
+                    background: 'rgba(255,255,255,0.98)',
+                    backdropFilter: 'blur(20px)',
+                    borderRadius: '20px',
+                    border: '1px solid rgba(0,0,0,0.08)',
+                    boxShadow: '0 20px 60px rgba(0,0,0,0.15)',
+                    maxHeight: '300px',
+                    overflowY: 'auto',
+                    zIndex: 500
+                  }}
+                  className="no-scrollbar"
+                >
+                  {searchResults.map(act => {
+                    const catInfo = getCategoryIcon(act.category);
+                    const hostProfile = dbState.host_profiles.find(h => h.id === act.host_profile_id);
+                    return (
+                      <button
+                        key={act.id}
+                        onClick={() => handleSearchResultClick(act)}
+                        style={{
+                          width: '100%',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '12px',
+                          padding: '12px 16px',
+                          border: 'none',
+                          borderBottom: '1px solid rgba(0,0,0,0.04)',
+                          background: 'transparent',
+                          cursor: 'pointer',
+                          textAlign: 'left',
+                          transition: 'background 0.15s'
+                        }}
+                        onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(0,0,0,0.02)'}
+                        onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
+                      >
+                        <div style={{
+                          width: '44px', height: '44px', borderRadius: '12px',
+                          background: `${catInfo.color}15`,
+                          display: 'flex', alignItems: 'center', justifyContent: 'center',
+                          flexShrink: 0
+                        }}>
+                          <span style={{ fontSize: '20px' }}>{catInfo.emoji}</span>
+                        </div>
+                        <div style={{ flex: 1, minWidth: 0 }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '2px' }}>
+                            <span className="badge" style={{ background: `${catInfo.color}15`, color: catInfo.color, fontSize: '0.5rem', padding: '2px 6px', borderRadius: '4px' }}>{catInfo.label}</span>
+                          </div>
+                          <div style={{ fontSize: '0.8rem', fontWeight: 700, color: '#1C1C1E', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                            {act.title}
+                          </div>
+                          <div style={{ fontSize: '0.65rem', color: '#8E8E93', fontWeight: 600 }}>
+                            {hostProfile?.business_name || 'Local Host'} • BND {act.price_per_person.toFixed(2)}
+                          </div>
+                        </div>
+                        <ChevronRight size={14} color="#8E8E93" />
+                      </button>
+                    );
+                  })}
+                </motion.div>
+              )}
+            </AnimatePresence>
+
+            {/* No Results */}
+            <AnimatePresence>
+              {showSearchResults && searchTerm.trim() && searchResults.length === 0 && (
+                <motion.div
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10 }}
+                  style={{
+                    position: 'absolute',
+                    top: '100%',
+                    left: 0,
+                    right: 0,
+                    marginTop: '8px',
+                    padding: '20px',
+                    background: 'rgba(255,255,255,0.98)',
+                    backdropFilter: 'blur(20px)',
+                    borderRadius: '20px',
+                    border: '1px solid rgba(0,0,0,0.08)',
+                    boxShadow: '0 20px 60px rgba(0,0,0,0.15)',
+                    textAlign: 'center',
+                    zIndex: 500
+                  }}
+                >
+                  <Search size={24} color="#CBD5E1" style={{ marginBottom: '8px' }} />
+                  <p style={{ fontSize: '0.85rem', fontWeight: 600, color: '#94A3B8' }}>No activities found.</p>
+                  <p style={{ fontSize: '0.7rem', color: '#CBD5E1', marginTop: '4px' }}>Try a different search term</p>
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
 
           <button onClick={() => navigate('/tourist/notifications')} style={{ position: 'relative', width: '46px', height: '46px', borderRadius: '50%', background: 'rgba(255,255,255,0.95)', backdropFilter: 'blur(20px)', border: '1px solid rgba(255,255,255,0.3)', boxShadow: '0 8px 32px rgba(0,0,0,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', flexShrink: 0 }}>
@@ -281,8 +453,8 @@ const TouristDashboard = () => {
         {/* Row 2: Category Filter Horizontal Scroll */}
         <div style={{ display: 'flex', gap: '8px', overflowX: 'auto', padding: '4px 0 12px 0', pointerEvents: 'auto', WebkitOverflowScrolling: 'touch' }} className="no-scrollbar">
           {categories.map(cat => (
-            <button 
-              key={cat} 
+            <button
+              key={cat}
               onClick={() => setSelectedCategory(cat)}
               style={{
                 padding: '8px 16px',
@@ -308,7 +480,7 @@ const TouristDashboard = () => {
         {/* Row 3: Current Location Badge */}
         <div style={{ display: 'flex', pointerEvents: 'auto', justifyContent: 'space-between', alignItems: 'center' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '8px 12px', borderRadius: '50px', background: 'rgba(255,255,255,0.95)', backdropFilter: 'blur(20px)', border: '1px solid rgba(255,255,255,0.3)', boxShadow: '0 8px 24px rgba(0,0,0,0.08)' }}>
-            <div style={{ display: 'flex', alignItems: 'center', justifyWindow: 'center', width: '28px', height: '28px', borderRadius: '50%', background: '#1C1C1E', display: 'flex', alignItems: 'center', justifyContent: 'center' }} onClick={handleRequestLocation}>
+            <div style={{ width: '28px', height: '28px', borderRadius: '50%', background: '#1C1C1E', display: 'flex', alignItems: 'center', justifyContent: 'center' }} onClick={handleRequestLocation}>
               <MapPin size={14} color="white" />
             </div>
             <div style={{ lineHeight: 1 }}>
@@ -317,6 +489,16 @@ const TouristDashboard = () => {
             </div>
           </div>
         </div>
+
+        {/* AI Recommendations */}
+        {!showSearchResults && !selectedActivity && (
+          <div style={{ marginTop: '16px', pointerEvents: 'auto' }}>
+            <AIRecommendations
+              userCoords={userCoords}
+              onActivitySelect={handleActivitySelect}
+            />
+          </div>
+        )}
 
       </div>
 
@@ -335,29 +517,29 @@ const TouristDashboard = () => {
 
       {/* Floating Right: Action controls */}
       <div style={{ position: 'absolute', top: '190px', right: '20px', zIndex: 400, display: 'flex', flexDirection: 'column', gap: '12px', pointerEvents: 'auto' }}>
-        <button 
+        <button
           onClick={() => setMapStyle(style => style === 'voyager' ? 'dark' : style === 'dark' ? 'satellite' : 'voyager')}
           style={{ width: '42px', height: '42px', borderRadius: '50%', background: 'rgba(255,255,255,0.95)', backdropFilter: 'blur(20px)', border: '1px solid rgba(255,255,255,0.3)', boxShadow: '0 8px 24px rgba(0,0,0,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', outline: 'none' }}
         >
           <Layers size={19} color={mapStyle === 'satellite' ? 'var(--emerald)' : '#1C1C1E'} />
         </button>
 
-        <button 
-          onClick={() => mapInstanceRef.current?.setView([userCoords.lat, userCoords.lng], 13)} 
+        <button
+          onClick={() => mapInstanceRef.current?.setView([userCoords.lat, userCoords.lng], 13)}
           style={{ width: '42px', height: '42px', borderRadius: '50%', background: 'rgba(255,255,255,0.95)', backdropFilter: 'blur(20px)', border: '1px solid rgba(255,255,255,0.3)', boxShadow: '0 8px 24px rgba(0,0,0,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', outline: 'none' }}
         >
           <Locate size={19} color="#1C1C1E" />
         </button>
 
-        <button 
-          onClick={() => setRadius(r => r >= 40 ? 5 : r + 10)} 
+        <button
+          onClick={() => setRadius(r => r >= 40 ? 5 : r + 10)}
           style={{ width: '56px', height: '56px', borderRadius: '50%', background: '#1C1C1E', color: 'white', border: '2px solid rgba(255,255,255,0.2)', boxShadow: '0 12px 32px rgba(0,0,0,0.25)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', marginTop: '8px', cursor: 'pointer', outline: 'none' }}
         >
           <Radar size={22} color="var(--emerald)" />
           <span style={{ fontSize: '9px', fontWeight: 800, marginTop: '2px', color: 'white' }}>{radius}K</span>
         </button>
 
-        <button 
+        <button
           onClick={handleReset}
           style={{ width: '42px', height: '42px', borderRadius: '50%', background: 'rgba(239, 68, 68, 0.9)', border: 'none', boxShadow: '0 8px 24px rgba(239, 68, 68, 0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', outline: 'none' }}
         >
@@ -386,7 +568,7 @@ const TouristDashboard = () => {
             alignItems: 'flex-end',
             justifyContent: 'center'
           }}>
-            <motion.div 
+            <motion.div
               initial={{ y: '100%' }}
               animate={{ y: 0 }}
               exit={{ y: '100%' }}
@@ -403,6 +585,7 @@ const TouristDashboard = () => {
                 color: 'var(--text-primary)',
                 fontFamily: 'Outfit'
               }}
+              className="watermark-bg"
             >
               {/* Sheet Header */}
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '20px 24px 10px 24px', borderBottom: '1px solid var(--border-glass)' }}>
@@ -412,8 +595,8 @@ const TouristDashboard = () => {
                   </span>
                   <span style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--text-muted)' }}>📍 {selectedActivity.district}</span>
                 </div>
-                <button 
-                  onClick={() => setSelectedActivity(null)} 
+                <button
+                  onClick={() => setSelectedActivity(null)}
                   style={{ width: '32px', height: '32px', borderRadius: '50%', background: 'var(--bg-tertiary)', border: 'none', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', outline: 'none' }}
                 >
                   <X size={16} />
@@ -422,7 +605,7 @@ const TouristDashboard = () => {
 
               {/* Scrollable Info */}
               <div style={{ flex: 1, overflowY: 'auto', padding: '24px 24px 40px 24px' }} className="no-scrollbar">
-                
+
                 <h2 style={{ fontSize: '1.35rem', fontWeight: 900, marginBottom: '6px', lineHeight: 1.3 }}>{selectedActivity.title}</h2>
                 <div style={{ fontSize: '1.25rem', fontWeight: 900, color: 'var(--emerald)', marginBottom: '16px' }}>
                   BND {selectedActivity.price_per_person.toFixed(2)} <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)', fontWeight: 500 }}>{t('perPerson')}</span>
@@ -446,9 +629,134 @@ const TouristDashboard = () => {
                   </div>
                 </div>
 
+                {/* ====== MAPS INTEGRATION ====== */}
+                {selectedActivity.location_lat && selectedActivity.location_lng && (
+                  <div style={{ marginBottom: '20px' }}>
+                    <h4 style={{ fontSize: '0.7rem', fontWeight: 800, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '8px' }}>Navigate</h4>
+                    <div style={{ display: 'flex', gap: '10px' }}>
+                      <a
+                        href={`https://www.google.com/maps/dir/?api=1&destination=${selectedActivity.location_lat},${selectedActivity.location_lng}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        style={{
+                          flex: 1,
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          gap: '8px',
+                          padding: '12px',
+                          borderRadius: '14px',
+                          background: '#4285F4',
+                          color: 'white',
+                          textDecoration: 'none',
+                          fontWeight: 800,
+                          fontSize: '0.8rem',
+                          fontFamily: 'Outfit'
+                        }}
+                      >
+                        <Map size={16} /> Google Maps
+                      </a>
+                      <a
+                        href={`https://waze.com/ul?ll=${selectedActivity.location_lat},${selectedActivity.location_lng}&navigate=yes`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        style={{
+                          flex: 1,
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          gap: '8px',
+                          padding: '12px',
+                          borderRadius: '14px',
+                          background: '#33CCFF',
+                          color: 'white',
+                          textDecoration: 'none',
+                          fontWeight: 800,
+                          fontSize: '0.8rem',
+                          fontFamily: 'Outfit'
+                        }}
+                      >
+                        <Navigation size={16} /> Waze
+                      </a>
+                    </div>
+                  </div>
+                )}
+
+                {/* ====== HOST INFORMATION ====== */}
+                {selectedActivityHost && (
+                  <div style={{ marginBottom: '20px' }}>
+                    <h4 style={{ fontSize: '0.7rem', fontWeight: 800, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '8px' }}>Host Information</h4>
+                    <div style={{
+                      background: 'var(--bg-tertiary)',
+                      borderRadius: '16px',
+                      padding: '16px',
+                      border: '1px solid var(--border-glass)'
+                    }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '12px' }}>
+                        <div style={{
+                          width: '44px', height: '44px', borderRadius: '12px',
+                          background: 'linear-gradient(135deg, var(--emerald), var(--emerald-dark))',
+                          display: 'flex', alignItems: 'center', justifyContent: 'center',
+                          color: 'white', fontWeight: 900, fontSize: '0.9rem'
+                        }}>
+                          {selectedActivityHost.business_name.charAt(0)}
+                        </div>
+                        <div>
+                          <div style={{ fontSize: '0.9rem', fontWeight: 800 }}>{selectedActivityHost.business_name}</div>
+                          <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)', fontWeight: 600 }}>
+                            Verified Partner
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Social Links */}
+                      {selectedActivityHost.social_media && (
+                        <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                          {selectedActivityHost.social_media.instagram && (
+                            <a href={selectedActivityHost.social_media.instagram} target="_blank" rel="noopener noreferrer"
+                              style={{
+                                padding: '8px 12px', borderRadius: '10px',
+                                background: 'linear-gradient(135deg, #833AB4, #FD1D1D, #F77737)',
+                                color: 'white', textDecoration: 'none', fontSize: '0.75rem',
+                                fontWeight: 700, display: 'flex', alignItems: 'center', gap: '6px',
+                                fontFamily: 'Outfit'
+                              }}>
+                              <Camera size={14} /> Instagram
+                            </a>
+                          )}
+                          {selectedActivityHost.social_media.facebook && (
+                            <a href={selectedActivityHost.social_media.facebook} target="_blank" rel="noopener noreferrer"
+                              style={{
+                                padding: '8px 12px', borderRadius: '10px',
+                                background: '#1877F2',
+                                color: 'white', textDecoration: 'none', fontSize: '0.75rem',
+                                fontWeight: 700, display: 'flex', alignItems: 'center', gap: '6px',
+                                fontFamily: 'Outfit'
+                              }}>
+                              <Globe size={14} /> Facebook
+                            </a>
+                          )}
+                          {selectedActivityHost.social_media.whatsapp && (
+                            <a href={`https://wa.me/${selectedActivityHost.social_media.whatsapp.replace(/\+/g, '').replace(/\s/g, '')}`} target="_blank" rel="noopener noreferrer"
+                              style={{
+                                padding: '8px 12px', borderRadius: '10px',
+                                background: '#25D366',
+                                color: 'white', textDecoration: 'none', fontSize: '0.75rem',
+                                fontWeight: 700, display: 'flex', alignItems: 'center', gap: '6px',
+                                fontFamily: 'Outfit'
+                              }}>
+                              <Phone size={14} /> WhatsApp
+                            </a>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
+
                 {!showPaymentChoice ? (
                   /* Native Interactive Scheduler */
-                  <InteractiveScheduler 
+                  <InteractiveScheduler
                     pricePerPerson={selectedActivity.price_per_person}
                     onScheduleSelected={(schedule) => {
                       setBookingDate(schedule.date);
@@ -460,7 +768,7 @@ const TouristDashboard = () => {
                   />
                 ) : (
                   /* Payment Selector Flow */
-                  <motion.div 
+                  <motion.div
                     initial={{ opacity: 0, y: 15 }}
                     animate={{ opacity: 1, y: 0 }}
                     style={{
@@ -504,7 +812,6 @@ const TouristDashboard = () => {
                     </div>
 
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginBottom: '20px' }}>
-                      {/* Virtual Wallet Account */}
                       <button
                         onClick={() => handleConfirmBooking('wallet')}
                         className="btn-outline"
@@ -530,7 +837,6 @@ const TouristDashboard = () => {
                         <ChevronRight size={16} style={{ color: 'var(--text-muted)' }} />
                       </button>
 
-                      {/* Visa/Mastercard Integration */}
                       <button
                         onClick={() => setShowCreditCardForm(true)}
                         className="btn-outline"
@@ -557,7 +863,7 @@ const TouristDashboard = () => {
                       </button>
                     </div>
 
-                    <button 
+                    <button
                       onClick={() => setShowPaymentChoice(false)}
                       style={{
                         background: 'none',
@@ -594,7 +900,7 @@ const TouristDashboard = () => {
             padding: '20px',
             backdropFilter: 'blur(10px)'
           }}>
-            <PaymentCard 
+            <PaymentCard
               amount={parseFloat(selectedActivity?.price_per_person || 0) * participantsCount}
               onPaymentComplete={() => handleConfirmBooking('card')}
               onCancel={() => setShowCreditCardForm(false)}
@@ -602,6 +908,9 @@ const TouristDashboard = () => {
           </div>
         )}
       </AnimatePresence>
+
+      {/* AI Chatbot */}
+      <AIChatbot />
 
     </div>
   );

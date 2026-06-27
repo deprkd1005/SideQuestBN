@@ -54,9 +54,13 @@ const LoginScreen = ({ onLoginSuccess }) => {
   };
 
   const languages = [
-    { code: 'en', name: 'EN' },
-    { code: 'ms', name: 'MS' },
-    { code: 'zh', name: '中文' }
+    { code: 'en', name: 'English' },
+    { code: 'ms', name: 'Bahasa Melayu' },
+    { code: 'zh', name: '简体中文' },
+    { code: 'ja', name: '日本語' },
+    { code: 'ko', name: '한국어' },
+    { code: 'ar', name: 'العربية' },
+    { code: 'hi', name: 'हिन्दी' }
   ];
 
   return (
@@ -90,33 +94,27 @@ const LoginScreen = ({ onLoginSuccess }) => {
             SECURED END-TO-END
           </span>
         </div>
-        <div style={{
-          display: 'flex',
-          background: 'rgba(255, 255, 255, 0.02)',
-          border: '1px solid var(--border-glass)',
-          borderRadius: '16px',
-          padding: '2px'
-        }}>
+        <select
+          value={language}
+          onChange={(e) => setLanguage(e.target.value)}
+          style={{
+            background: 'var(--bg-secondary)',
+            border: '1px solid var(--border-glass)',
+            borderRadius: '12px',
+            padding: '6px 24px 6px 12px',
+            fontSize: '0.75rem',
+            fontWeight: 800,
+            color: 'var(--text-primary)',
+            cursor: 'pointer',
+            outline: 'none',
+            appearance: 'none',
+            WebkitAppearance: 'none'
+          }}
+        >
           {languages.map(lang => (
-            <button
-              key={lang.code}
-              onClick={() => setLanguage(lang.code)}
-              style={{
-                background: language === lang.code ? (selectedFlow === 'host' ? 'var(--gold)' : 'var(--emerald)') : 'transparent',
-                color: language === lang.code ? 'black' : 'var(--text-secondary)',
-                border: 'none',
-                borderRadius: '12px',
-                padding: '6px 12px',
-                fontSize: '0.75rem',
-                fontWeight: 800,
-                cursor: 'pointer',
-                transition: 'all 0.2s ease'
-              }}
-            >
-              {lang.name}
-            </button>
+            <option key={lang.code} value={lang.code}>{lang.name}</option>
           ))}
-        </div>
+        </select>
       </div>
 
       {/* Center login layout */}
